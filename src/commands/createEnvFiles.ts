@@ -50,7 +50,8 @@ const getPassphrase = async ({
     try {
       return await readFile(passphrasePath, "utf8");
     } catch (error) {
-      if (error?.code !== "ENOENT") {
+      // TODO: Remove as any
+      if ((error as any)?.code !== "ENOENT") {
         throw error;
       }
       return undefined;

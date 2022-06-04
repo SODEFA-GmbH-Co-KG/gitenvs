@@ -22,7 +22,7 @@ export const decryptEnvVars = ({
       envFile,
       key: config.key,
       values: config.values,
-    }))
+    })),
   )
   const envVars = map(explodedEnvVars, ({ values, ...config }) => ({
     ...config,
@@ -65,7 +65,7 @@ const createResolveSecretFunction = ({
           passphrase,
           ...DEFAULT_CRYPTO_OPTIONS,
         },
-        Buffer.from(encryptedSymmetricKey, 'base64')
+        Buffer.from(encryptedSymmetricKey, 'base64'),
       )
 
       return decryptSymmetric({
@@ -80,7 +80,7 @@ const createResolveSecretFunction = ({
           'ERR_MISSING_PASSPHRASE',
           'ERR_OSSL_EVP_BAD_DECRYPT',
           'ERR_OSSL_RSA_DATA_TOO_LARGE_FOR_MODULUS',
-        ].includes(error?.code)
+        ].includes((error as any)?.code) // TODO: Remove as any
       ) {
         throw error
       }

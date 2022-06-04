@@ -4,7 +4,12 @@ export const decryptionScriptFunc = async () => {
       method: 'POST',
       body: body,
     })
-    const data = await response.json()
+    const data: {
+      value: string
+      stage: string
+      envFile: string
+      key: string
+    }[] = await response.json()
 
     // group by stage and key
     const grouped = {} as Record<
@@ -36,12 +41,11 @@ export const decryptionScriptFunc = async () => {
       grouped[envFile][stage][key].push(entry)
     }
 
-    const privateKeysEl: HTMLTextAreaElement | null = document.querySelector(
-      '#privateKeys'
-    )
+    const privateKeysEl: HTMLTextAreaElement | null =
+      document.querySelector('#privateKeys')
     if (privateKeysEl) {
       if (!privateKeysEl.value) {
-        const privateKeys = {}
+        const privateKeys: Record<string, string> = {}
         for (const entry of data) {
           privateKeys[entry.stage] = ''
         }
@@ -104,9 +108,8 @@ export const decryptionScriptFunc = async () => {
   }
 
   document.querySelector('#decrypt')?.addEventListener('click', async () => {
-    const privateKeysEl: HTMLTextAreaElement | null = document.querySelector(
-      '#privateKeys'
-    )
+    const privateKeysEl: HTMLTextAreaElement | null =
+      document.querySelector('#privateKeys')
     const body = privateKeysEl?.value ?? '{}'
     fetchEnvs(body)
   })
