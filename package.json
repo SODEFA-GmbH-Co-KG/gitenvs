@@ -3,10 +3,21 @@
   "version": "0.0.1",
   "description": "Save your environment variables in git – encrypted!",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/SODEFA-GmbH-Co-KG/gitenv",
   "author": "SODEFA",
   "license": "MIT",
   "private": false,
+  "keywords": [
+    "git",
+    "environment variables",
+    "env vars",
+    "encrypted",
+    "encryption"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
     "commander": "^9.3.0",
     "lodash": "^4.17.21"
