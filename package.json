@@ -1,0 +1,10 @@
+{
+  "name": "gitenv",
+  "version": "0.0.1",
+  "description": "Save your environment variables in git – encrypted!",
+  "main": "dist/index.js",
+  "repository": "https://github.com/SODEFA-GmbH-Co-KG/gitenv",
+  "author": "SODEFA",
+  "license": "MIT",
+  "private": false
+}
