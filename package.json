@@ -6,5 +6,12 @@
   "repository": "https://github.com/SODEFA-GmbH-Co-KG/gitenv",
   "author": "SODEFA",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "dependencies": {
+    "commander": "^9.3.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "typescript": "^4.7.3"
+  }
 }
