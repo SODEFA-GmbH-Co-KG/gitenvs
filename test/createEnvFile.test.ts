@@ -1,3 +1,5 @@
+import { parse as parseEnvFile } from 'envfile'
+import { readFile } from 'fs/promises'
 import mkdirp from 'mkdirp'
 import { createEnvFiles } from '../src/commands/createEnvFiles'
 import { EnvVars } from '../src/lib/types/EnvVars'
@@ -111,4 +113,15 @@ test('create the correct env files', async () => {
       passphrase: passphrases[stage],
     })
   }
+
+  const file = await readFile(
+    `${__dirname}/output/production/main.env.local`,
+    'utf8',
+  )
+  const parsed = parseEnvFile(file)
+  expect(parsed).toEqual({
+    SHARED_ENV_VAR: 'productionSharedSecret',
+    INTERPOLATION: 'production: productionSecretForInterpolation',
+    SUPER_SECRET: 'productionSuperSecret',
+  })
 })
