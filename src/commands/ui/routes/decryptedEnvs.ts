@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { flatMap, map } from 'lodash'
 import { decryptEnvVars } from '../../../lib/decryptEnvVars'
-import { MainOptions } from '../../../main'
+import { MainOptions } from '../../../lib/main'
 import { getParsedBody } from '../lib/getParsedBody'
 
 export const decryptedEnvs = async ({

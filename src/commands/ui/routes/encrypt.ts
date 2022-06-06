@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { mapValues } from 'lodash'
 import { encryptSecret } from '../../../lib/encryptSecret'
-import { MainOptions } from '../../../main'
+import { MainOptions } from '../../../lib/main'
 import { getParsedBody } from '../lib/getParsedBody'
 
 export const encrypt = async ({
