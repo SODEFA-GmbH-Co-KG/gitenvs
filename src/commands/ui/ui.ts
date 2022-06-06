@@ -1,5 +1,5 @@
 import { createServer } from 'http'
-import { MainOptions } from '../../lib/main'
+import { MainOptions } from '../../main'
 import { decryptedEnvs } from './routes/decryptedEnvs'
 import { encrypt } from './routes/encrypt'
 import { mainPage } from './routes/mainPage/mainPage'

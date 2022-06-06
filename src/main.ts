@@ -1,10 +1,10 @@
 import { program } from 'commander'
-import { createEnvFiles } from '../commands/createEnvFiles'
-import { createKeys } from '../commands/createKeys'
-import { encrypt } from '../commands/encrypt'
-import { ui } from '../commands/ui/ui'
-import { GenerateEnvVarsFunction } from './types/GenerateEnvVarsFunction'
-import { Keys } from './types/Keys'
+import { createEnvFiles } from './commands/createEnvFiles'
+import { createKeys } from './commands/createKeys'
+import { encrypt } from './commands/encrypt'
+import { ui } from './commands/ui/ui'
+import { GenerateEnvVarsFunction } from './lib/types/GenerateEnvVarsFunction'
+import { Keys } from './lib/types/Keys'
 
 export type MainOptions<Stage extends string> = {
   generateEnvVars: GenerateEnvVarsFunction<Stage>
