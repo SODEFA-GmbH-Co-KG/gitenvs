@@ -1,5 +1,14 @@
-export type EnvVars<Stage extends string> = Array<{
+export type EnvValues<Stage extends string> = {
+  [Key in Stage | 'default']?: string
+}
+
+export type EnvVar<Stage extends string> = {
   key: string
-  envFiles: string[]
-  values: { [Key in Stage | 'default']?: string }
-}>
+  values: EnvValues<Stage>
+}
+
+export type EnvVars<Stage extends string> = Array<
+  EnvVar<Stage> & {
+    envFiles: string[]
+  }
+>
