@@ -17,7 +17,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "jest --config=jest.config.json"
+    "test": "jest --config=jest.config.json",
+    "watch-test": "jest --config=jest.config.json --watch"
   },
   "dependencies": {
     "commander": "^9.3.0",
