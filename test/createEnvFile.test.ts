@@ -175,17 +175,17 @@ test('create the correct env files', async () => {
   })
 
   expect(await loadTsEnvFile(`${outputFolder}/production/env.ts`)).toEqual(
-    `export const SHARED_ENV_VAR = 'productionSharedSecret'
-export const DEFAULT = 'everywhere the same'`,
+    `export const SHARED_ENV_VAR = process.env.SHARED_ENV_VAR || 'productionSharedSecret'
+export const DEFAULT = process.env.DEFAULT || 'everywhere the same'`,
   )
 
   expect(await loadTsEnvFile(`${outputFolder}/staging/env.ts`)).toEqual(
-    `export const SHARED_ENV_VAR = 'stagingSharedSecret'
-export const DEFAULT = 'everywhere the same'`,
+    `export const SHARED_ENV_VAR = process.env.SHARED_ENV_VAR || 'stagingSharedSecret'
+export const DEFAULT = process.env.DEFAULT || 'everywhere the same'`,
   )
 
   expect(await loadTsEnvFile(`${outputFolder}/development/env.ts`)).toEqual(
-    `export const SHARED_ENV_VAR = 'developmentSharedSecret'
-export const DEFAULT = 'everywhere the same'`,
+    `export const SHARED_ENV_VAR = process.env.SHARED_ENV_VAR || 'developmentSharedSecret'
+export const DEFAULT = process.env.DEFAULT || 'everywhere the same'`,
   )
 })

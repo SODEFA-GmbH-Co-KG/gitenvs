@@ -26,7 +26,7 @@ const getTsEnvFileContent = ({
 }) => {
   const fileContent = map(envVars, ({ key, value }) => {
     console.log(`🔧 🔑 Writing ${key} to ${envFilePath}`)
-    return `export const ${key} = '${value}'`
+    return `export const ${key} = process.env.${key} || '${value}'`
   }).join('\n')
 
   return fileContent
