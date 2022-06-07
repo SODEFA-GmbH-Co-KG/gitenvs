@@ -1,14 +1,10 @@
 import mkdirp from 'mkdirp'
+import { EnvValues, EnvVar, EnvVars, GenerateEnvVarsFunction } from '../src'
 import { createEnvFiles } from '../src/commands/createEnvFiles'
-import { EnvVars } from '../src/lib/types/EnvVars'
-import { GenerateEnvVarsFunction } from '../src/lib/types/GenerateEnvVarsFunction'
 import { keys, passphrases } from './helpers/keys'
 import { loadEnvFile } from './helpers/loadEnvFile'
 
 type Stage = 'production' | 'staging' | 'development'
-// TODO: This should be in the core and be better typed
-type Values = Record<Stage, string | undefined>
-type EnvVar = Omit<EnvVars<Stage>[0], 'envFiles'>
 
 test('create the correct env files', async () => {
   const generateEnvVars: GenerateEnvVarsFunction<string> = ({
@@ -20,7 +16,7 @@ test('create the correct env files', async () => {
       helperLib: `${__dirname}/output/${stage}/helper.env.local`,
     }
 
-    const secretForInterpolation: Values = {
+    const secretForInterpolation: EnvValues<Stage> = {
       production: resolveSecret(
         'eyJpdiI6Ik5pSWs3M0NQUTBVTzkyR2RFakNtd2c9PSIsImVuY3J5cHRlZFZhbHVlIjoiSWFzZVhybG5CREtrZDNtZSt5NnU5QWhydjkzSC80VWNZMW5rTEs2aTFsbGJkcXB3NEZRU3hLYlRTQkhkTmZyMyIsImVuY3J5cHRlZFN5bW1ldHJpY0tleSI6ImdBRXRUcmJqS0w0UXR6Skg4SXFZVUkyVjdkTnRyWTcwU1MzakR1VVBEQUw0OHlOWVVXazVTMUp1Vkl0b1dUSUlzUWJWamFKeTAxaGUzc2h5aWdWV0M4U2ozbTdtWFpsK1NTZVB2TVF6ay9MVGsvTyttUXRDMUNPeWNkZThGbFdqWmkyQzZCVnpPNVdNMVZ2bTlTWGM0Yng1dXhPNW9YTUFpKytVcVpvZFBZM2YxZSt5VUE2SnU5dlNkTzNQbFZrb2lnSmx1OEJ5RG9YV040SE5oVzhRcnhZUDFGb3Vhc2hLYmZsczhxS2lSV3pyZkpYbjB3OVd1S0FlUnN1WHVOK0oxUjljdlVTQXl6Skcza0d1T0xTYkFndytMUExtKzVFQzRoRUJWanFKUy9tMUUvMCsxdEw2bjh4Q25TTDJFM1BUWXYxTW9LVUFDM3Nwa3VXRkpMejFiRW50azFvVm05eWF6alZSMG1JdUNMZnhjRHdJUEZCdWlFOE0xa0ZmVlV0aDRaMFRYUnROeEROL3ZpUFNHNGtFdDJvOHBWVExDVVYrRnJzWHE2RTdaeHVZWCt0TEJkZi9YY0svUEkzZytyWTdhaWFnVHFmbzQ2WFVZOWU0MXE4RTgwdWtFbGUra0FZU0xaV1NVa3lQR0ZNdng5VHo1VmxMR0g4aWFrQWhlTjh5RjhtSW9JMEkxbkdLQzFiZXFpQVJBall5V2pQdnFnVS84dUhPQVZ6WUJyUExzNjVaU0VQTXRrd3NzZHl0U2V3Q1ozMGFoTzBQRnF1QXkrcFkwNFI0Z2RSYm9kb2dkSzd3cG5udm5pQ1p6bW1FakE1VnR1eklucllDenNKdzFuY2ZGT3BSNENPS09WZzlJbzIwSGlmRnVLZlVuWU8rNFAzaVp3NTBTRXJPa1VnPSJ9',
       ),
@@ -32,7 +28,7 @@ test('create the correct env files', async () => {
       ),
     }
 
-    const sharedEnvVar: EnvVar = {
+    const sharedEnvVar: EnvVar<Stage> = {
       key: 'SHARED_ENV_VAR',
       values: {
         production: resolveSecret(
