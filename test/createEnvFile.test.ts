@@ -1,3 +1,4 @@
+import { rmSync } from 'fs'
 import mkdirp from 'mkdirp'
 import { EnvValues, EnvVar, EnvVars, GenerateEnvVarsFunction } from '../src'
 import { createEnvFiles } from '../src/commands/createEnvFiles'
@@ -7,13 +8,15 @@ import { loadEnvFile } from './helpers/loadEnvFile'
 type Stage = 'production' | 'staging' | 'development'
 
 test('create the correct env files', async () => {
+  const outputFolder = `${__dirname}/output`
+
   const generateEnvVars: GenerateEnvVarsFunction<string> = ({
     resolveSecret,
     stage,
   }) => {
     const files = {
-      mainApp: `${__dirname}/output/${stage}/main.env.local`,
-      helperLib: `${__dirname}/output/${stage}/helper.env.local`,
+      mainApp: `${outputFolder}/${stage}/main.env.local`,
+      helperLib: `${outputFolder}/${stage}/helper.env.local`,
     }
 
     const secretForInterpolation: EnvValues<Stage> = {
@@ -99,6 +102,8 @@ test('create the correct env files', async () => {
     return [...mainApp, ...helperLib]
   }
 
+  rmSync(outputFolder, { recursive: true, force: true })
+
   for (const stage of ['production', 'staging', 'development'] as Stage[]) {
     mkdirp.sync(`${__dirname}/output/${stage}`)
     await createEnvFiles({
@@ -110,7 +115,7 @@ test('create the correct env files', async () => {
   }
 
   expect(
-    await loadEnvFile(`${__dirname}/output/production/main.env.local`),
+    await loadEnvFile(`${outputFolder}/production/main.env.local`),
   ).toEqual({
     SHARED_ENV_VAR: 'productionSharedSecret',
     INTERPOLATION: 'production: productionSecretForInterpolation',
@@ -118,31 +123,29 @@ test('create the correct env files', async () => {
   })
 
   expect(
-    await loadEnvFile(`${__dirname}/output/production/helper.env.local`),
+    await loadEnvFile(`${outputFolder}/production/helper.env.local`),
   ).toEqual({
     SHARED_ENV_VAR: 'productionSharedSecret',
     DEFAULT: 'everywhere the same',
     DEFAULT_WITH_PARTIAL_OVERWRITE: 'mostly everywhere the same',
   })
 
-  expect(
-    await loadEnvFile(`${__dirname}/output/staging/main.env.local`),
-  ).toEqual({
+  expect(await loadEnvFile(`${outputFolder}/staging/main.env.local`)).toEqual({
     SHARED_ENV_VAR: 'stagingSharedSecret',
     INTERPOLATION: 'staging: stagingSecretForInterpolation',
     SUPER_SECRET: 'stagingSuperSecret',
   })
 
-  expect(
-    await loadEnvFile(`${__dirname}/output/staging/helper.env.local`),
-  ).toEqual({
-    SHARED_ENV_VAR: 'stagingSharedSecret',
-    DEFAULT: 'everywhere the same',
-    DEFAULT_WITH_PARTIAL_OVERWRITE: 'mostly everywhere the same',
-  })
+  expect(await loadEnvFile(`${outputFolder}/staging/helper.env.local`)).toEqual(
+    {
+      SHARED_ENV_VAR: 'stagingSharedSecret',
+      DEFAULT: 'everywhere the same',
+      DEFAULT_WITH_PARTIAL_OVERWRITE: 'mostly everywhere the same',
+    },
+  )
 
   expect(
-    await loadEnvFile(`${__dirname}/output/development/main.env.local`),
+    await loadEnvFile(`${outputFolder}/development/main.env.local`),
   ).toEqual({
     SHARED_ENV_VAR: 'developmentSharedSecret',
     INTERPOLATION: 'development: developmentSecretForInterpolation',
@@ -150,7 +153,7 @@ test('create the correct env files', async () => {
   })
 
   expect(
-    await loadEnvFile(`${__dirname}/output/development/helper.env.local`),
+    await loadEnvFile(`${outputFolder}/development/helper.env.local`),
   ).toEqual({
     SHARED_ENV_VAR: 'developmentSharedSecret',
     DEFAULT: 'everywhere the same',
