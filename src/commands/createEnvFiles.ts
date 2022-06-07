@@ -1,37 +1,37 @@
-import { readFile } from "fs/promises";
-import { decryptEnvVars } from "../lib/decryptEnvVars";
-import { saveEnvVars } from "../lib/saveEnvFiles";
-import { GenerateEnvVarsFunction } from "../lib/types/GenerateEnvVarsFunction";
-import { Keys } from "../lib/types/Keys";
+import { readFile } from 'fs/promises'
+import { decryptEnvVars } from '../lib/decryptEnvVars'
+import { saveEnvVars } from '../lib/saveEnvFiles'
+import { GenerateEnvFilesFunction } from '../lib/types/GenerateEnvVarsFunction'
+import { Keys } from '../lib/types/Keys'
 
 type CreateEnvFilesOptions = {
-  stage?: string;
-  keys: Keys<string>;
-  passphrase?: string;
-  passphrasePath?: string;
-  generateEnvVars: GenerateEnvVarsFunction<string>;
-};
+  stage?: string
+  keys: Keys<string>
+  passphrase?: string
+  passphrasePath?: string
+  generateEnvVars: GenerateEnvFilesFunction<string>
+}
 
 export const createEnvFiles = async (options: CreateEnvFilesOptions) => {
   const {
-    stage = process.env.GITENV_STAGE || "development",
+    stage = process.env.GITENV_STAGE || 'development',
     generateEnvVars,
     keys,
-  } = options;
+  } = options
 
-  const privateKey = keys[stage].encryptedPrivateKey;
-  const passphrase = await getPassphrase({ ...options, stage });
+  const privateKey = keys[stage].encryptedPrivateKey
+  const passphrase = await getPassphrase({ ...options, stage })
   const envVars = decryptEnvVars({
     generateEnvVars,
     stage,
     privateKey,
     passphrase,
-  });
+  })
 
-  await saveEnvVars({ envVars });
+  await saveEnvVars({ envVars })
 
-  console.log(`🎉 all env files created`);
-};
+  console.log(`🎉 all env files created`)
+}
 
 const getPassphrase = async ({
   stage,
@@ -39,24 +39,24 @@ const getPassphrase = async ({
   passphrasePath = `./${stage}.passphrase`,
 }: CreateEnvFilesOptions) => {
   const getKeyFromEnvVars = () => {
-    const envVar = `GITENV_PRIVATE_KEY_PASSPHRASE_${stage?.toUpperCase()}`;
-    const envVarValue = process.env[envVar];
-    return envVarValue;
-  };
+    const envVar = `GITENV_PRIVATE_KEY_PASSPHRASE_${stage?.toUpperCase()}`
+    const envVarValue = process.env[envVar]
+    return envVarValue
+  }
 
   const getKeyFromFile = async () => {
-    if (!passphrasePath) return undefined;
+    if (!passphrasePath) return undefined
 
     try {
-      return await readFile(passphrasePath, "utf8");
+      return await readFile(passphrasePath, 'utf8')
     } catch (error) {
       // TODO: Remove as any
-      if ((error as any)?.code !== "ENOENT") {
-        throw error;
+      if ((error as any)?.code !== 'ENOENT') {
+        throw error
       }
-      return undefined;
+      return undefined
     }
-  };
+  }
 
-  return passphrase ?? getKeyFromEnvVars() ?? (await getKeyFromFile()) ?? "";
-};
+  return passphrase ?? getKeyFromEnvVars() ?? (await getKeyFromFile()) ?? ''
+}

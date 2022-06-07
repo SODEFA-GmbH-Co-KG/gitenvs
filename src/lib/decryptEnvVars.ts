@@ -1,7 +1,7 @@
 import { createDecipheriv, privateDecrypt } from 'crypto'
 import { flatMap, map } from 'lodash'
 import { DEFAULT_CRYPTO_OPTIONS } from '../lib/options'
-import { GenerateEnvVarsFunction } from './types/GenerateEnvVarsFunction'
+import { GenerateEnvFilesFunction } from './types/GenerateEnvVarsFunction'
 import { SecretData } from './types/SecretData'
 
 export const decryptEnvVars = ({
@@ -13,7 +13,7 @@ export const decryptEnvVars = ({
   stage: string
   privateKey?: string | undefined
   passphrase: string
-  generateEnvVars: GenerateEnvVarsFunction<string>
+  generateEnvVars: GenerateEnvFilesFunction<string>
 }) => {
   const resolveSecret = createResolveSecretFunction({ privateKey, passphrase })
   const decryptedEnvVars = generateEnvVars({ resolveSecret, stage })

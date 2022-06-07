@@ -3,11 +3,11 @@ import { createEnvFiles } from './commands/createEnvFiles'
 import { createKeys } from './commands/createKeys'
 import { encrypt } from './commands/encrypt'
 import { ui } from './commands/ui/ui'
-import { GenerateEnvVarsFunction } from './lib/types/GenerateEnvVarsFunction'
+import { GenerateEnvFilesFunction } from './lib/types/GenerateEnvVarsFunction'
 import { Keys } from './lib/types/Keys'
 
 export type MainOptions<Stage extends string> = {
-  generateEnvVars: GenerateEnvVarsFunction<Stage>
+  generateEnvVars: GenerateEnvFilesFunction<Stage>
   keys: Keys<Stage>
 }
 
