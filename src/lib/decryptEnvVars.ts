@@ -5,7 +5,7 @@ import { ProcessedEnvFile } from './types/EnvVars'
 import { GenerateEnvFilesFunction } from './types/GenerateEnvFilesFunction'
 import { SecretData } from './types/SecretData'
 
-export const decryptEnvVars = ({
+export const decryptEnvFiles = ({
   privateKey,
   passphrase,
   stage,

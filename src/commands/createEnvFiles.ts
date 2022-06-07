@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises'
-import { decryptEnvVars } from '../lib/decryptEnvVars'
-import { saveEnvVars } from '../lib/saveEnvFiles'
+import { decryptEnvFiles } from '../lib/decryptEnvVars'
+import { saveEnvFiles } from '../lib/saveEnvFiles'
 import { GenerateEnvFilesFunction } from '../lib/types/GenerateEnvFilesFunction'
 import { Keys } from '../lib/types/Keys'
 
@@ -21,14 +21,14 @@ export const createEnvFiles = async (options: CreateEnvFilesOptions) => {
 
   const privateKey = keys[stage].encryptedPrivateKey
   const passphrase = await getPassphrase({ ...options, stage })
-  const envVars = decryptEnvVars({
+  const envFiles = decryptEnvFiles({
     generateEnvFiles,
     stage,
     privateKey,
     passphrase,
   })
 
-  await saveEnvVars({ envVars })
+  await saveEnvFiles({ envFiles })
 
   console.log(`🎉 all env files created`)
 }

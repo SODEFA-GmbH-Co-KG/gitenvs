@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { flatMap, map } from 'lodash'
-import { decryptEnvVars } from '../../../lib/decryptEnvVars'
+import { decryptEnvFiles } from '../../../lib/decryptEnvVars'
 import { MainOptions } from '../../../main'
 import { getParsedBody } from '../lib/getParsedBody'
 
@@ -21,7 +21,7 @@ export const decryptedEnvs = async ({
     const passphrase = body?.[stage]
     const privateKey = keys[stage].encryptedPrivateKey
 
-    const envVars = decryptEnvVars({
+    const envVars = decryptEnvFiles({
       generateEnvFiles,
       stage,
       privateKey,
@@ -30,7 +30,6 @@ export const decryptedEnvs = async ({
 
     return map(envVars, (envVar) => ({
       ...envVar,
-      value: envVar.value ?? '',
       stage,
     }))
   })
