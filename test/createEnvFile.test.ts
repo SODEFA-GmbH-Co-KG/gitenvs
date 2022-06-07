@@ -1,6 +1,6 @@
 import { rmSync } from 'fs'
 import mkdirp from 'mkdirp'
-import { EnvFile, EnvValues, EnvVar, GenerateEnvVarsFunction } from '../src'
+import { EnvFile, EnvValues, EnvVar, GenerateEnvFilesFunction } from '../src'
 import { createEnvFiles } from '../src/commands/createEnvFiles'
 import { keys, passphrases } from './helpers/keys'
 import { loadEnvFile } from './helpers/loadEnvFile'
@@ -10,7 +10,7 @@ type Stage = 'production' | 'staging' | 'development'
 test('create the correct env files', async () => {
   const outputFolder = `${__dirname}/output`
 
-  const generateEnvVars: GenerateEnvVarsFunction<string> = ({
+  const generateEnvFiles: GenerateEnvFilesFunction<string> = ({
     resolveSecret,
     stage,
   }) => {
@@ -102,7 +102,7 @@ test('create the correct env files', async () => {
   for (const stage of ['production', 'staging', 'development'] as Stage[]) {
     mkdirp.sync(`${__dirname}/output/${stage}`)
     await createEnvFiles({
-      generateEnvVars,
+      generateEnvFiles,
       keys,
       stage,
       passphrase: passphrases[stage],

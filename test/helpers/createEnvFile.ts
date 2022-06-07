@@ -1,14 +1,16 @@
-import { GenerateEnvVarsFunction } from '../../src/lib/types/GenerateEnvVarsFunction'
+import { GenerateEnvFilesFunction } from '../../src'
 import { main } from './../../src/main'
 import { keys } from './keys'
 import { Stage } from './Stage'
 
-const generateEnvVars: GenerateEnvVarsFunction<Stage> = ({ resolveSecret }) => {
+const generateEnvFiles: GenerateEnvFilesFunction<Stage> = ({
+  resolveSecret,
+}) => {
   return []
 }
 
-// TODO: Maybe generateEnvVars and keys should be optional for easier setup (generating the keys)
+// TODO: Maybe generateEnvFiles and keys should be optional for easier setup (generating the keys)
 main({
-  generateEnvVars,
+  generateEnvFiles,
   keys,
 })

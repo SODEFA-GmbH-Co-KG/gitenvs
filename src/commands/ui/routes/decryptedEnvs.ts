@@ -6,7 +6,7 @@ import { getParsedBody } from '../lib/getParsedBody'
 
 export const decryptedEnvs = async ({
   keys,
-  generateEnvVars,
+  generateEnvFiles,
   req,
   res,
 }: MainOptions<string> & {
@@ -22,7 +22,7 @@ export const decryptedEnvs = async ({
     const privateKey = keys[stage].encryptedPrivateKey
 
     const envVars = decryptEnvVars({
-      generateEnvVars,
+      generateEnvFiles,
       stage,
       privateKey,
       passphrase,

@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises'
 import { decryptEnvVars } from '../lib/decryptEnvVars'
 import { saveEnvVars } from '../lib/saveEnvFiles'
-import { GenerateEnvFilesFunction } from '../lib/types/GenerateEnvVarsFunction'
+import { GenerateEnvFilesFunction } from '../lib/types/GenerateEnvFilesFunction'
 import { Keys } from '../lib/types/Keys'
 
 type CreateEnvFilesOptions = {
@@ -9,20 +9,20 @@ type CreateEnvFilesOptions = {
   keys: Keys<string>
   passphrase?: string
   passphrasePath?: string
-  generateEnvVars: GenerateEnvFilesFunction<string>
+  generateEnvFiles: GenerateEnvFilesFunction<string>
 }
 
 export const createEnvFiles = async (options: CreateEnvFilesOptions) => {
   const {
     stage = process.env.GITENV_STAGE || 'development',
-    generateEnvVars,
+    generateEnvFiles,
     keys,
   } = options
 
   const privateKey = keys[stage].encryptedPrivateKey
   const passphrase = await getPassphrase({ ...options, stage })
   const envVars = decryptEnvVars({
-    generateEnvVars,
+    generateEnvFiles,
     stage,
     privateKey,
     passphrase,
