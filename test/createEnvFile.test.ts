@@ -42,7 +42,7 @@ test('create the correct env files', async () => {
     }
 
     const mainApp: EnvFile<Stage> = {
-      envFile: `${outputFolder}/${stage}/main.env.local`,
+      envFilePath: `${outputFolder}/${stage}/main.env.local`,
       envVars: [
         {
           ...sharedEnvVar,
@@ -73,7 +73,7 @@ test('create the correct env files', async () => {
     }
 
     const helperLib: EnvFile<Stage> = {
-      envFile: `${outputFolder}/${stage}/helper.env.local`,
+      envFilePath: `${outputFolder}/${stage}/helper.env.local`,
       envVars: [
         {
           ...sharedEnvVar,
