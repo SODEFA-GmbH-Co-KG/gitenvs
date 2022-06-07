@@ -21,14 +21,14 @@ export const decryptedEnvs = async ({
     const passphrase = body?.[stage]
     const privateKey = keys[stage].encryptedPrivateKey
 
-    const envVars = decryptEnvFiles({
+    const envFiles = decryptEnvFiles({
       generateEnvFiles,
       stage,
       privateKey,
       passphrase,
     })
 
-    return map(envVars, (envVar) => ({
+    return map(envFiles, (envVar) => ({
       ...envVar,
       stage,
     }))
