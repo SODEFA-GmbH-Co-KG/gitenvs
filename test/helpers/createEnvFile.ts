@@ -29,7 +29,6 @@ const generateEnvFiles: GenerateEnvFilesFunction<Stage> = ({
   ]
 }
 
-// TODO: Maybe generateEnvFiles and keys should be optional for easier setup (generating the keys)
 main({
   generateEnvFiles,
   keys,
