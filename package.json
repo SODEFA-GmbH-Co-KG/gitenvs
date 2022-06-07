@@ -1,6 +1,6 @@
 {
   "name": "@sodefa/gitenvs",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Save your environment variables in git - encrypted!",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
