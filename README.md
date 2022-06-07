@@ -59,8 +59,6 @@ main({
 - Create new public / private keys for every stage you defined by running `npx ts-node createEnvFiles.ts createKeys` (or how you called your file)
   - Copy the object with `publicKey` & `encryptedPrivateKey` and paste them into the `keys` object in your `createEnvFiles.ts` file
   - !WARNING! Do not copy & paste the passphrase into `createEnvFiles.ts`. It is a secret! Save it into your password manager.
-- For every .env file you want to create, create an entry in the `file` object.
-  - Use those files in your `envFile` array while defining your environment variables
 - Add the following command to your `package.json`:
   - `"env:create": "npx ts-node createEnvFiles.ts createEnvFiles"`
   - `"env:ui": "npx nodemon createEnvFiles.ts ui"`
@@ -71,7 +69,6 @@ main({
 
 - Start the UI by running `yarn env:ui` and go to `http://localhost:1337`
 - Define environment variables in your `createEnvFiles.ts` file
-  - Every variable can be in multiple env files
   - The `default` value will be used if no value for the current stage is provided
   - If you want to use an encrypted enviroment variable go to the UI and enter the plaintext under `Encryption`
   - Copy the encrypted secret and paste it into the `resolveSecret` function. Example: `resolveSecret('jk3Z35gkHKQtWlLWl4HXdhEJQAJdyIHTzQ4nH/uq84+SdD2ty2Q6qEECfjbAr79U65slD+8BxmFbSMwkAFdXtpkJpw+vHzwi+uVbMIDuq/yHW39XQ9Tv+5qGO3xIZnnE1HrkIOYNFc5O+YLb5dsBTasBwbMrVEBSUL1jA7NdL1IHo9lidrMPFfPxTdyB6COfuhu+UBq1MSXvjVabXXYuU2LXCBVeGhfRRVqs9lxPzb0ilplldsxns3nWRc3g2C5mOc3P2Ki9PjPEmaSvAi/CDgtrXuhMQ4yjeTTLmsZ9iDzyC9RR6apoJBj0NMkFxrnoJg/gG9Jyrgofbi2vfgmchFTPNB41KggNFEMGf428oihXW/k0o9tZWkyiCkXyysjHNJ/hz5g10tEBII1DTifWSe4H2LAfvAliOz8EzTMopXnra5LjlP1exDiTBTwg1GQj6VJ0tcYGnDLkGbkHVXZSZxQwgHWyUKcipb3J2O+21qMWcsRPGo4mzH0X6ORKnD+v4oGI34YDvcedMuQEfs2pmmX+EYwQx3TRgNk6Uy3ZAU84nM2z3IFeLBjhra5/mIH68y/MFMN/Kle6lEa28RR3bz2ToMDrDfvEyIQV+T2X0h8YiUDhol6UWA6OPGY8p2xS8Inz/byQCjbPO0z9hk1Vq9nzMkaupAy/KzZcorwtSPc=')`
