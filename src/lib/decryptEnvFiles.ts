@@ -41,17 +41,9 @@ const createResolveSecretFunction = ({
   passphrase: string
 }) => {
   const resolveSecret = (input: string) => {
-    if (!privateKey) {
-      console.log('No private key provided')
-      return undefined
+    if (!privateKey || !passphrase || !input) {
+      return
     }
-
-    if (!passphrase) {
-      console.log('No passphrase provided')
-      return undefined
-    }
-
-    if (!input) return
 
     const stringified = Buffer.from(input, 'base64').toString()
     const data: SecretData = JSON.parse(stringified)
