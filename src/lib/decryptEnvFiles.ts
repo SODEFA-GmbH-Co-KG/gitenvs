@@ -1,35 +1,36 @@
 import { createDecipheriv, privateDecrypt } from 'crypto'
-import { flatMap, map } from 'lodash'
-import { DEFAULT_CRYPTO_OPTIONS } from '../lib/options'
-import { GenerateEnvVarsFunction } from './types/GenerateEnvVarsFunction'
+import { map } from 'lodash'
+import { DEFAULT_CRYPTO_OPTIONS } from './options'
+import { ProcessedEnvFile } from './types/EnvFile'
+import { GenerateEnvFilesFunction } from './types/GenerateEnvFilesFunction'
 import { SecretData } from './types/SecretData'
 
-export const decryptEnvVars = ({
+export const decryptEnvFiles = ({
   privateKey,
   passphrase,
   stage,
-  generateEnvVars,
+  generateEnvFiles,
 }: {
   stage: string
   privateKey?: string | undefined
   passphrase: string
-  generateEnvVars: GenerateEnvVarsFunction<string>
-}) => {
+  generateEnvFiles: GenerateEnvFilesFunction<string>
+}): ProcessedEnvFile[] => {
   const resolveSecret = createResolveSecretFunction({ privateKey, passphrase })
-  const decryptedEnvVars = generateEnvVars({ resolveSecret, stage })
-  const explodedEnvVars = flatMap(decryptedEnvVars, (config) =>
-    map(config.envFiles, (envFile) => ({
-      envFile,
-      key: config.key,
-      values: config.values,
-    })),
-  )
-  const envVars = map(explodedEnvVars, ({ values, ...config }) => ({
-    ...config,
-    value: (stage in values ? values[stage] : values['default']) ?? undefined,
-  }))
+  const decryptedEnvFiles = generateEnvFiles({ resolveSecret, stage })
+  const envFiles = map(decryptedEnvFiles, ({ envVars, ...envFile }) => {
+    const newEnvVars = map(envVars, ({ values, ...config }) => ({
+      ...config,
+      value: (stage in values ? values[stage] : values['default']) ?? undefined,
+    }))
 
-  return envVars
+    return {
+      ...envFile,
+      envVars: newEnvVars,
+    }
+  })
+
+  return envFiles
 }
 
 const createResolveSecretFunction = ({
@@ -40,12 +41,9 @@ const createResolveSecretFunction = ({
   passphrase: string
 }) => {
   const resolveSecret = (input: string) => {
-    if (!privateKey) {
-      console.log('No private key provided')
-      return undefined
+    if (!privateKey || !passphrase || !input) {
+      return
     }
-
-    if (!input) return
 
     const stringified = Buffer.from(input, 'base64').toString()
     const data: SecretData = JSON.parse(stringified)

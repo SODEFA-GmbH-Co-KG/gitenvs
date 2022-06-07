@@ -8,12 +8,14 @@ export type EnvVar<Stage extends string> = {
 }
 
 export type EnvFile<Stage extends string> = {
-  envFile: string
+  envFilePath: string
   envVars: EnvVar<Stage>[]
 }
 
-export type EnvVars<Stage extends string> = Array<
-  EnvVar<Stage> & {
-    envFiles: string[]
-  }
->
+export type ProcessedEnvFile = {
+  envFilePath: string
+  envVars: Array<{
+    key: string
+    value: string | undefined
+  }>
+}

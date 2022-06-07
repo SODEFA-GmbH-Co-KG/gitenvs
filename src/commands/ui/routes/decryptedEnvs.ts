@@ -1,12 +1,12 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { flatMap, map } from 'lodash'
-import { decryptEnvVars } from '../../../lib/decryptEnvVars'
+import { decryptEnvFiles } from '../../../lib/decryptEnvFiles'
 import { MainOptions } from '../../../main'
 import { getParsedBody } from '../lib/getParsedBody'
 
 export const decryptedEnvs = async ({
   keys,
-  generateEnvVars,
+  generateEnvFiles,
   req,
   res,
 }: MainOptions<string> & {
@@ -21,20 +21,22 @@ export const decryptedEnvs = async ({
     const passphrase = body?.[stage]
     const privateKey = keys[stage].encryptedPrivateKey
 
-    const envVars = decryptEnvVars({
-      generateEnvVars,
+    const envFiles = decryptEnvFiles({
+      generateEnvFiles,
       stage,
       privateKey,
       passphrase,
     })
 
-    return map(envVars, (envVar) => ({
+    return map(envFiles, (envVar) => ({
       ...envVar,
-      value: envVar.value ?? '',
       stage,
     }))
   })
 
   res.statusCode = 200
   res.end(JSON.stringify(result))
+
+  // Just a hack to get this as the return type which can be used in the decryption UI
+  return result
 }

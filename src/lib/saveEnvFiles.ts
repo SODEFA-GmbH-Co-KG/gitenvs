@@ -1,27 +1,21 @@
 import { writeFile } from 'fs/promises'
-import { filter, groupBy, map } from 'lodash'
+import { filter, map } from 'lodash'
+import { ProcessedEnvFile } from './types/EnvFile'
 
-export const saveEnvVars = async ({
-  envVars,
+export const saveEnvFiles = async ({
+  envFiles,
 }: {
-  envVars: {
-    value: string | undefined
-    envFile: string
-    key: string
-  }[]
+  envFiles: ProcessedEnvFile[]
 }) => {
-  const cleanedEnvVars = filter(envVars, (config) => !!config.value)
-  const envVarsByFile = Object.entries(
-    groupBy(cleanedEnvVars, (config) => config.envFile)
-  )
   await Promise.all(
-    map(envVarsByFile, async ([envFile, envVars]) => {
-      const fileContent = map(envVars, ({ key, value }) => {
-        console.log(`🔧 🔑 Writing ${key} to ${envFile}`)
+    map(envFiles, async ({ envFilePath, envVars }) => {
+      const cleanedEnvVars = filter(envVars, (envVar) => !!envVar.value)
+      const fileContent = map(cleanedEnvVars, ({ key, value }) => {
+        console.log(`🔧 🔑 Writing ${key} to ${envFilePath}`)
         return `${key}=${value}`
       }).join('\n')
-      await writeFile(envFile, fileContent)
-      console.log(`🔧 📄 ${envFile} created`)
-    })
+      await writeFile(envFilePath, fileContent)
+      console.log(`🔧 📄 ${envFilePath} created`)
+    }),
   )
 }
