@@ -36,4 +36,7 @@ export const decryptedEnvs = async ({
 
   res.statusCode = 200
   res.end(JSON.stringify(result))
+
+  // Just a hack to get this as the return type which can be used in the decryption UI
+  return result
 }

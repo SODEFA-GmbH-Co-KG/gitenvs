@@ -46,6 +46,11 @@ const createResolveSecretFunction = ({
       return undefined
     }
 
+    if (!passphrase) {
+      console.log('No passphrase provided')
+      return undefined
+    }
+
     if (!input) return
 
     const stringified = Buffer.from(input, 'base64').toString()
