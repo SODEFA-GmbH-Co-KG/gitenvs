@@ -3,7 +3,8 @@ import mkdirp from 'mkdirp'
 import { EnvFile, EnvValues, EnvVar, GenerateEnvFilesFunction } from '../src'
 import { createEnvFiles } from '../src/commands/createEnvFiles'
 import { keys, passphrases } from './helpers/keys'
-import { loadEnvFile } from './helpers/loadEnvFile'
+import { loadDotEnvFile } from './helpers/loadEnvFile'
+import { loadTsEnvFile } from './helpers/loadTsEnvFile'
 
 type Stage = 'production' | 'staging' | 'development'
 
@@ -94,7 +95,23 @@ test('create the correct env files', async () => {
       ],
     }
 
-    return [mainApp, helperLib]
+    const tsFile: EnvFile<Stage> = {
+      envFilePath: `${outputFolder}/${stage}/env.ts`,
+      envType: 'ts',
+      envVars: [
+        {
+          ...sharedEnvVar,
+        },
+        {
+          key: 'DEFAULT',
+          values: {
+            default: 'everywhere the same',
+          },
+        },
+      ],
+    }
+
+    return [mainApp, helperLib, tsFile]
   }
 
   rmSync(outputFolder, { recursive: true, force: true })
@@ -110,7 +127,7 @@ test('create the correct env files', async () => {
   }
 
   expect(
-    await loadEnvFile(`${outputFolder}/production/main.env.local`),
+    await loadDotEnvFile(`${outputFolder}/production/main.env.local`),
   ).toEqual({
     SHARED_ENV_VAR: 'productionSharedSecret',
     INTERPOLATION: 'production: productionSecretForInterpolation',
@@ -118,29 +135,31 @@ test('create the correct env files', async () => {
   })
 
   expect(
-    await loadEnvFile(`${outputFolder}/production/helper.env.local`),
+    await loadDotEnvFile(`${outputFolder}/production/helper.env.local`),
   ).toEqual({
     SHARED_ENV_VAR: 'productionSharedSecret',
     DEFAULT: 'everywhere the same',
     DEFAULT_WITH_PARTIAL_OVERWRITE: 'mostly everywhere the same',
   })
 
-  expect(await loadEnvFile(`${outputFolder}/staging/main.env.local`)).toEqual({
+  expect(
+    await loadDotEnvFile(`${outputFolder}/staging/main.env.local`),
+  ).toEqual({
     SHARED_ENV_VAR: 'stagingSharedSecret',
     INTERPOLATION: 'staging: stagingSecretForInterpolation',
     SUPER_SECRET: 'stagingSuperSecret',
   })
 
-  expect(await loadEnvFile(`${outputFolder}/staging/helper.env.local`)).toEqual(
-    {
-      SHARED_ENV_VAR: 'stagingSharedSecret',
-      DEFAULT: 'everywhere the same',
-      DEFAULT_WITH_PARTIAL_OVERWRITE: 'mostly everywhere the same',
-    },
-  )
+  expect(
+    await loadDotEnvFile(`${outputFolder}/staging/helper.env.local`),
+  ).toEqual({
+    SHARED_ENV_VAR: 'stagingSharedSecret',
+    DEFAULT: 'everywhere the same',
+    DEFAULT_WITH_PARTIAL_OVERWRITE: 'mostly everywhere the same',
+  })
 
   expect(
-    await loadEnvFile(`${outputFolder}/development/main.env.local`),
+    await loadDotEnvFile(`${outputFolder}/development/main.env.local`),
   ).toEqual({
     SHARED_ENV_VAR: 'developmentSharedSecret',
     INTERPOLATION: 'development: developmentSecretForInterpolation',
@@ -148,10 +167,25 @@ test('create the correct env files', async () => {
   })
 
   expect(
-    await loadEnvFile(`${outputFolder}/development/helper.env.local`),
+    await loadDotEnvFile(`${outputFolder}/development/helper.env.local`),
   ).toEqual({
     SHARED_ENV_VAR: 'developmentSharedSecret',
     DEFAULT: 'everywhere the same',
     DEFAULT_WITH_PARTIAL_OVERWRITE: 'but not in dev',
   })
+
+  expect(await loadTsEnvFile(`${outputFolder}/production/env.ts`)).toEqual(
+    `export const SHARED_ENV_VAR = 'productionSharedSecret'
+export const DEFAULT = 'everywhere the same'`,
+  )
+
+  expect(await loadTsEnvFile(`${outputFolder}/staging/env.ts`)).toEqual(
+    `export const SHARED_ENV_VAR = 'stagingSharedSecret'
+export const DEFAULT = 'everywhere the same'`,
+  )
+
+  expect(await loadTsEnvFile(`${outputFolder}/development/env.ts`)).toEqual(
+    `export const SHARED_ENV_VAR = 'developmentSharedSecret'
+export const DEFAULT = 'everywhere the same'`,
+  )
 })
