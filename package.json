@@ -1,10 +1,10 @@
 {
-  "name": "gitenv",
+  "name": "@sodefa/gitenvs",
   "version": "0.0.1",
-  "description": "Save your environment variables in git – encrypted!",
+  "description": "Save your environment variables in git - encrypted!",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": "https://github.com/SODEFA-GmbH-Co-KG/gitenv",
+  "repository": "https://github.com/SODEFA-GmbH-Co-KG/gitenvs",
   "author": "SODEFA",
   "license": "MIT",
   "private": false,
@@ -18,7 +18,8 @@
   "scripts": {
     "build": "tsc",
     "test": "jest --config=jest.config.json",
-    "watch-test": "jest --config=jest.config.json --watch"
+    "watch-test": "jest --config=jest.config.json --watch",
+    "prepublishOnly": "yarn build && yarn test"
   },
   "dependencies": {
     "commander": "^9.3.0",
