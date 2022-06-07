@@ -7,6 +7,11 @@ export type EnvVar<Stage extends string> = {
   values: EnvValues<Stage>
 }
 
+export type EnvFile<Stage extends string> = {
+  envFile: string
+  envVars: EnvVar<Stage>[]
+}
+
 export type EnvVars<Stage extends string> = Array<
   EnvVar<Stage> & {
     envFiles: string[]
