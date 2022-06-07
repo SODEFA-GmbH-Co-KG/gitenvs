@@ -1,6 +1,6 @@
 import { writeFile } from 'fs/promises'
 import { filter, map } from 'lodash'
-import { ProcessedEnvFile } from './types/EnvVars'
+import { ProcessedEnvFile } from './types/EnvFile'
 
 export const saveEnvFiles = async ({
   envFiles,
