@@ -11,3 +11,11 @@ export type EnvFile<Stage extends string> = {
   envFile: string
   envVars: EnvVar<Stage>[]
 }
+
+export type ProcessedEnvFile = {
+  envFile: string
+  envVars: Array<{
+    key: string
+    value: string | undefined
+  }>
+}
