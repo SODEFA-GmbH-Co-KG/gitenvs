@@ -8,9 +8,30 @@ Save encrypted environment variables directly in git.
 - Copy the following template into the file:
 
 ```ts
-import { GenerateEnvVarsFunction, Keys, main } from '@dreamstack/git-envs'
+import { GenerateEnvFilesFunction, Keys, main } from '@sodefa/gitenvs'
 
 type Stage = 'production' | 'staging' | 'development'
+
+const generateEnvFiles: GenerateEnvFilesFunction<Stage> = ({
+  resolveSecret,
+}) => {
+  return [
+    {
+      envFilePath: 'path/to/your/app/.env.local',
+      envVars: [
+        {
+          key: 'ENV_NAME',
+          values: {
+            default: 'EMPTY',
+            production: resolveSecret(''),
+            staging: resolveSecret(''),
+            development: resolveSecret(''),
+          },
+        },
+      ],
+    },
+  ]
+}
 
 const keys: Keys<Stage> = {
   production: {
@@ -27,32 +48,8 @@ const keys: Keys<Stage> = {
   },
 }
 
-export const generateEnvVars: GenerateEnvVarsFunction<Stage> = ({
-  resolveSecret,
-}) => {
-  const files = {
-    nextApp: `${__dirname}/apps/next/.env`,
-  }
-
-  // Ignore formatting (prettier-ignore) to make it less convoluted. Prettier puts the long strings
-  // into an extra line, which is not easily readable.
-  return [
-    // prettier-ignore
-    {
-      key: 'ENV_NAME',
-      envFiles: [files.nextApp],
-      values: {
-        default: 'EMPTY',
-        production: resolveSecret(''),
-        staging: resolveSecret(''),
-        development: resolveSecret(''),
-      },
-    },
-  ]
-}
-
 main({
-  generateEnvVars,
+  generateEnvFiles,
   keys,
 })
 ```
@@ -61,7 +58,7 @@ main({
   - `development` is the default stage that is used if you do not specify any stage
 - Create new public / private keys for every stage you defined by running `npx ts-node createEnvFiles.ts createKeys` (or how you called your file)
   - Copy the object with `publicKey` & `encryptedPrivateKey` and paste them into the `keys` object in your `createEnvFiles.ts` file
-  - !WARNING! Do not copy & paste the passphrase into `createEnvFiles.ts`. It is a secret! Save it into your password manager for now.
+  - !WARNING! Do not copy & paste the passphrase into `createEnvFiles.ts`. It is a secret! Save it into your password manager.
 - For every .env file you want to create, create an entry in the `file` object.
   - Use those files in your `envFile` array while defining your environment variables
 - Add the following command to your `package.json`:

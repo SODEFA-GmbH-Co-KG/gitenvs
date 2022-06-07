@@ -8,14 +8,14 @@ export const saveEnvFiles = async ({
   envFiles: ProcessedEnvFile[]
 }) => {
   await Promise.all(
-    map(envFiles, async ({ envFile, envVars }) => {
+    map(envFiles, async ({ envFilePath, envVars }) => {
       const cleanedEnvVars = filter(envVars, (envVar) => !!envVar.value)
       const fileContent = map(cleanedEnvVars, ({ key, value }) => {
-        console.log(`🔧 🔑 Writing ${key} to ${envFile}`)
+        console.log(`🔧 🔑 Writing ${key} to ${envFilePath}`)
         return `${key}=${value}`
       }).join('\n')
-      await writeFile(envFile, fileContent)
-      console.log(`🔧 📄 ${envFile} created`)
+      await writeFile(envFilePath, fileContent)
+      console.log(`🔧 📄 ${envFilePath} created`)
     }),
   )
 }

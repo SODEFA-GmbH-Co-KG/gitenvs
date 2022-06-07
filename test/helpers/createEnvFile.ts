@@ -8,7 +8,7 @@ const generateEnvFiles: GenerateEnvFilesFunction<Stage> = ({
 }) => {
   return [
     {
-      envFile: 'test.env',
+      envFilePath: 'test.env',
       envVars: [
         {
           key: 'SUPER_SECRET',

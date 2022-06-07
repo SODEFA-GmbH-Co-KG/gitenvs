@@ -4,7 +4,7 @@ type DecryptedEnvsResponse = Awaited<ReturnType<typeof decryptedEnvs>>
 
 export const decryptionScriptFunc = async () => {
   const getUniqueEnvFilePaths = (envFiles: DecryptedEnvsResponse) => {
-    return [...new Set(envFiles.map(({ envFile }) => envFile))]
+    return [...new Set(envFiles.map(({ envFilePath }) => envFilePath))]
   }
 
   const getEnvVarsByPathAndStage = ({
@@ -17,7 +17,7 @@ export const decryptionScriptFunc = async () => {
     stage: string
   }) => {
     const envFile = envFiles.find(
-      ({ envFile: path, stage: envFileStage }) =>
+      ({ envFilePath: path, stage: envFileStage }) =>
         path === envFilePath && envFileStage === stage,
     )
 
