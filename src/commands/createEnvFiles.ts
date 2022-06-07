@@ -1,5 +1,5 @@
 import { readFile } from 'fs/promises'
-import { decryptEnvFiles } from '../lib/decryptEnvVars'
+import { decryptEnvFiles } from '../lib/decryptEnvFiles'
 import { saveEnvFiles } from '../lib/saveEnvFiles'
 import { GenerateEnvFilesFunction } from '../lib/types/GenerateEnvFilesFunction'
 import { Keys } from '../lib/types/Keys'

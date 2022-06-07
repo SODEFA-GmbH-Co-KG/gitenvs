@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { flatMap, map } from 'lodash'
-import { decryptEnvFiles } from '../../../lib/decryptEnvVars'
+import { decryptEnvFiles } from '../../../lib/decryptEnvFiles'
 import { MainOptions } from '../../../main'
 import { getParsedBody } from '../lib/getParsedBody'
 

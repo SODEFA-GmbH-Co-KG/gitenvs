@@ -1,6 +1,6 @@
 import { createDecipheriv, privateDecrypt } from 'crypto'
 import { map } from 'lodash'
-import { DEFAULT_CRYPTO_OPTIONS } from '../lib/options'
+import { DEFAULT_CRYPTO_OPTIONS } from './options'
 import { ProcessedEnvFile } from './types/EnvVars'
 import { GenerateEnvFilesFunction } from './types/GenerateEnvFilesFunction'
 import { SecretData } from './types/SecretData'
