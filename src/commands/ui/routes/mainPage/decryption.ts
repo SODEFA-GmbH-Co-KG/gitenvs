@@ -85,6 +85,7 @@ export const decryptionScriptFunc = async () => {
                           envFilePath,
                           stage,
                         })
+                          .sort((a, b) => a.key.localeCompare(b.key))
                           .map(({ key, value }) => {
                             return `
                         <tr>
