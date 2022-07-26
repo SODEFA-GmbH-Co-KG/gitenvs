@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http'
-import { flatMap, map } from 'lodash'
+import { flatten, map } from 'lodash'
 import { decryptEnvFiles } from '../../../lib/decryptEnvFiles'
 import { MainOptions } from '../../../main'
 import { getParsedBody } from '../lib/getParsedBody'
@@ -17,22 +17,26 @@ export const decryptedEnvs = async ({
 
   const body = await getParsedBody<Record<string, string>>(req)
 
-  const result = flatMap(stages, (stage) => {
-    const passphrase = body?.[stage]
-    const privateKey = keys[stage].encryptedPrivateKey
+  const envFilesDeep = await Promise.all(
+    map(stages, async (stage) => {
+      const passphrase = body?.[stage]
+      const privateKey = keys[stage].encryptedPrivateKey
 
-    const envFiles = decryptEnvFiles({
-      generateEnvFiles,
-      stage,
-      privateKey,
-      passphrase,
-    })
+      const envFiles = await decryptEnvFiles({
+        generateEnvFiles,
+        stage,
+        privateKey,
+        passphrase,
+      })
 
-    return map(envFiles, (envVar) => ({
-      ...envVar,
-      stage,
-    }))
-  })
+      return map(envFiles, (envVar) => ({
+        ...envVar,
+        stage,
+      }))
+    }),
+  )
+
+  const result = flatten(envFilesDeep)
 
   res.statusCode = 200
   res.end(JSON.stringify(result))

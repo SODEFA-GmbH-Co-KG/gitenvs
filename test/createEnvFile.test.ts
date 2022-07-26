@@ -189,3 +189,45 @@ export const DEFAULT = process.env.DEFAULT || 'everywhere the same'`,
 export const DEFAULT = process.env.DEFAULT || 'everywhere the same'`,
   )
 })
+
+test('async generateEnvFiles', async () => {
+  const outputFolder = `${__dirname}/output/async`
+
+  rmSync(outputFolder, { recursive: true, force: true })
+  mkdirp.sync(outputFolder)
+
+  const getThingy = (): Promise<string> => {
+    return new Promise((res) => {
+      setTimeout(() => res('thingy'), 100)
+    })
+  }
+
+  const generateEnvFiles: GenerateEnvFilesFunction<string> = async ({
+    stage,
+  }) => {
+    const mainApp: EnvFile<Stage> = {
+      envFilePath: `${outputFolder}/main.env.local`,
+      envVars: [
+        {
+          key: 'ASYNC',
+          values: {
+            default: await getThingy(),
+          },
+        },
+      ],
+    }
+
+    return [mainApp]
+  }
+
+  await createEnvFiles({
+    generateEnvFiles,
+    keys,
+    stage: 'development',
+    passphrase: passphrases['development'],
+  })
+
+  expect(await loadDotEnvFile(`${outputFolder}/main.env.local`)).toEqual({
+    ASYNC: 'thingy',
+  })
+})

@@ -21,7 +21,7 @@ export const createEnvFiles = async (options: CreateEnvFilesOptions) => {
 
   const privateKey = keys[stage].encryptedPrivateKey
   const passphrase = await getPassphrase({ ...options, stage })
-  const envFiles = decryptEnvFiles({
+  const envFiles = await decryptEnvFiles({
     generateEnvFiles,
     stage,
     privateKey,

@@ -5,7 +5,7 @@ import { ProcessedEnvFile } from './types/EnvFile'
 import { GenerateEnvFilesFunction } from './types/GenerateEnvFilesFunction'
 import { SecretData } from './types/SecretData'
 
-export const decryptEnvFiles = ({
+export const decryptEnvFiles = async ({
   privateKey,
   passphrase,
   stage,
@@ -15,9 +15,9 @@ export const decryptEnvFiles = ({
   privateKey?: string | undefined
   passphrase: string
   generateEnvFiles: GenerateEnvFilesFunction<string>
-}): ProcessedEnvFile[] => {
+}): Promise<ProcessedEnvFile[]> => {
   const resolveSecret = createResolveSecretFunction({ privateKey, passphrase })
-  const decryptedEnvFiles = generateEnvFiles({ resolveSecret, stage })
+  const decryptedEnvFiles = await generateEnvFiles({ resolveSecret, stage })
   const envFiles = map(decryptedEnvFiles, ({ envVars, ...envFile }) => {
     const newEnvVars = map(envVars, ({ values, ...config }) => ({
       ...config,
