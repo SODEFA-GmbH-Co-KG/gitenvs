@@ -2,11 +2,7 @@ import { decryptedEnvs } from '../decryptedEnvs'
 
 type DecryptedEnvsResponse = Awaited<ReturnType<typeof decryptedEnvs>>
 
-export const decryptionScriptFunc = async ({
-  sortEnvs,
-}: {
-  sortEnvs?: boolean
-}) => {
+export const decryptionScriptFunc = async () => {
   const getUniqueEnvFilePaths = (envFiles: DecryptedEnvsResponse) => {
     return [...new Set(envFiles.map(({ envFilePath }) => envFilePath))]
   }
@@ -30,7 +26,18 @@ export const decryptionScriptFunc = async ({
     return envFile.envVars
   }
 
-  const fetchEnvs = async (body: string = '{}') => {
+  const enableSortEl = document.getElementById(
+    'enableSort',
+  ) as HTMLInputElement | null
+  enableSortEl?.addEventListener('change', () => {
+    fetchEnvs()
+  })
+
+  const fetchEnvs = async () => {
+    const privateKeysEl: HTMLTextAreaElement | null =
+      document.querySelector('#privateKeys')
+    const body = privateKeysEl?.value ?? '{}'
+
     const decryptedEnvsResponse = await fetch('/decryptedEnvs', {
       method: 'POST',
       body: body,
@@ -39,9 +46,6 @@ export const decryptionScriptFunc = async ({
 
     const getStagesResponse = await fetch('/getStages')
     const stages: string[] = await getStagesResponse.json()
-
-    const privateKeysEl: HTMLTextAreaElement | null =
-      document.querySelector('#privateKeys')
 
     if (privateKeysEl) {
       if (!privateKeysEl.value) {
@@ -90,6 +94,7 @@ export const decryptionScriptFunc = async ({
                           stage,
                         })
                           .sort((a, b) => {
+                            const sortEnvs = enableSortEl?.checked
                             if (sortEnvs) {
                               return a.key.localeCompare(b.key)
                             } else {
@@ -122,10 +127,7 @@ export const decryptionScriptFunc = async ({
   }
 
   document.querySelector('#decrypt')?.addEventListener('click', async () => {
-    const privateKeysEl: HTMLTextAreaElement | null =
-      document.querySelector('#privateKeys')
-    const body = privateKeysEl?.value ?? '{}'
-    fetchEnvs(body)
+    fetchEnvs()
   })
 
   // document
