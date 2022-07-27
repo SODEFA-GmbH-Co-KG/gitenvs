@@ -20,7 +20,7 @@
     "test": "jest --config=jest.config.json",
     "watch-test": "jest --config=jest.config.json --watch",
     "prepublishOnly": "yarn build && yarn test",
-    "env:ui": "ts-node ./test/env-ui-tests/createEnvFile.ts ui"
+    "env:ui": "nodemon /test/env-ui-tests/createEnvFiles.ts ui"
   },
   "dependencies": {
     "commander": "^9.3.0",
@@ -34,6 +34,7 @@
     "envfile": "^6.17.0",
     "jest": "^28.1.0",
     "mkdirp": "^1.0.4",
+    "nodemon": "^2.0.19",
     "ts-jest": "^28.0.4",
     "ts-node": "^10.9.1",
     "typescript": "^4.7.3"
