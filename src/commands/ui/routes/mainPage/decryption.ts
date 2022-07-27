@@ -7,7 +7,6 @@ export const decryptionScriptFunc = async ({
 }: {
   sortEnvs?: boolean
 }) => {
-  console.log('sorting envs:', sortEnvs)
   const getUniqueEnvFilePaths = (envFiles: DecryptedEnvsResponse) => {
     return [...new Set(envFiles.map(({ envFilePath }) => envFilePath))]
   }
