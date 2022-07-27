@@ -89,8 +89,19 @@ export const mainPage = (req: IncomingMessage, res: ServerResponse) => {
         </div>
 
         <script>
-          (${decryptionScriptFunc.toString()})();
           (${encryptionScriptFunc.toString()})();
+          
+          window.addEventListener('load', function() {
+            var enableSort = document.getElementById("enableSort");
+            
+            //initial render
+            (${decryptionScriptFunc.toString()})({sortEnvs: enableSort.checked});
+
+            //on checkbox change re-render depending on checkbox state
+            enableSort.addEventListener("change", function () {
+              (${decryptionScriptFunc.toString()})({sortEnvs: enableSort.checked});
+            });
+          })
         </script>
       </body>
     </html>

@@ -2,7 +2,12 @@ import { decryptedEnvs } from '../decryptedEnvs'
 
 type DecryptedEnvsResponse = Awaited<ReturnType<typeof decryptedEnvs>>
 
-export const decryptionScriptFunc = async () => {
+export const decryptionScriptFunc = async ({
+  sortEnvs,
+}: {
+  sortEnvs?: boolean
+}) => {
+  console.log('sorting envs:', sortEnvs)
   const getUniqueEnvFilePaths = (envFiles: DecryptedEnvsResponse) => {
     return [...new Set(envFiles.map(({ envFilePath }) => envFilePath))]
   }
@@ -85,7 +90,13 @@ export const decryptionScriptFunc = async () => {
                           envFilePath,
                           stage,
                         })
-                          .sort((a, b) => a.key.localeCompare(b.key))
+                          .sort((a, b) => {
+                            if (sortEnvs) {
+                              return a.key.localeCompare(b.key)
+                            } else {
+                              return 1
+                            }
+                          })
                           .map(({ key, value }) => {
                             return `
                         <tr>
@@ -130,15 +141,23 @@ export const decryptionScriptFunc = async () => {
   fetchEnvs()
 }
 
-export const getDecryptionHtml = () => `
-<div id="decryption" class="container">
-  <h2>Decryption</h2>
-  
-  <div class="controls">
-    <p>Passphrases:</p>
-    <textarea name="privateKeys" id="privateKeys" rows="10"></textarea>
-    <button type="button" id="decrypt" style="margin-top: 24px;">Decrypt</button>
-  </div>
-  <div id="decryptionTable" class="container"></div>
-</div>
+export const getDecryptionHtml = () => {
+  return `
+    <div id="decryption" class="container">
+      <h2>Decryption</h2>
+
+      <div class="controls">
+        <p>Passphrases:</p>
+        <textarea name="privateKeys" id="privateKeys" rows="10"></textarea>
+        <button type="button" id="decrypt" style="margin-top: 24px">
+          Decrypt
+        </button>
+      </div>
+      <div>
+        <input type="checkbox" id="enableSort" />
+        <label for="enableSort">Env Keys alphabetisch sortieren</label>
+      </div>
+      <div id="decryptionTable" class="container"></div>
+    </div>
 `
+}
