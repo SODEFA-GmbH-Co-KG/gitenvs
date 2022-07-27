@@ -156,7 +156,7 @@ export const getDecryptionHtml = () => {
       </div>
       <div>
         <input type="checkbox" id="enableSort" />
-        <label for="enableSort">Env Keys alphabetisch sortieren</label>
+        <label for="enableSort">Sort Keys ASC</label>
       </div>
       <div id="decryptionTable" class="container"></div>
     </div>
