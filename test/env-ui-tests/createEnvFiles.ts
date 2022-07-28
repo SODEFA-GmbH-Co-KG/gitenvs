@@ -18,6 +18,15 @@ const generateEnvFiles: GenerateEnvFilesFunction<Stage> = ({
             development: resolveSecret(''),
           },
         },
+        {
+          key: 'ABC',
+          values: {
+            default: 'EMPTY',
+            production: resolveSecret(''),
+            staging: resolveSecret(''),
+            development: resolveSecret(''),
+          },
+        },
       ],
     },
   ]
