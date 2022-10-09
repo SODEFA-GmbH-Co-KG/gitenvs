@@ -18,7 +18,7 @@ export type EnvVar = {
   encrypted?: boolean
   value?: string
   // Just for DTO
-  _valueDecrypted?: string
+  _valueResolved?: string
 }
 
 export type EnvFile = {
