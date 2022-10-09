@@ -1,15 +1,24 @@
 # Design Ideas
 
-## EnvVar
+## Functions
 
-- If a `pointer` exists `value` must be empty (because we point to somewhere else)
-- If a `funcName` exists
-  - `value` can be set or it can be empty. If `value` is set
-    - it can be plain or encrypted
-    - it can contain a simple string or it could hold a stringified JSON that will be parsed and send to the function as `input`
-  - a `pointer` can exists, too. The function gets the `value` of the pointer as `input`
-- Resolving an `EnvVar`
-  - Check if there is an `pointer` and resolve that EnvVar
-    - Else use the `value` of the current `EnvVar` (encrypt it if needed)
-  - Check if there is a `funcName` and use the result from the previous step as an `input`
-  - Copy the result to `_valueResolved`
+- If you have a `func` you can't have a `pointer` or a `value`. But you get `params` that can contain multiple `pointer` or a `value`
+- With this configuration the following examples are possible
+  - `getIPAddr`: Return the current IP address. Does not depend on `params`
+  - `getJWTSecretForHasura`: Hasura needs the secret with more information. `params` would be:
+    ```json
+    {
+      "jwtSecret": [{"type": "pointer", "fileId"...}],
+    }
+    ```
+  - `joinEnvVars`: Gets a list of env files and joins them with a user defined symbol. Useful for something like: `API_KEYS=[multiple_api_keys_comma_separated_that_are_used_in_other_env_vars_too]`. `params` would be:
+    ```json
+    {
+      "envVarsToJoin": [{"type": "pointer", "fileId"...}],
+      "separator": { "type": "value", "value": ",", "encrypted": false }
+    }
+    ```
+
+## TODO:
+
+'- Make EnvFile type extensible & overwriteable
