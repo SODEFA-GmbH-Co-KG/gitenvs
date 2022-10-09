@@ -20,7 +20,8 @@
     "test": "jest --config=jest.config.json",
     "watch-test": "jest --config=jest.config.json --watch",
     "prepublishOnly": "yarn build && yarn test",
-    "env:ui": "nodemon ./test/env-ui-tests/createEnvFiles.ts ui"
+    "env:ui": "nodemon ./test/env-ui-tests/createEnvFiles.ts ui",
+    "dev": "yarn workspace @sodefa/gitenvs-ui dev"
   },
   "dependencies": {
     "commander": "^9.3.0",
