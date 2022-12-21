@@ -1,5 +1,6 @@
 {
   "name": "@sodefa/gitenvs",
+  "private": true,
   "version": "1.3.0",
   "description": "Save your environment variables in git - encrypted!",
   "main": "dist/index.js",
@@ -7,7 +8,6 @@
   "repository": "https://github.com/SODEFA-GmbH-Co-KG/gitenvs",
   "author": "SODEFA",
   "license": "MIT",
-  "private": false,
   "keywords": [
     "git",
     "environment variables",
@@ -20,7 +20,8 @@
     "test": "jest --config=jest.config.json",
     "watch-test": "jest --config=jest.config.json --watch",
     "prepublishOnly": "yarn build && yarn test",
-    "env:ui": "nodemon ./test/env-ui-tests/createEnvFiles.ts ui"
+    "env:ui": "nodemon ./test/env-ui-tests/createEnvFiles.ts ui",
+    "dev": "yarn workspace @sodefa/gitenvs-ui dev"
   },
   "dependencies": {
     "commander": "^9.3.0",
@@ -38,5 +39,9 @@
     "ts-jest": "^28.0.4",
     "ts-node": "^10.9.1",
     "typescript": "^4.7.3"
-  }
+  },
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ]
 }
