@@ -1,3 +1,5 @@
+import { createReadStream } from 'fs'
+import { createInterface } from 'readline'
 import { readFile } from 'fs/promises'
 import { decryptEnvFiles } from '../lib/decryptEnvFiles'
 import { saveEnvFiles } from '../lib/saveEnvFiles'
@@ -48,7 +50,7 @@ const getPassphrase = async ({
     if (!passphrasePath) return undefined
 
     try {
-      return await readFile(passphrasePath, 'utf8')
+      return await readFirstLine(passphrasePath)
     } catch (error) {
       // TODO: Remove as any
       if ((error as any)?.code !== 'ENOENT') {
@@ -59,4 +61,17 @@ const getPassphrase = async ({
   }
 
   return passphrase ?? getKeyFromEnvVars() ?? (await getKeyFromFile()) ?? ''
+}
+
+const readFirstLine = async (pathToFile: string): Promise<string> => {
+  const readable = createReadStream(pathToFile, { encoding: 'utf8' });
+  const reader = createInterface({ input: readable });
+  const line = await new Promise<string>((resolve) => {
+    reader.on('line', (line) => {
+      reader.close();
+      resolve(line);
+    });
+  });
+  readable.close();
+  return line;
 }
