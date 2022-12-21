@@ -27,6 +27,12 @@ export const encryptionScriptFunc = async () => {
             `,
             )
             .join('')}
+       <tr><td colspan='3' style="text-align:center" ><button type="button" data-to-copy="values:{${Object.entries(
+         data,
+       ).map(
+         ([env, encrypted]) => `
+        ${env}:'${encrypted}'`,
+       )}}">Copy All</button></td> </tr>
         </tbody>
       </table>
     `
@@ -52,9 +58,8 @@ export const encryptionScriptFunc = async () => {
   }
 
   document.querySelector('#encrypt')?.addEventListener('click', async () => {
-    const toEncryptEl: HTMLTextAreaElement | null = document.querySelector(
-      '#toEncrypt',
-    )
+    const toEncryptEl: HTMLTextAreaElement | null =
+      document.querySelector('#toEncrypt')
     const data = { toEncrypt: toEncryptEl?.value ?? '' }
     const body = JSON.stringify(data)
     encrypt(body)
