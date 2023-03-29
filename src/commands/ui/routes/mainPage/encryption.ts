@@ -31,7 +31,7 @@ export const encryptionScriptFunc = async () => {
          data,
        ).map(
          ([env, encrypted]) => `
-        ${env}:'${encrypted}'`,
+        ${env}:resolveSecret('${encrypted}')`,
        )}}">Copy All</button></td> </tr>
         </tbody>
       </table>
