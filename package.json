@@ -1,42 +1,43 @@
 {
-  "name": "@sodefa/gitenvs",
-  "version": "1.4.1",
-  "description": "Save your environment variables in git - encrypted!",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "repository": "https://github.com/SODEFA-GmbH-Co-KG/gitenvs",
-  "author": "SODEFA",
-  "license": "MIT",
-  "private": false,
-  "keywords": [
-    "git",
-    "environment variables",
-    "env vars",
-    "encrypted",
-    "encryption"
-  ],
+  "name": "gitenvs",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "build": "tsc",
-    "test": "jest --config=jest.config.json",
-    "watch-test": "jest --config=jest.config.json --watch",
-    "prepublishOnly": "yarn build && yarn test",
-    "env:ui": "nodemon ./test/env-ui-tests/createEnvFiles.ts ui"
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start"
   },
   "dependencies": {
-    "commander": "^9.3.0",
-    "lodash": "^4.17.21"
+    "@t3-oss/env-nextjs": "^0.7.0",
+    "@tanstack/react-query": "^4.32.6",
+    "@trpc/client": "^10.37.1",
+    "@trpc/next": "^10.37.1",
+    "@trpc/react-query": "^10.37.1",
+    "@trpc/server": "^10.37.1",
+    "next": "^13.5.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "superjson": "^1.13.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/jest": "^28.1.1",
-    "@types/lodash": "^4.14.182",
-    "@types/mkdirp": "^1.0.2",
-    "@types/node": "^17.0.39",
-    "envfile": "^6.17.0",
-    "jest": "^28.1.0",
-    "mkdirp": "^1.0.4",
-    "nodemon": "^2.0.19",
-    "ts-jest": "^28.0.4",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.7.3"
+    "@types/eslint": "^8.44.2",
+    "@types/node": "^18.16.0",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.3.0",
+    "@typescript-eslint/parser": "^6.3.0",
+    "autoprefixer": "^10.4.14",
+    "eslint": "^8.47.0",
+    "eslint-config-next": "^13.5.4",
+    "postcss": "^8.4.27",
+    "prettier": "^3.0.0",
+    "prettier-plugin-tailwindcss": "^0.5.1",
+    "tailwindcss": "^3.3.3",
+    "typescript": "^5.1.6"
+  },
+  "ct3aMetadata": {
+    "initVersion": "7.21.0"
   }
 }
