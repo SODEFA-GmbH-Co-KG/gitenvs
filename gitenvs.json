@@ -10,8 +10,14 @@
   "files": [
     {
       "id": "om234lkm234moi",
-      "name": ".env",
+      "name": "Main",
       "filePath": ".env",
+      "type": "dotenv"
+    },
+    {
+      "id": "om234lkm234moi",
+      "name": "Something",
+      "filePath": "something/.env",
       "type": "dotenv"
     }
   ],
