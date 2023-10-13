@@ -1,0 +1,41 @@
+{
+  "version": "1",
+  "stages": [
+    {
+      "name": "production",
+      "publicKey": "TODO",
+      "encryptedPrivateKey": "TODO"
+    }
+  ],
+  "files": [
+    {
+      "id": "om234lkm234moi",
+      "name": ".env",
+      "filePath": ".env",
+      "type": "dotenv"
+    }
+  ],
+  "vars": [
+    {
+      "fileId": "om234lkm234moi",
+      "key": "ENVY_MC_ENV_FACE",
+      "value": "prod",
+      "stage": "production",
+      "encrypted": false
+    },
+    {
+      "fileId": "om234lkm234moi",
+      "key": "ENVY_MC_ENV_FACE",
+      "value": "dev",
+      "stage": "development",
+      "encrypted": false
+    },
+    {
+      "fileId": "om234lkm234moi",
+      "key": "ENVY_MC_ENV_FACE",
+      "value": "stag",
+      "stage": "staging",
+      "encrypted": false
+    }
+  ]
+}
