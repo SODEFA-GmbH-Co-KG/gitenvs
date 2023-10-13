@@ -17,6 +17,10 @@ const config = {
     locales: ['en'],
     defaultLocale: 'en',
   },
+
+  experimental: {
+    typedRoutes: true,
+  },
 }
 
 export default config
