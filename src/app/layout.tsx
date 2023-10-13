@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { getGitenvs } from '~/gitenvs/getGitenvs'
 import '~/styles/globals.css'
@@ -19,8 +20,11 @@ export default async function RootLayout({
                 {gitenvs.files.map((file) => (
                   <Link
                     href={`/file/${file.id}`}
+                    key={file.id}
                     // value={file.id}
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-background hover:text-foreground hover:shadow-sm"
+                    className={cn(
+                      'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-background hover:text-foreground hover:shadow-sm',
+                    )}
                   >
                     {file.name}
                   </Link>
