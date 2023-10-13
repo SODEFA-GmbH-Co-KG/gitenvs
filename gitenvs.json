@@ -5,6 +5,16 @@
       "name": "production",
       "publicKey": "TODO",
       "encryptedPrivateKey": "TODO"
+    },
+    {
+      "name": "staging",
+      "publicKey": "TODO",
+      "encryptedPrivateKey": "TODO"
+    },
+    {
+      "name": "development",
+      "publicKey": "TODO",
+      "encryptedPrivateKey": "TODO"
     }
   ],
   "files": [
