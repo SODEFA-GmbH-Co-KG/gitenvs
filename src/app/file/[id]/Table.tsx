@@ -20,20 +20,19 @@ export const Table = ({ fileId }: { fileId: string }) => {
           {stage.name}
         </div>
       ))}
-      {Object.values(data?.varsByKey ?? {}).map((vars) => {
+      {Object.values(data?.envVars ?? {}).map((envVar) => {
         return (
           <>
             <Input
               className="flex flex-col gap-2"
-              defaultValue={vars[0]?.key}
+              defaultValue={envVar.key}
             ></Input>
             {data?.stages.map((stage) => {
-              const v = vars.find((v) => v.stage === stage.name)
               return (
                 <Input
                   key={stage.name}
                   className="flex flex-col gap-2"
-                  defaultValue={v?.value}
+                  defaultValue={envVar.values[stage.name]?.value}
                 />
               )
             })}

@@ -5,7 +5,7 @@ type Params = { params: { id: string } }
 
 export async function generateMetadata({ params }: Params) {
   const gitenvs = await getGitenvs()
-  const file = gitenvs.files.find((file) => file.id === params.id)
+  const file = gitenvs.envFiles.find((file) => file.id === params.id)
 
   return {
     title: file?.name,

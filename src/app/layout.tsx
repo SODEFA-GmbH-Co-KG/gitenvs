@@ -18,7 +18,7 @@ export default async function RootLayout({
           <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
             <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
               <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
-                {gitenvs.files.map((file) => (
+                {gitenvs.envFiles.map((file) => (
                   <Link
                     href={`/file/${file.id}`}
                     key={file.id}
