@@ -1,5 +1,17 @@
 import { z } from 'zod'
 
+export const EnvVar = z.object({
+  fileId: z.string(),
+  key: z.string(),
+  values: z.record(
+    z.string(),
+    z.object({
+      value: z.string(),
+      encrypted: z.boolean(),
+    }),
+  ),
+})
+
 export const Gitenvs = z.object({
   version: z.string(),
   envStages: z.array(
@@ -17,17 +29,7 @@ export const Gitenvs = z.object({
       type: z.string(),
     }),
   ),
-  envVars: z.array(
-    z.object({
-      fileId: z.string(),
-      key: z.string(),
-      values: z.record(
-        z.string(),
-        z.object({
-          value: z.string(),
-          encrypted: z.boolean(),
-        }),
-      ),
-    }),
-  ),
+  envVars: z.array(EnvVar),
 })
+
+export type Gitenvs = z.infer<typeof Gitenvs>

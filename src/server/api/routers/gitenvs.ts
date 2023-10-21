@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { getGitenvs } from '~/gitenvs/getGitenvs'
+import { getGitenvs, saveGitenvs } from '~/gitenvs/getGitenvs'
+import { EnvVar } from '~/gitenvs/gitenvs.schema'
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
 
 export const gitenvsRouter = createTRPCRouter({
@@ -16,4 +17,15 @@ export const gitenvsRouter = createTRPCRouter({
       const stages = gitenvs.envStages
       return { envVars, stages }
     }),
+  saveEnvVar: publicProcedure.input(EnvVar).mutation(async ({ input }) => {
+    const gitenvs = await getGitenvs()
+    const index = gitenvs.envVars.findIndex((v) => v.key === input.key)
+    if (index === -1) {
+      gitenvs.envVars.push(input)
+    } else {
+      gitenvs.envVars[index] = input
+    }
+    await saveGitenvs(gitenvs)
+    return { success: true }
+  }),
 })
