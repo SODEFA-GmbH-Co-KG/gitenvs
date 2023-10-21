@@ -1,22 +1,12 @@
-import { z } from 'zod'
 import { getGitenvs, saveGitenvs } from '~/gitenvs/getGitenvs'
 import { EnvVar } from '~/gitenvs/gitenvs.schema'
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
 
 export const gitenvsRouter = createTRPCRouter({
-  getForTable: publicProcedure
-    .input(
-      z.object({
-        fileId: z.string(),
-      }),
-    )
-    .query(async ({ input: { fileId } }) => {
-      const gitenvs = await getGitenvs()
-      const file = gitenvs.envFiles.find((file) => file.id === fileId)
-      const envVars = gitenvs.envVars.filter((v) => v.fileId === fileId)
-      const stages = gitenvs.envStages
-      return { envVars, stages }
-    }),
+  getGitenvs: publicProcedure.query(async () => {
+    const gitenvs = await getGitenvs()
+    return gitenvs
+  }),
   saveEnvVar: publicProcedure.input(EnvVar).mutation(async ({ input }) => {
     const gitenvs = await getGitenvs()
     const index = gitenvs.envVars.findIndex((v) => v.key === input.key)

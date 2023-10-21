@@ -2,40 +2,70 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useFieldArray } from 'react-hook-form'
+import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { api } from '~/utils/api'
+import { useZodForm } from '~/utils/useZodForm'
 
 export const Table = ({ fileId }: { fileId: string }) => {
-  const { data } = api.gitenvs.getForTable.useQuery({ fileId })
+  const { data } = api.gitenvs.getGitenvs.useQuery(undefined, {
+    onSuccess: (data) => {
+      form.reset(data)
+    },
+  })
   const { mutateAsync: saveEnvVar } = api.gitenvs.saveEnvVar.useMutation()
   const utils = api.useUtils()
 
+  const form = useZodForm({
+    schema: Gitenvs,
+    defaultValues: data,
+  })
+
+  const {
+    fields: envVars,
+    append,
+    prepend,
+    remove,
+    swap,
+    move,
+    insert,
+  } = useFieldArray({
+    control: form.control,
+    name: 'envVars',
+  })
+
   return (
-    <div>
+    <form onSubmit={form.handleSubmit((data) => console.log(data))}>
       <div
         className="grid gap-2"
         style={{
-          gridTemplateColumns: `repeat(${(data?.stages.length ?? 0) + 1}, 1fr)`,
+          gridTemplateColumns: `repeat(${
+            (data?.envStages.length ?? 0) + 1
+          }, 1fr)`,
         }}
       >
         <div></div>
-        {data?.stages.map((stage) => (
+        {data?.envStages.map((stage) => (
           <div key={stage.name} className="flex flex-col gap-2">
             {stage.name}
           </div>
         ))}
-        {Object.values(data?.envVars ?? {}).map((envVar) => {
+        {envVars.map((field, index) => {
           return (
             <>
               <Input
                 className="flex flex-col gap-2"
-                defaultValue={envVar.key}
+                key={field.id}
+                {...form.register(`envVars.${index}.key`)}
               ></Input>
-              {data?.stages.map((stage) => {
+              {data?.envStages.map((stage) => {
                 return (
                   <Input
-                    key={stage.name}
+                    key={`${field.id}-${stage.name}`}
                     className="flex flex-col gap-2"
-                    defaultValue={envVar.values[stage.name]?.value}
+                    {...form.register(
+                      `envVars.${index}.values.${stage.name}.value`,
+                    )}
                   />
                 )
               })}
@@ -43,13 +73,9 @@ export const Table = ({ fileId }: { fileId: string }) => {
           )
         })}
       </div>
-      <Button
-        variant="outline"
-        className="text-black"
-        onClick={() => utils.gitenvs.invalidate()}
-      >
+      <Button variant="outline" className="text-black" type="submit">
         Save
       </Button>
-    </div>
+    </form>
   )
 }
