@@ -13,7 +13,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
       form.reset(data)
     },
   })
-  const { mutateAsync: saveEnvVar } = api.gitenvs.saveEnvVar.useMutation()
+  const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
   const utils = api.useUtils()
 
   const form = useZodForm({
@@ -35,7 +35,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
   })
 
   return (
-    <form onSubmit={form.handleSubmit((data) => console.log(data))}>
+    <form onSubmit={form.handleSubmit((gitenvs) => saveGitenvs({ gitenvs }))}>
       <div
         className="grid gap-2"
         style={{
