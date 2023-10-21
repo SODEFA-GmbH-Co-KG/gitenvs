@@ -8,7 +8,7 @@ import { api } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
 
 export const Table = ({ fileId }: { fileId: string }) => {
-  const { data } = api.gitenvs.getGitenvs.useQuery(undefined, {
+  const { data: gitenvs } = api.gitenvs.getGitenvs.useQuery(undefined, {
     onSuccess: (data) => {
       form.reset(data)
     },
@@ -18,7 +18,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
 
   const form = useZodForm({
     schema: Gitenvs,
-    defaultValues: data,
+    defaultValues: gitenvs,
   })
 
   const {
@@ -35,17 +35,20 @@ export const Table = ({ fileId }: { fileId: string }) => {
   })
 
   return (
-    <form onSubmit={form.handleSubmit((gitenvs) => saveGitenvs({ gitenvs }))}>
+    <form
+      onSubmit={form.handleSubmit((gitenvs) => saveGitenvs({ gitenvs }))}
+      className="flex flex-col gap-2"
+    >
       <div
         className="grid gap-2"
         style={{
           gridTemplateColumns: `repeat(${
-            (data?.envStages.length ?? 0) + 1
+            (gitenvs?.envStages.length ?? 0) + 1
           }, 1fr)`,
         }}
       >
         <div></div>
-        {data?.envStages.map((stage) => (
+        {gitenvs?.envStages.map((stage) => (
           <div key={stage.name} className="flex flex-col gap-2">
             {stage.name}
           </div>
@@ -58,7 +61,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
                 key={field.id}
                 {...form.register(`envVars.${index}.key`)}
               ></Input>
-              {data?.envStages.map((stage) => {
+              {gitenvs?.envStages.map((stage) => {
                 return (
                   <Input
                     key={`${field.id}-${stage.name}`}
@@ -73,6 +76,23 @@ export const Table = ({ fileId }: { fileId: string }) => {
           )
         })}
       </div>
+      <Button
+        variant="secondary"
+        className="text-black"
+        type="button"
+        onClick={() => {
+          if (!gitenvs) return
+          const asdkasmdl = Object.fromEntries(
+            gitenvs.envStages.map((stage) => [
+              stage.name,
+              { value: '', encrypted: false },
+            ]),
+          )
+          append({ fileId, key: '', values: asdkasmdl })
+        }}
+      >
+        Add
+      </Button>
       <Button variant="outline" className="text-black" type="submit">
         Save
       </Button>
