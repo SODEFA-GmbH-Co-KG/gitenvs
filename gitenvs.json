@@ -2,7 +2,7 @@
   "version": "1",
   "envStages": [
     {
-      "name": "production",
+      "name": "development",
       "publicKey": "TODO",
       "encryptedPrivateKey": "TODO"
     },
@@ -12,7 +12,7 @@
       "encryptedPrivateKey": "TODO"
     },
     {
-      "name": "development",
+      "name": "production",
       "publicKey": "TODO",
       "encryptedPrivateKey": "TODO"
     }
