@@ -2,11 +2,11 @@ import { Input } from '@/components/ui/input'
 import { Toggle } from '@/components/ui/toggle'
 import { useState } from 'react'
 import {
-  UseFormReturn,
   type FieldArrayWithId,
   type UseFieldArrayReturn,
+  type UseFormReturn,
 } from 'react-hook-form'
-import { Gitenvs } from '~/gitenvs/gitenvs.schema'
+import { type Gitenvs } from '~/gitenvs/gitenvs.schema'
 
 export const EnvVarInput = ({
   field,
