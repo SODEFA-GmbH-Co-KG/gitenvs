@@ -1,4 +1,4 @@
-import { gitenvsRouter } from '~/server/api/routers/gitenvs'
+import { gitenvsRouter } from '~/server/api/routers/gitenvs.router'
 import { createTRPCRouter } from '~/server/api/trpc'
 
 /**
