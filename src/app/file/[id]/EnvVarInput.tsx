@@ -1,23 +1,59 @@
 import { Input } from '@/components/ui/input'
-import { UseFormReturn } from 'react-hook-form'
+import { Toggle } from '@/components/ui/toggle'
+import { useState } from 'react'
+import {
+  UseFormReturn,
+  type FieldArrayWithId,
+  type UseFieldArrayReturn,
+} from 'react-hook-form'
 import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 
 export const EnvVarInput = ({
-  fieldId,
+  field,
   stageName,
   index,
   form,
+  fields,
 }: {
-  fieldId: string
   stageName: string
   index: number
   form: UseFormReturn<Gitenvs>
+  field: FieldArrayWithId<Gitenvs, 'envVars', 'id'>
+  fields: UseFieldArrayReturn<Gitenvs, 'envVars', 'id'>
 }) => {
+  const [showContent, setShowContent] = useState(false)
+
+  const encrypted = field.values[stageName]?.encrypted ?? false
+
   return (
-    <Input
-      key={`${fieldId}-${stageName}`}
-      className="flex flex-col gap-2"
-      {...form.register(`envVars.${index}.values.${stageName}.value`)}
-    />
+    <div className="flex flex-row gap-2">
+      <Input
+        key={`${field.id}-${stageName}`}
+        className="flex flex-col gap-2"
+        {...form.register(`envVars.${index}.values.${stageName}.value`)}
+        type={showContent ? 'text' : 'password'}
+      />
+      <Toggle
+        onPressedChange={(pressed) =>
+          fields.update(index, {
+            ...field,
+            values: {
+              ...field.values,
+              [stageName]: {
+                // TODO: Remove the `!`
+                ...field.values[stageName]!,
+                encrypted: pressed,
+              },
+            },
+          })
+        }
+        pressed={encrypted}
+      >
+        {encrypted ? `🔒` : `🔓`}
+      </Toggle>
+      <Toggle onPressedChange={(pressed) => setShowContent(pressed)}>
+        {showContent ? `👀` : `🙈`}
+      </Toggle>
+    </div>
   )
 }

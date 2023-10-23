@@ -42,7 +42,7 @@
         },
         "development": {
           "value": "dev",
-          "encrypted": false
+          "encrypted": true
         },
         "staging": {
           "value": "stag",

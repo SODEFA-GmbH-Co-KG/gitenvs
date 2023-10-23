@@ -22,18 +22,12 @@ export const Table = ({ fileId }: { fileId: string }) => {
     defaultValues: gitenvs,
   })
 
-  const {
-    fields: envVars,
-    append,
-    prepend,
-    remove,
-    swap,
-    move,
-    insert,
-  } = useFieldArray({
+  const envVarsFields = useFieldArray({
     control: form.control,
     name: 'envVars',
   })
+
+  const envVars = envVarsFields.fields
 
   return (
     <form
@@ -67,9 +61,10 @@ export const Table = ({ fileId }: { fileId: string }) => {
                   <EnvVarInput
                     key={`${field.id}-${stage.name}`}
                     stageName={stage.name}
-                    fieldId={field.id}
+                    field={field}
                     index={index}
                     form={form}
+                    fields={envVarsFields}
                   />
                 )
               })}
@@ -89,7 +84,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
               { value: '', encrypted: false },
             ]),
           )
-          append({ fileId, key: '', values: asdkasmdl })
+          envVarsFields.append({ fileId, key: '', values: asdkasmdl })
         }}
       >
         Add
