@@ -33,6 +33,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
     <form
       onSubmit={form.handleSubmit((gitenvs) => saveGitenvs({ gitenvs }))}
       className="flex flex-col gap-2"
+      autoComplete="new-password"
     >
       <div
         className="grid gap-2"
@@ -49,12 +50,14 @@ export const Table = ({ fileId }: { fileId: string }) => {
           </div>
         ))}
         {envVars.map((field, index) => {
+          if (field.fileId !== fileId) return null
           return (
             <>
               <Input
                 className="flex flex-col gap-2"
                 key={field.id}
                 {...form.register(`envVars.${index}.key`)}
+                autoComplete="new-password"
               ></Input>
               {gitenvs?.envStages.map((stage) => {
                 return (

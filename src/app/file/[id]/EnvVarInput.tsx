@@ -32,6 +32,7 @@ export const EnvVarInput = ({
         className="flex flex-col gap-2"
         {...form.register(`envVars.${index}.values.${stageName}.value`)}
         type={showContent ? 'text' : 'password'}
+        autoComplete="new-password"
       />
       <Toggle
         onPressedChange={(pressed) =>
