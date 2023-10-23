@@ -78,13 +78,13 @@ export const Table = ({ fileId }: { fileId: string }) => {
         type="button"
         onClick={() => {
           if (!gitenvs) return
-          const asdkasmdl = Object.fromEntries(
+          const values = Object.fromEntries(
             gitenvs.envStages.map((stage) => [
               stage.name,
-              { value: '', encrypted: false },
+              { value: '', encrypted: true },
             ]),
           )
-          envVarsFields.append({ fileId, key: '', values: asdkasmdl })
+          envVarsFields.append({ fileId, key: '', values })
         }}
       >
         Add
