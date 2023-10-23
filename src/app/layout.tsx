@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { getGitenvs } from '~/gitenvs/getGitenvs'
+import { getGitenvs } from '~/gitenvs/gitenvs'
 import '~/styles/globals.css'
 import { TrpcProvider } from '~/utils/TrpcProvider'
 

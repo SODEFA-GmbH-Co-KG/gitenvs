@@ -1,4 +1,4 @@
-import { getGitenvs } from '~/gitenvs/getGitenvs'
+import { getGitenvs } from '~/gitenvs/gitenvs'
 import { Table } from './Table'
 
 type Params = { params: { id: string } }

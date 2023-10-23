@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { getGitenvs, saveGitenvs } from '~/gitenvs/getGitenvs'
+import { getGitenvs, saveGitenvs } from '~/gitenvs/gitenvs'
 import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
 
