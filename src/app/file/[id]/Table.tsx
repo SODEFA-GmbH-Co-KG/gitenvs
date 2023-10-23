@@ -6,6 +6,7 @@ import { useFieldArray } from 'react-hook-form'
 import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { api } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
+import { EnvVarInput } from './EnvVarInput'
 
 export const Table = ({ fileId }: { fileId: string }) => {
   const { data: gitenvs } = api.gitenvs.getGitenvs.useQuery(undefined, {
@@ -63,12 +64,12 @@ export const Table = ({ fileId }: { fileId: string }) => {
               ></Input>
               {gitenvs?.envStages.map((stage) => {
                 return (
-                  <Input
+                  <EnvVarInput
                     key={`${field.id}-${stage.name}`}
-                    className="flex flex-col gap-2"
-                    {...form.register(
-                      `envVars.${index}.values.${stage.name}.value`,
-                    )}
+                    stageName={stage.name}
+                    fieldId={field.id}
+                    index={index}
+                    form={form}
                   />
                 )
               })}
