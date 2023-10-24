@@ -1,5 +1,5 @@
 import { getGitenvs } from '~/gitenvs/gitenvs'
-import { Table } from './Table'
+import { Table } from '../../../../@/components/Table'
 
 type Params = { params: { id: string } }
 
