@@ -13,4 +13,12 @@ export const gitenvsRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       await saveGitenvs(input.gitenvs)
     }),
+  gitenvsJsonExists: publicProcedure.query(async () => {
+    try {
+      await getGitenvs()
+      return true
+    } catch (error) {
+      return false
+    }
+  }),
 })
