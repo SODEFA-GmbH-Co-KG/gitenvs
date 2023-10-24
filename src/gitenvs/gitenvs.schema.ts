@@ -12,6 +12,8 @@ export const EnvVar = z.object({
   ),
 })
 
+export const EnvFileType = z.enum(['.env'])
+
 export const Gitenvs = z.object({
   version: z.string(),
   envStages: z.array(
@@ -26,7 +28,7 @@ export const Gitenvs = z.object({
       id: z.string(),
       name: z.string(),
       filePath: z.string(),
-      type: z.string(),
+      type: EnvFileType,
     }),
   ),
   envVars: z.array(EnvVar),
