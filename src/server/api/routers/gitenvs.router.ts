@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { createKeys } from '~/gitenvs/createKeys'
 import { getGitenvs, saveGitenvs } from '~/gitenvs/gitenvs'
-import { EnvFileType, Gitenvs } from '~/gitenvs/gitenvs.schema'
+import { CreateGitenvsJson, Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
 
 export const gitenvsRouter = createTRPCRouter({
@@ -24,23 +24,10 @@ export const gitenvsRouter = createTRPCRouter({
     }
   }),
   createGitenvsJson: publicProcedure
-    .input(
-      z.object({
-        stages: z.array(
-          z.object({
-            name: z.string(),
-          }),
-        ),
-        envFile: z.object({
-          name: z.string(),
-          filePath: z.string(),
-          type: EnvFileType,
-        }),
-      }),
-    )
+    .input(CreateGitenvsJson)
     .mutation(async ({ input }) => {
       const stages = await Promise.all(
-        input.stages.map(async (stage) => {
+        input.envStages.map(async (stage) => {
           const keys = await createKeys()
 
           return {
@@ -54,8 +41,11 @@ export const gitenvsRouter = createTRPCRouter({
         version: '1',
         envStages: stages.map((stage) => ({
           name: stage.name,
-          publicKey: stage.publicKey,
-          encryptedPrivateKey: stage.privateKey,
+          // FIXME: Replace with save UInt8Array method
+          publicKey: Buffer.from(stage.publicKey, 'utf8').toString('base64'),
+          encryptedPrivateKey: Buffer.from(stage.privateKey, 'utf8').toString(
+            'base64',
+          ),
         })),
         envFiles: [
           {

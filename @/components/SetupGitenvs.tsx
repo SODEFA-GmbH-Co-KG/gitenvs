@@ -1,8 +1,8 @@
 'use client'
 
 import { useFieldArray } from 'react-hook-form'
-import { z } from 'zod'
-import { EnvFile, EnvFileType, EnvStage } from '~/gitenvs/gitenvs.schema'
+import { CreateGitenvsJson, EnvFileType } from '~/gitenvs/gitenvs.schema'
+import { api } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
 import { Button } from './ui/button'
 import {
@@ -23,13 +23,10 @@ import {
 } from './ui/select'
 
 export const SetupGitenvs = () => {
+  const { mutateAsync } = api.gitenvs.createGitenvsJson.useMutation()
+
   const form = useZodForm({
-    schema: z.object({
-      envFile: EnvFile.omit({ id: true }),
-      envStages: z.array(
-        EnvStage.omit({ publicKey: true, encryptedPrivateKey: true }),
-      ),
-    }),
+    schema: CreateGitenvsJson,
     defaultValues: {
       envFile: {
         name: '.env',
@@ -53,7 +50,7 @@ export const SetupGitenvs = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((data) => {
-          console.log(data)
+          mutateAsync(data)
         })}
         className="flex flex-col gap-8"
       >
