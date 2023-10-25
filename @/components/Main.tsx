@@ -2,13 +2,14 @@
 
 import { Table } from '@/components/Table'
 import { api } from '~/utils/api'
+import { SetupGitenvs } from './SetupGitenvs'
 
 export const Main = () => {
   const { data: gitenvsExists } = api.gitenvs.gitenvsJsonExists.useQuery()
 
-  if (gitenvsExists) {
-    return <Table fileId={'om234lkm234moi'} />
+  if (!gitenvsExists) {
+    return <SetupGitenvs />
   }
 
-  return <div>TODO</div>
+  return <Table fileId={'om234lkm234moi'} />
 }

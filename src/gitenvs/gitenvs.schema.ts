@@ -12,25 +12,25 @@ export const EnvVar = z.object({
   ),
 })
 
-export const EnvFileType = z.enum(['.env'])
+export const EnvFileType = z.enum(['dotenv'])
+
+export const EnvFile = z.object({
+  id: z.string(),
+  name: z.string(),
+  filePath: z.string(),
+  type: EnvFileType,
+})
+
+export const EnvStage = z.object({
+  name: z.string(),
+  publicKey: z.string(),
+  encryptedPrivateKey: z.string(),
+})
 
 export const Gitenvs = z.object({
   version: z.string(),
-  envStages: z.array(
-    z.object({
-      name: z.string(),
-      publicKey: z.string(),
-      encryptedPrivateKey: z.string(),
-    }),
-  ),
-  envFiles: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      filePath: z.string(),
-      type: EnvFileType,
-    }),
-  ),
+  envStages: z.array(EnvStage),
+  envFiles: z.array(EnvFile),
   envVars: z.array(EnvVar),
 })
 
