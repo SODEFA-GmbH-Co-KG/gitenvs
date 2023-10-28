@@ -1,5 +1,6 @@
 import { Copy } from 'lucide-react'
 import { type RouterOutputs } from '~/utils/api'
+import { WithCopyButton } from './WithCopyButton'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
@@ -23,20 +24,14 @@ export const CopyPassphrases = ({
           <div key={passphrase.stageName} className="flex flex-col gap-4">
             <Label htmlFor={passphrase.stageName}>{passphrase.stageName}</Label>
             <div className="flex flex-row gap-4">
-              <Input
-                id={passphrase.stageName}
-                defaultValue={passphrase.passphrase}
-                type="password"
-                readOnly
-              />
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(passphrase.passphrase)
-                }}
-              >
-                <Copy className="w-4 h-4" />
-              </Button>
+              <WithCopyButton textToCopy={passphrase.passphrase}>
+                <Input
+                  id={passphrase.stageName}
+                  defaultValue={passphrase.passphrase}
+                  type="password"
+                  readOnly
+                />
+              </WithCopyButton>
             </div>
           </div>
         ))}
