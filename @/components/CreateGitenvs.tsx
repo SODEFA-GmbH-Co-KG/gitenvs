@@ -1,8 +1,9 @@
 'use client'
 
+import { Loader2 } from 'lucide-react'
 import { useFieldArray } from 'react-hook-form'
 import { CreateGitenvsJson, EnvFileType } from '~/gitenvs/gitenvs.schema'
-import { api } from '~/utils/api'
+import { api, type RouterOutputs } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
 import { Button } from './ui/button'
 import {
@@ -22,8 +23,14 @@ import {
   SelectValue,
 } from './ui/select'
 
-export const CreateGitenvs = () => {
-  const { mutate } = api.gitenvs.createGitenvsJson.useMutation()
+export const CreateGitenvs = ({
+  onPassphrases,
+}: {
+  onPassphrases: (
+    passphrases: RouterOutputs['gitenvs']['createGitenvsJson'],
+  ) => void
+}) => {
+  const { mutateAsync, isLoading } = api.gitenvs.createGitenvsJson.useMutation()
 
   const form = useZodForm({
     schema: CreateGitenvsJson,
@@ -49,8 +56,9 @@ export const CreateGitenvs = () => {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => {
-          mutate(data)
+        onSubmit={form.handleSubmit(async (data) => {
+          const passphrases = await mutateAsync(data)
+          onPassphrases(passphrases)
         })}
         className="flex flex-col gap-8"
       >
@@ -158,8 +166,9 @@ export const CreateGitenvs = () => {
           </div>
         </div>
 
-        <Button type="submit" variant="default">
-          Let's go
+        <Button type="submit" variant="default" disabled={isLoading}>
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Let&apos;s go
         </Button>
       </form>
     </Form>

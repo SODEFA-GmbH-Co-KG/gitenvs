@@ -58,7 +58,7 @@ export const gitenvsRouter = createTRPCRouter({
 
       return {
         passphrases: stages.map((stage) => ({
-          name: stage.name,
+          stageName: stage.name,
           passphrase: stage.passphrase,
         })),
       }
