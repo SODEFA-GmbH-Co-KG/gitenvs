@@ -1,3 +1,4 @@
+import { Copy } from 'lucide-react'
 import { type RouterOutputs } from '~/utils/api'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -34,7 +35,7 @@ export const CopyPassphrases = ({
                   await navigator.clipboard.writeText(passphrase.passphrase)
                 }}
               >
-                📋
+                <Copy className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -49,7 +50,8 @@ export const CopyPassphrases = ({
         }}
         variant="outline"
       >
-        📋 Copy all
+        <Copy className="w-4 h-4" />
+        &nbsp; Copy all
       </Button>
 
       <Button onClick={async () => onNext()}>

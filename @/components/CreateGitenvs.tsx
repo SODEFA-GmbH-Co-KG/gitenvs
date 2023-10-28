@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader2 } from 'lucide-react'
+import { Loader2, Trash2 } from 'lucide-react'
 import { useFieldArray } from 'react-hook-form'
 import { CreateGitenvsJson, EnvFileType } from '~/gitenvs/gitenvs.schema'
 import { api, type RouterOutputs } from '~/utils/api'
@@ -152,7 +152,7 @@ export const CreateGitenvs = ({
                   onClick={() => envStages.remove(index)}
                   disabled={envStages.fields.length === 1}
                 >
-                  🗑️
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
