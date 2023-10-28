@@ -5,15 +5,13 @@ import { api } from '~/utils/api'
 import { SetupGitenvs } from './SetupGitenvs'
 
 export const Main = () => {
-  const { data: gitenvsExists } = api.gitenvs.gitenvsJsonExists.useQuery(
-    undefined,
-    {
+  const { data: gitenvsExists, refetch } =
+    api.gitenvs.gitenvsJsonExists.useQuery(undefined, {
       staleTime: Infinity,
-    },
-  )
+    })
 
   if (!gitenvsExists) {
-    return <SetupGitenvs />
+    return <SetupGitenvs onSetupDone={() => refetch()} />
   }
 
   return <Table fileId={'om234lkm234moi'} />

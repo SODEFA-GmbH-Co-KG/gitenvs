@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { type RouterOutputs } from '~/utils/api'
 import { CopyPassphrases } from './CopyPassphrases'
 import { CreateGitenvs } from './CreateGitenvs'
+import { DeployGitenvs } from './DeployGitenvs'
 
-export const SetupGitenvs = () => {
+export const SetupGitenvs = ({ onSetupDone }: { onSetupDone: () => void }) => {
   const [passphrases, setPassphrases] = useState<
     RouterOutputs['gitenvs']['createGitenvsJson'] | null
   >(null)
@@ -18,7 +19,16 @@ export const SetupGitenvs = () => {
     )
   }
 
+  if (!copied) {
+    return (
+      <CopyPassphrases
+        passphrases={passphrases}
+        onNext={() => setCopied(true)}
+      />
+    )
+  }
+
   return (
-    <CopyPassphrases passphrases={passphrases} onNext={() => setCopied(true)} />
+    <DeployGitenvs passphrases={passphrases} onNext={() => onSetupDone()} />
   )
 }
