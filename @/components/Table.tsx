@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { mapValues } from 'lodash'
 import { useFieldArray } from 'react-hook-form'
 import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { api } from '~/utils/api'
@@ -32,7 +33,39 @@ export const Table = ({ fileId }: { fileId: string }) => {
 
   return (
     <form
-      onSubmit={form.handleSubmit((gitenvs) => saveGitenvs({ gitenvs }))}
+      // TODO: Handle zod parsing errors
+      onSubmit={form.handleSubmit(async (newGitenvs) => {
+        const encryptedEnvVars = newGitenvs.envVars.map((envVar) => {
+          const oldEnvVar = gitenvs?.envVars.find(
+            (envVar) =>
+              envVar.fileId === envVar.fileId && envVar.key === envVar.key,
+          )
+
+          const values = mapValues(envVar.values, (value, stageName) => {
+            if (!value.encrypted) return value
+
+            if (value.value === oldEnvVar?.values[stageName]?.value) {
+              return value
+            }
+
+            return {
+              ...value,
+              value: `ENC(${value.value})`,
+            }
+          })
+
+          return {
+            ...envVar,
+            values,
+          }
+        })
+        await saveGitenvs({
+          gitenvs: {
+            ...newGitenvs,
+            envVars: encryptedEnvVars,
+          },
+        })
+      })}
       className="flex flex-col gap-2"
       autoComplete="new-password"
     >
