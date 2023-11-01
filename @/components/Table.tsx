@@ -2,8 +2,9 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { mapValues } from 'lodash'
+import { map } from 'lodash'
 import { useFieldArray } from 'react-hook-form'
+import { encryptEnvVar } from '~/gitenvs/encryptEnvVar'
 import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { api } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
@@ -35,30 +36,50 @@ export const Table = ({ fileId }: { fileId: string }) => {
     <form
       // TODO: Handle zod parsing errors
       onSubmit={form.handleSubmit(async (newGitenvs) => {
-        const encryptedEnvVars = newGitenvs.envVars.map((envVar) => {
-          const oldEnvVar = gitenvs?.envVars.find(
-            (envVar) =>
-              envVar.fileId === envVar.fileId && envVar.key === envVar.key,
-          )
+        const encryptedEnvVars = await Promise.all(
+          newGitenvs.envVars.map(async (envVar) => {
+            const oldEnvVar = gitenvs?.envVars.find(
+              (envVar) =>
+                envVar.fileId === envVar.fileId && envVar.key === envVar.key,
+            )
 
-          const values = mapValues(envVar.values, (value, stageName) => {
-            if (!value.encrypted) return value
+            const valuesEntries = await Promise.all(
+              map(Object.entries(envVar.values), async (data) => {
+                const [stageName, value] = data
 
-            if (value.value === oldEnvVar?.values[stageName]?.value) {
-              return value
-            }
+                if (!value.encrypted) return data
+
+                if (value.value === oldEnvVar?.values[stageName]?.value) {
+                  return data
+                }
+
+                const publicKey = gitenvs?.envStages.find(
+                  (stage) => stage.name === stageName,
+                )?.publicKey
+
+                if (!publicKey) throw new Error('No public key found')
+
+                return [
+                  stageName,
+                  {
+                    ...value,
+                    value: await encryptEnvVar({
+                      plaintext: value.value,
+                      publicKey,
+                    }),
+                  },
+                ] as const
+              }),
+            )
+
+            const values = Object.fromEntries(valuesEntries)
 
             return {
-              ...value,
-              value: `ENC(${value.value})`,
+              ...envVar,
+              values,
             }
-          })
-
-          return {
-            ...envVar,
-            values,
-          }
-        })
+          }),
+        )
         await saveGitenvs({
           gitenvs: {
             ...newGitenvs,

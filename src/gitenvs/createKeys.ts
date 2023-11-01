@@ -9,7 +9,7 @@ export const createKeys = async () => {
       hash: { name: 'SHA-256' },
     },
     true,
-    ['encrypt', 'decrypt'],
+    ['wrapKey', 'unwrapKey'],
   )
 
   const publicKeyAsJwk = await globalThis.crypto.subtle.exportKey(
