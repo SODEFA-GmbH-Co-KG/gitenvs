@@ -12,6 +12,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
   const { data: gitenvs } = api.gitenvs.getGitenvs.useQuery(undefined, {
     // TODO: This is not how you should do it. onSuccess will be deprecated in future.
     onSuccess: (data) => {
+      if (form.formState.isDirty) return
       form.reset(data)
     },
   })
