@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { createKeys } from '~/gitenvs/createKeys'
 import { getGitenvs, saveGitenvs } from '~/gitenvs/gitenvs'
@@ -39,18 +38,11 @@ export const gitenvsRouter = createTRPCRouter({
 
       await saveGitenvs({
         version: '1',
-        envStages: stages.map((stage) => ({
-          name: stage.name,
-          // FIXME: Replace with save UInt8Array method
-          publicKey: Buffer.from(stage.publicKey, 'utf8').toString('base64'),
-          encryptedPrivateKey: Buffer.from(stage.privateKey, 'utf8').toString(
-            'base64',
-          ),
-        })),
+        envStages: stages.map(({ passphrase: _, ...stage }) => stage), // IMPORTANT: Don't save the passphrase to gitenvs.json
         envFiles: [
           {
             ...input.envFile,
-            id: randomUUID(),
+            id: globalThis.crypto.randomUUID(),
           },
         ],
         envVars: [],
