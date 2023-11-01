@@ -7,7 +7,7 @@ export const WithCopyButton = ({
   textToCopy,
 }: React.PropsWithChildren<{ textToCopy: string }>) => {
   return (
-    <div className="flex flex-row gap-4">
+    <div className="flex flex-row gap-4 flex-1">
       {children}
       <Button
         variant="outline"
