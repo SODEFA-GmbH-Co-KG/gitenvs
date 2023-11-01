@@ -10,16 +10,16 @@ import { EnvVarInput } from './EnvVarInput'
 
 export const Table = ({ fileId }: { fileId: string }) => {
   const { data: gitenvs } = api.gitenvs.getGitenvs.useQuery(undefined, {
+    // TODO: This is not how you should do it. onSuccess will be deprecated in future.
     onSuccess: (data) => {
       form.reset(data)
     },
   })
   const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
-  const utils = api.useUtils()
 
   const form = useZodForm({
     schema: Gitenvs,
-    defaultValues: gitenvs,
+    // defaultValues: gitenvs,
   })
 
   const envVarsFields = useFieldArray({
@@ -35,46 +35,50 @@ export const Table = ({ fileId }: { fileId: string }) => {
       className="flex flex-col gap-2"
       autoComplete="new-password"
     >
-      <div
-        className="grid gap-2"
-        style={{
-          gridTemplateColumns: `repeat(${
-            (gitenvs?.envStages.length ?? 0) + 1
-          }, 1fr)`,
-        }}
-      >
-        <div></div>
-        {gitenvs?.envStages.map((stage) => (
-          <div key={stage.name} className="flex flex-col gap-2">
-            {stage.name}
-          </div>
-        ))}
-        {envVars.map((field, index) => {
-          if (field.fileId !== fileId) return null
-          return (
-            <>
-              <Input
-                className="flex flex-col gap-2"
-                key={field.id}
-                {...form.register(`envVars.${index}.key`)}
-                autoComplete="new-password"
-              ></Input>
-              {gitenvs?.envStages.map((stage) => {
-                return (
-                  <EnvVarInput
-                    key={`${field.id}-${stage.name}`}
-                    stageName={stage.name}
-                    field={field}
-                    index={index}
-                    form={form}
-                    fields={envVarsFields}
-                  />
-                )
-              })}
-            </>
-          )
-        })}
-      </div>
+      {!!envVars.length ? (
+        <div
+          className="grid gap-2"
+          style={{
+            gridTemplateColumns: `repeat(${
+              (gitenvs?.envStages.length ?? 0) + 1
+            }, 1fr)`,
+          }}
+        >
+          <div>Env Name</div>
+          {gitenvs?.envStages.map((stage) => (
+            <div key={stage.name} className="flex flex-col gap-2">
+              {stage.name}
+            </div>
+          ))}
+          {envVars.map((field, index) => {
+            if (field.fileId !== fileId) return null
+            return (
+              <>
+                <Input
+                  className="flex flex-col gap-2"
+                  key={field.id}
+                  {...form.register(`envVars.${index}.key`)}
+                  autoComplete="new-password"
+                ></Input>
+                {gitenvs?.envStages.map((stage) => {
+                  return (
+                    <EnvVarInput
+                      key={`${field.id}-${stage.name}`}
+                      stageName={stage.name}
+                      field={field}
+                      index={index}
+                      form={form}
+                      fields={envVarsFields}
+                    />
+                  )
+                })}
+              </>
+            )
+          })}
+        </div>
+      ) : (
+        <p>No env vars so far. Add a new one</p>
+      )}
       <Button
         variant="secondary"
         className="text-black"
@@ -92,7 +96,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
       >
         Add
       </Button>
-      <Button variant="outline" className="text-black" type="submit">
+      <Button variant="outline" type="submit">
         Save
       </Button>
     </form>
