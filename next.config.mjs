@@ -20,6 +20,7 @@ const config = {
 
   experimental: {
     typedRoutes: true,
+    instrumentationHook: true,
   },
 }
 
