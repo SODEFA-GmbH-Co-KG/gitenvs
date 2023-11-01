@@ -124,6 +124,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
                       index={index}
                       form={form}
                       fields={envVarsFields}
+                      encryptedPrivateKey={stage.encryptedPrivateKey}
                     />
                   )
                 })}

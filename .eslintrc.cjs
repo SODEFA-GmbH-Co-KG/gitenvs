@@ -17,6 +17,8 @@ const config = {
     '@typescript-eslint/consistent-type-definitions': 'off',
     '@typescript-eslint/require-await': 'off',
     '@typescript-eslint/no-misused-promises': 'off',
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+    '@typescript-eslint/no-unsafe-call': 'off',
 
     '@typescript-eslint/consistent-type-imports': [
       'warn',

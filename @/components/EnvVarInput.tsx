@@ -6,7 +6,9 @@ import {
   type UseFieldArrayReturn,
   type UseFormReturn,
 } from 'react-hook-form'
+import { decryptEnvVar } from '~/gitenvs/decryptEnvVar'
 import { type Gitenvs } from '~/gitenvs/gitenvs.schema'
+import { Button } from './ui/button'
 
 export const EnvVarInput = ({
   field,
@@ -14,12 +16,14 @@ export const EnvVarInput = ({
   index,
   form,
   fields,
+  encryptedPrivateKey,
 }: {
   stageName: string
   index: number
   form: UseFormReturn<Gitenvs>
   field: FieldArrayWithId<Gitenvs, 'envVars', 'id'>
   fields: UseFieldArrayReturn<Gitenvs, 'envVars', 'id'>
+  encryptedPrivateKey: string
 }) => {
   const [showContent, setShowContent] = useState(false)
 
@@ -55,6 +59,22 @@ export const EnvVarInput = ({
       <Toggle onPressedChange={(pressed) => setShowContent(pressed)}>
         {showContent ? `👀` : `🙈`}
       </Toggle>
+      <Button
+        onClick={async () => {
+          const encrypted = field.values[stageName]?.value
+          if (!encrypted) throw new Error('No encrypted value')
+
+          const decrypted = await decryptEnvVar({
+            encrypted,
+            encryptedPrivateKey: encryptedPrivateKey,
+            passphrase: prompt('Passphrase') ?? '',
+          })
+
+          console.log('decrypted', decrypted)
+        }}
+      >
+        Decrypt
+      </Button>
     </div>
   )
 }
