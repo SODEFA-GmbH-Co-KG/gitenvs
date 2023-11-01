@@ -1,26 +1,60 @@
-import { generateKeyPairSync, randomBytes } from 'crypto'
+import { stringToBase64, uint8ArrayToBase64 } from 'uint8array-extras'
 
 export const createKeys = async () => {
-  const passphrase = randomBytes(256).toString('base64')
+  const rsaKeys = await globalThis.crypto.subtle.generateKey(
+    {
+      name: 'RSA-OAEP',
+      modulusLength: 4096,
+      publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+      hash: { name: 'SHA-256' },
+    },
+    true,
+    ['encrypt', 'decrypt'],
+  )
 
-  // FROM: https://stackoverflow.com/a/53173811/5730346
-  const { publicKey, privateKey } = generateKeyPairSync('rsa', {
-    modulusLength: 4096,
-    publicKeyEncoding: {
-      type: 'spki', // recommended to be 'spki' by the Node.js docs
-      format: 'pem',
+  const publicKeyAsJwk = await globalThis.crypto.subtle.exportKey(
+    'jwk',
+    rsaKeys.publicKey,
+  )
+
+  const publicKey = stringToBase64(JSON.stringify(publicKeyAsJwk))
+
+  const passphraseKey = await globalThis.crypto.subtle.generateKey(
+    {
+      name: 'AES-GCM',
+      length: 256,
     },
-    privateKeyEncoding: {
-      type: 'pkcs8', // recommended to be 'pkcs8' by the Node.js docs
-      format: 'pem',
-      cipher: 'aes-256-cbc',
-      passphrase,
+    true,
+    ['wrapKey'],
+  )
+
+  const passphrase = await globalThis.crypto.subtle.exportKey(
+    'raw',
+    passphraseKey,
+  )
+
+  const iv = globalThis.crypto.getRandomValues(new Uint8Array(12))
+  const encryptedPrivateKey = await globalThis.crypto.subtle.wrapKey(
+    'pkcs8',
+    rsaKeys.privateKey,
+    passphraseKey,
+    {
+      name: 'AES-GCM',
+      iv: iv,
+      // tagLength: 128,
     },
+  )
+
+  const encryptedPrivateKeyWithIv = JSON.stringify({
+    iv: uint8ArrayToBase64(iv),
+    encryptedPrivateKey: uint8ArrayToBase64(
+      new Uint8Array(encryptedPrivateKey),
+    ),
   })
 
   return {
     publicKey,
-    privateKey,
-    passphrase,
+    encryptedPrivateKey: stringToBase64(encryptedPrivateKeyWithIv),
+    passphrase: uint8ArrayToBase64(new Uint8Array(passphrase)),
   }
 }
