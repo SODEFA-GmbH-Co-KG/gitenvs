@@ -20,10 +20,21 @@ export const CopyPassphrases = ({
   return (
     <div className="flex flex-col gap-8 max-w-lg">
       <h1 className="text-2xl text-center">Your secret Passphrases</h1>
-      <p>
-        These are your secret passphrases. You will need them to decrypt your
-        secrets. Save those in a safe place (password manager).
-      </p>
+      <div className="flex flex-col gap-4">
+        <p>
+          These are your secret passphrases. You will need them to decrypt your
+          secrets. Save those in a safe place (password manager).
+        </p>
+        <p>
+          You can also download your{' '}
+          <span className="font-bold">development passphrase</span> to your
+          project folder. {` `}
+          <span className="text-sm">
+            This is not recommended for staging or production passphrases! (But
+            some people love to live dangerously)
+          </span>
+        </p>
+      </div>
       <div className="flex flex-col gap-4">
         {passphrases.passphrases.map((passphrase) => (
           <div key={passphrase.stageName} className="flex flex-col gap-4">
@@ -65,29 +76,29 @@ export const CopyPassphrases = ({
         ))}
       </div>
 
-      <Button
-        onClick={async () => {
-          await navigator.clipboard.writeText(
-            JSON.stringify(passphrases.passphrases, null, 2),
-          )
-        }}
-        variant="outline"
-      >
-        <Copy className="w-4 h-4" />
-        &nbsp; Copy all
-      </Button>
-
-      <Button
-        onClick={async () => {
-          // TODO:
-        }}
-        variant="outline"
-      >
-        <Save className="w-4 h-4" />
-        &nbsp; Save all to current folder
-      </Button>
-
-      <Button onClick={async () => onNext()}>All done - next, please!</Button>
+      <div className="flex flex-col gap-4">
+        <Button
+          onClick={async () => {
+            await navigator.clipboard.writeText(
+              JSON.stringify(passphrases.passphrases, null, 2),
+            )
+          }}
+          variant="outline"
+        >
+          <Copy className="w-4 h-4" />
+          &nbsp; Copy all
+        </Button>
+        <Button
+          onClick={async () => {
+            // TODO:
+          }}
+          variant="outline"
+        >
+          <Save className="w-4 h-4" />
+          &nbsp; Save all to current folder
+        </Button>
+        <Button onClick={async () => onNext()}>All done - next, please!</Button>
+      </div>
     </div>
   )
 }
