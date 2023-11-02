@@ -17,55 +17,41 @@ export const encryptEnvVar = async ({
   plaintext: string
   publicKey: string
 }) => {
-  try {
-    const symmetricEncrypted = await encryptSymmetric({ plaintext })
-    const jsonWebKey = JSON.parse(base64ToString(publicKey)) as JsonWebKey
+  const symmetricEncrypted = await encryptSymmetric({ plaintext })
+  const jsonWebKey = JSON.parse(base64ToString(publicKey)) as JsonWebKey
 
-    console.log('jsonWebKey', jsonWebKey)
+  const pubKey = await globalThis.crypto.subtle.importKey(
+    'jwk',
+    // TODO: zod this
+    jsonWebKey,
+    {
+      name: 'RSA-OAEP',
+      hash: { name: 'SHA-256' },
+    },
+    false,
+    ['wrapKey'],
+  )
 
-    const pubKey = await globalThis.crypto.subtle.importKey(
-      'jwk',
-      // TODO: zod this
-      jsonWebKey,
-      {
-        name: 'RSA-OAEP',
-        hash: { name: 'SHA-256' },
-      },
-      false,
-      ['wrapKey'],
-    )
-    // TODO: Remove
-    // .then(function (result) {
-    //   console.log('imported public key', result)
-    //   return result
-    // })
-    // .catch(function (err) {
-    //   console.log('error', err)
-    // })
+  const encryptedSymmetricKey = await crypto.subtle.wrapKey(
+    'raw',
+    symmetricEncrypted.symmetricKey,
+    pubKey,
+    {
+      name: pubKey.algorithm.name,
+    },
+  )
 
-    const encryptedSymmetricKey = await crypto.subtle.wrapKey(
-      'raw',
-      symmetricEncrypted.symmetricKey,
-      pubKey,
-      {
-        name: pubKey.algorithm.name,
-      },
-    )
-
-    const secretData: SecretData = {
-      encryptedValue: symmetricEncrypted.encryptedValue,
-      iv: symmetricEncrypted.iv,
-      encryptedSymmetricKey: uint8ArrayToBase64(
-        new Uint8Array(encryptedSymmetricKey),
-      ),
-    }
-
-    const stringified = JSON.stringify(secretData)
-
-    return stringToBase64(stringified)
-  } catch (error) {
-    console.log('error', error)
+  const secretData: SecretData = {
+    encryptedValue: symmetricEncrypted.encryptedValue,
+    iv: symmetricEncrypted.iv,
+    encryptedSymmetricKey: uint8ArrayToBase64(
+      new Uint8Array(encryptedSymmetricKey),
+    ),
   }
+
+  const stringified = JSON.stringify(secretData)
+
+  return stringToBase64(stringified)
 }
 
 const encryptSymmetric = async ({ plaintext }: { plaintext: string }) => {
