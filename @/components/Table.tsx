@@ -99,6 +99,21 @@ export const Table = ({ fileId }: { fileId: string }) => {
             }, 1fr)`,
           }}
         >
+          <div></div>
+          {gitenvs?.envStages.map((stage) => (
+            <div key={stage.name} className="flex flex-col gap-2">
+              {stage.name}
+            </div>
+          ))}
+          <div>Passphrase</div>
+          {gitenvs?.envStages.map((stage) => (
+            <Input
+              key={stage.name}
+              className="flex flex-col gap-2"
+              autoComplete="new-password"
+              type="password"
+            ></Input>
+          ))}
           <div>Env Name</div>
           {gitenvs?.envStages.map((stage) => (
             <div key={stage.name} className="flex flex-col gap-2">
