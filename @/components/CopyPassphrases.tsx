@@ -1,5 +1,6 @@
 import { Copy, Save } from 'lucide-react'
-import { type RouterOutputs } from '~/utils/api'
+import { api, type RouterOutputs } from '~/utils/api'
+import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
@@ -17,6 +18,9 @@ export const CopyPassphrases = ({
   passphrases: RouterOutputs['gitenvs']['createGitenvsJson']
   onNext: () => void
 }) => {
+  const { mutateAsync: savePassphraseToFolder } =
+    api.gitenvs.savePassphraseToFolder.useMutation()
+
   return (
     <div className="flex flex-col gap-8 max-w-lg">
       <h1 className="text-2xl text-center">Your secret Passphrases</h1>
@@ -47,6 +51,7 @@ export const CopyPassphrases = ({
                 readOnly
               />
               <Button
+                type="button"
                 variant="outline"
                 onClick={async () => {
                   await navigator.clipboard.writeText(passphrase.passphrase)
@@ -58,9 +63,18 @@ export const CopyPassphrases = ({
                 <Tooltip>
                   <TooltipTrigger>
                     <Button
+                      type="button"
                       variant="outline"
-                      onClick={() => {
-                        // TODO:
+                      onClick={async () => {
+                        const encryptedPassphrase =
+                          await encryptWithEncryptionToken({
+                            plaintext: passphrase.passphrase,
+                          })
+                        await savePassphraseToFolder({
+                          encryptedPassphrase,
+                          stageName: passphrase.stageName,
+                        })
+                        // TODO: Show success message
                       }}
                     >
                       <Save className="w-4 h-4" />
@@ -78,6 +92,7 @@ export const CopyPassphrases = ({
 
       <div className="flex flex-col gap-4">
         <Button
+          type="button"
           onClick={async () => {
             await navigator.clipboard.writeText(
               JSON.stringify(passphrases.passphrases, null, 2),
@@ -89,15 +104,29 @@ export const CopyPassphrases = ({
           &nbsp; Copy all
         </Button>
         <Button
+          type="button"
           onClick={async () => {
-            // TODO:
+            await Promise.all(
+              passphrases.passphrases.map(async (passphrase) => {
+                const encryptedPassphrase = await encryptWithEncryptionToken({
+                  plaintext: passphrase.passphrase,
+                })
+
+                return savePassphraseToFolder({
+                  encryptedPassphrase,
+                  stageName: passphrase.stageName,
+                })
+              }),
+            )
           }}
           variant="outline"
         >
           <Save className="w-4 h-4" />
           &nbsp; Save all to current folder
         </Button>
-        <Button onClick={async () => onNext()}>All done - next, please!</Button>
+        <Button type="button" onClick={async () => onNext()}>
+          All done - next, please!
+        </Button>
       </div>
     </div>
   )

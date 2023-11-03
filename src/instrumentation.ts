@@ -1,7 +1,6 @@
-import { getEncryptionToken } from './utils/getEncryptionToken'
+import { getEncryptionToken } from './utils/encryptionToken'
 
 export async function register() {
-  // console.log(`The encryption token is ${getEncryptionToken()}`)
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { default: open } = await import('open')
     await open(

@@ -1,8 +1,4 @@
-import {
-  base64ToString,
-  base64ToUint8Array,
-  uint8ArrayToBase64,
-} from 'uint8array-extras'
+import { base64ToString, base64ToUint8Array } from 'uint8array-extras'
 
 // TODO: Duplicate from src/gitenvs/encryptEnvVar.ts
 export type SecretData = {
@@ -86,35 +82,5 @@ export const decryptEnvVar = async ({
     return plaintext
   } catch (error) {
     console.log('error', error)
-  }
-}
-
-const encryptSymmetric = async ({ plaintext }: { plaintext: string }) => {
-  const encoded = new TextEncoder().encode(plaintext)
-
-  const symmetricKey = await globalThis.crypto.subtle.generateKey(
-    {
-      name: 'AES-GCM',
-      length: 256,
-    },
-    true,
-    ['encrypt'],
-  )
-
-  const iv = crypto.getRandomValues(new Uint8Array(12))
-
-  const encrypted = await crypto.subtle.encrypt(
-    {
-      name: 'AES-GCM',
-      iv,
-    },
-    symmetricKey,
-    encoded,
-  )
-
-  return {
-    iv: uint8ArrayToBase64(iv),
-    encryptedValue: uint8ArrayToBase64(new Uint8Array(encrypted)),
-    symmetricKey,
   }
 }

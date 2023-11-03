@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "GITENVS_ENCRYPTION_TOKEN=9ec8c2c98cb413a4d6b66d30c764c45f1d02b062b14638138c1c558aed082948 next dev",
     "lint": "next lint",
     "start": "next start"
   },

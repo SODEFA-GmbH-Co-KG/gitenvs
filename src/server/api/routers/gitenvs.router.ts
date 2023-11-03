@@ -1,8 +1,10 @@
+import { writeFile } from 'fs/promises'
 import { z } from 'zod'
 import { createKeys } from '~/gitenvs/createKeys'
 import { getGitenvs, saveGitenvs } from '~/gitenvs/gitenvs'
 import { CreateGitenvsJson, Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
+import { decryptWithEncryptionToken } from '~/utils/encryptionToken'
 
 export const gitenvsRouter = createTRPCRouter({
   getGitenvs: publicProcedure.query(async () => {
@@ -48,11 +50,30 @@ export const gitenvsRouter = createTRPCRouter({
         envVars: [],
       })
 
+      // TODO: Add .gitenvs.passphrase to .gitignore
+
       return {
         passphrases: stages.map((stage) => ({
           stageName: stage.name,
           passphrase: stage.passphrase,
         })),
       }
+    }),
+  savePassphraseToFolder: publicProcedure
+    .input(
+      z.object({
+        encryptedPassphrase: z.object({
+          encryptedValue: z.string(),
+          iv: z.string(),
+        }),
+        stageName: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const passphrase = await decryptWithEncryptionToken(
+        input.encryptedPassphrase,
+      )
+
+      await writeFile(`${input.stageName}.gitenvs.passphrase`, passphrase)
     }),
 })
