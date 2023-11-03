@@ -1,9 +1,17 @@
 'use client'
 
 import { Loader2, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { useFieldArray } from 'react-hook-form'
-import { CreateGitenvsJson, EnvFileType } from '~/gitenvs/gitenvs.schema'
-import { api, type RouterOutputs } from '~/utils/api'
+import { z } from 'zod'
+import { createKeys } from '~/gitenvs/createKeys'
+import {
+  EnvFile,
+  EnvFileType,
+  EnvStage,
+  type Passphrase,
+} from '~/gitenvs/gitenvs.schema'
+import { api } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
 import { Button } from './ui/button'
 import {
@@ -26,14 +34,21 @@ import {
 export const CreateGitenvs = ({
   onPassphrases,
 }: {
-  onPassphrases: (
-    passphrases: RouterOutputs['gitenvs']['createGitenvsJson'],
-  ) => void
+  onPassphrases: (passphrases: Passphrase[]) => void
 }) => {
-  const { mutateAsync, isLoading } = api.gitenvs.createGitenvsJson.useMutation()
+  const { mutateAsync, isLoading: creatingGitenvsIsLoading } =
+    api.gitenvs.createGitenvs.useMutation()
+  const [isGenerating, setIsGenerating] = useState(false)
+
+  const isLoading = creatingGitenvsIsLoading || isGenerating
 
   const form = useZodForm({
-    schema: CreateGitenvsJson,
+    schema: z.object({
+      envFile: EnvFile.omit({ id: true }),
+      envStages: z.array(
+        EnvStage.omit({ publicKey: true, encryptedPrivateKey: true }),
+      ),
+    }),
     defaultValues: {
       envFile: {
         name: '.env',
@@ -57,8 +72,40 @@ export const CreateGitenvs = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(async (data) => {
-          const passphrases = await mutateAsync(data)
-          onPassphrases(passphrases)
+          setIsGenerating(true)
+          try {
+            const stages = await Promise.all(
+              data.envStages.map(async (stage) => {
+                const keys = await createKeys()
+
+                return {
+                  name: stage.name,
+                  ...keys,
+                }
+              }),
+            )
+
+            await mutateAsync({
+              version: '1',
+              envStages: stages.map(({ passphrase: _, ...stage }) => stage), // IMPORTANT: Don't save the passphrase to gitenvs.json
+              envFiles: [
+                {
+                  ...data.envFile,
+                  id: globalThis.crypto.randomUUID(),
+                },
+              ],
+              envVars: [],
+            })
+
+            const passphrases = stages.map((stage) => ({
+              stageName: stage.name,
+              passphrase: stage.passphrase,
+            }))
+
+            onPassphrases(passphrases)
+          } finally {
+            setIsGenerating(false)
+          }
         })}
         className="flex flex-col gap-8"
       >

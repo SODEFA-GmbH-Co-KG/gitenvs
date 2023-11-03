@@ -1,4 +1,4 @@
-import { type RouterOutputs } from '~/utils/api'
+import { type Passphrase } from '~/gitenvs/gitenvs.schema'
 import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import {
@@ -12,7 +12,7 @@ export const DeployGitenvs = ({
   passphrases,
   onNext,
 }: {
-  passphrases: RouterOutputs['gitenvs']['createGitenvsJson']
+  passphrases: Passphrase[]
   onNext: () => void
 }) => {
   return (
@@ -52,7 +52,7 @@ export const DeployGitenvs = ({
           </div>
           <CollapsibleContent>
             <div className="flex flex-col gap-4">
-              {passphrases.passphrases.map((passphrase) => {
+              {passphrases.map((passphrase) => {
                 const dotenvFormat = `GITENVS_STAGE=${passphrase.stageName}
               GITENVS_PRIVATE_KEY_PASSPHRASE_${passphrase.stageName.toUpperCase()}=${
                 passphrase.passphrase

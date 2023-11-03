@@ -36,9 +36,9 @@ export const Gitenvs = z.object({
 
 export type Gitenvs = z.infer<typeof Gitenvs>
 
-export const CreateGitenvsJson = z.object({
-  envFile: EnvFile.omit({ id: true }),
-  envStages: z.array(
-    EnvStage.omit({ publicKey: true, encryptedPrivateKey: true }),
-  ),
+export const Passphrase = z.object({
+  stageName: z.string(),
+  passphrase: z.string(),
 })
+
+export type Passphrase = z.infer<typeof Passphrase>

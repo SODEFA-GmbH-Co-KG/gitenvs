@@ -12,12 +12,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from './ui/tooltip'
+import { type Passphrase } from '~/gitenvs/gitenvs.schema'
 
 export const CopyPassphrases = ({
   passphrases,
   onNext,
 }: {
-  passphrases: RouterOutputs['gitenvs']['createGitenvsJson']
+  passphrases: Passphrase[]
   onNext: () => void
 }) => {
   const { mutateAsync: savePassphraseToFolder } =
@@ -42,7 +43,7 @@ export const CopyPassphrases = ({
         </p>
       </div>
       <div className="flex flex-col gap-4">
-        {passphrases.passphrases.map((passphrase) => (
+        {passphrases.map((passphrase) => (
           <div key={passphrase.stageName} className="flex flex-col gap-4">
             <Label htmlFor={passphrase.stageName}>{passphrase.stageName}</Label>
             <div className="flex flex-row gap-2">
@@ -92,14 +93,14 @@ export const CopyPassphrases = ({
 
       <div className="flex flex-col gap-4">
         <CopyButton
-          textToCopy={JSON.stringify(passphrases.passphrases, null, 2)}
+          textToCopy={JSON.stringify(passphrases, null, 2)}
           additionalText="Copy all"
         />
         <Button
           type="button"
           onClick={async () => {
             const promise = Promise.all(
-              passphrases.passphrases.map(async (passphrase) => {
+              passphrases.map(async (passphrase) => {
                 const encryptedPassphrase = await encryptWithEncryptionToken({
                   plaintext: passphrase.passphrase,
                 })
