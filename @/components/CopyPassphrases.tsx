@@ -1,4 +1,5 @@
 import { Copy, Save } from 'lucide-react'
+import { toast } from 'sonner'
 import { api, type RouterOutputs } from '~/utils/api'
 import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
 import { Button } from './ui/button'
@@ -66,15 +67,21 @@ export const CopyPassphrases = ({
                       type="button"
                       variant="outline"
                       onClick={async () => {
-                        const encryptedPassphrase =
-                          await encryptWithEncryptionToken({
-                            plaintext: passphrase.passphrase,
+                        const save = async () => {
+                          const encryptedPassphrase =
+                            await encryptWithEncryptionToken({
+                              plaintext: passphrase.passphrase,
+                            })
+                          await savePassphraseToFolder({
+                            encryptedPassphrase,
+                            stageName: passphrase.stageName,
                           })
-                        await savePassphraseToFolder({
-                          encryptedPassphrase,
-                          stageName: passphrase.stageName,
+                        }
+
+                        toast.promise(save(), {
+                          success: 'Saved passphrase to current folder',
+                          error: 'Could not save passphrase to current folder',
                         })
-                        // TODO: Show success message
                       }}
                     >
                       <Save className="w-4 h-4" />
@@ -106,7 +113,7 @@ export const CopyPassphrases = ({
         <Button
           type="button"
           onClick={async () => {
-            await Promise.all(
+            const promise = Promise.all(
               passphrases.passphrases.map(async (passphrase) => {
                 const encryptedPassphrase = await encryptWithEncryptionToken({
                   plaintext: passphrase.passphrase,
@@ -118,6 +125,11 @@ export const CopyPassphrases = ({
                 })
               }),
             )
+
+            toast.promise(promise, {
+              success: 'Saved all passphrases to current folder',
+              error: 'Could not save passphrases to current folder',
+            })
           }}
           variant="outline"
         >

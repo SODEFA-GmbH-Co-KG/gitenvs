@@ -1,3 +1,4 @@
+import { Toaster } from 'sonner'
 import '~/styles/globals.css'
 import { TrpcProvider } from '~/utils/TrpcProvider'
 
@@ -15,6 +16,7 @@ export default async function RootLayout({
               {children}
             </div>
           </main>
+          <Toaster />
         </TrpcProvider>
       </body>
     </html>
