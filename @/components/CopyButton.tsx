@@ -5,12 +5,15 @@ import { Button } from './ui/button'
 export const CopyButton = ({
   textToCopy,
   additionalText,
+  className, // TODO: Use proper HTML attributes
 }: {
   textToCopy: string
   additionalText?: string
+  className?: string
 }) => {
   return (
     <Button
+      className={className}
       variant="outline"
       onClick={async () => {
         toast.promise(navigator.clipboard.writeText(textToCopy), {

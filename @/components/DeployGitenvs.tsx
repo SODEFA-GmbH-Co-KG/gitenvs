@@ -39,33 +39,45 @@ export const DeployGitenvs = ({
           to set at your hosting provider.
         </p>
 
-        {passphrases.passphrases.map((passphrase) => (
-          <div key={passphrase.stageName} className="flex flex-col gap-4">
-            <h3 className="text-md">{passphrase.stageName}</h3>
+        {passphrases.passphrases.map((passphrase) => {
+          const dotenvFormat = `GITENVS_STAGE=${passphrase.stageName}
+GITENVS_PRIVATE_KEY_PASSPHRASE_${passphrase.stageName.toUpperCase()}=${
+            passphrase.passphrase
+          }`
 
-            <div className="grid grid-cols-[1fr_1fr] gap-4 ml-4">
-              <div>Key</div>
-              <div>Value</div>
-              <div>
-                <InputWithCopyButton content="GITENVS_STAGE" />
-              </div>
-              <div>
-                <InputWithCopyButton content={passphrase.stageName} />
-              </div>
-              <div>
-                <InputWithCopyButton
-                  content={`GITENVS_PRIVATE_KEY_PASSPHRASE_${passphrase.stageName.toUpperCase()}`}
-                />
-              </div>
-              <div>
-                <InputWithCopyButton
-                  content={passphrase.passphrase}
-                  isPassword
+          return (
+            <div key={passphrase.stageName} className="flex flex-col gap-4">
+              <h3 className="text-md">{passphrase.stageName}</h3>
+
+              <div className="grid grid-cols-[1fr_1fr] gap-4 ml-4">
+                <div>Key</div>
+                <div>Value</div>
+                <div>
+                  <InputWithCopyButton content="GITENVS_STAGE" />
+                </div>
+                <div>
+                  <InputWithCopyButton content={passphrase.stageName} />
+                </div>
+                <div>
+                  <InputWithCopyButton
+                    content={`GITENVS_PRIVATE_KEY_PASSPHRASE_${passphrase.stageName.toUpperCase()}`}
+                  />
+                </div>
+                <div>
+                  <InputWithCopyButton
+                    content={passphrase.passphrase}
+                    isPassword
+                  />
+                </div>
+                <CopyButton
+                  textToCopy={dotenvFormat}
+                  additionalText="Copy in .env format"
+                  className="col-span-2"
                 />
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <Button onClick={async () => onNext()}>Done</Button>
