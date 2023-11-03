@@ -1,5 +1,5 @@
 import { type RouterOutputs } from '~/utils/api'
-import { WithCopyButton } from './WithCopyButton'
+import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 
@@ -43,37 +43,25 @@ export const DeployGitenvs = ({
           <div key={passphrase.stageName} className="flex flex-col gap-4">
             <h3 className="text-md">{passphrase.stageName}</h3>
 
-            <div className="grid grid-cols-[1fr_1fr] gap-2 ml-4">
+            <div className="grid grid-cols-[1fr_1fr] gap-4 ml-4">
               <div>Key</div>
               <div>Value</div>
               <div>
-                <WithCopyButton textToCopy="GITENVS_STAGE">
-                  <Input readOnly defaultValue="GITENVS_STAGE" />
-                </WithCopyButton>
+                <InputWithCopyButton content="GITENVS_STAGE" />
               </div>
               <div>
-                <WithCopyButton textToCopy={passphrase.stageName}>
-                  <Input readOnly defaultValue={passphrase.stageName} />
-                </WithCopyButton>
+                <InputWithCopyButton content={passphrase.stageName} />
               </div>
               <div>
-                <WithCopyButton
-                  textToCopy={`GITENVS_PRIVATE_KEY_PASSPHRASE_${passphrase.stageName.toUpperCase()}`}
-                >
-                  <Input
-                    readOnly
-                    defaultValue={`GITENVS_PRIVATE_KEY_PASSPHRASE_${passphrase.stageName.toUpperCase()}`}
-                  />
-                </WithCopyButton>
+                <InputWithCopyButton
+                  content={`GITENVS_PRIVATE_KEY_PASSPHRASE_${passphrase.stageName.toUpperCase()}`}
+                />
               </div>
               <div>
-                <WithCopyButton textToCopy={passphrase.passphrase}>
-                  <Input
-                    readOnly
-                    defaultValue={passphrase.passphrase}
-                    type="password"
-                  />
-                </WithCopyButton>
+                <InputWithCopyButton
+                  content={passphrase.passphrase}
+                  isPassword
+                />
               </div>
             </div>
           </div>
@@ -81,6 +69,25 @@ export const DeployGitenvs = ({
       </div>
 
       <Button onClick={async () => onNext()}>Done</Button>
+    </div>
+  )
+}
+
+export const InputWithCopyButton = ({
+  content,
+  isPassword = false,
+}: {
+  content: string
+  isPassword?: boolean
+}) => {
+  return (
+    <div className="flex flex-row gap-2 flex-1">
+      <Input
+        readOnly
+        defaultValue={content}
+        type={isPassword ? 'password' : 'text'}
+      />
+      <CopyButton textToCopy={content} />
     </div>
   )
 }

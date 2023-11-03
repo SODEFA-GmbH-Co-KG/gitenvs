@@ -1,7 +1,8 @@
-import { Copy, Save } from 'lucide-react'
+import { Save } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type RouterOutputs } from '~/utils/api'
 import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
+import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
@@ -51,15 +52,7 @@ export const CopyPassphrases = ({
                 type="password"
                 readOnly
               />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(passphrase.passphrase)
-                }}
-              >
-                <Copy className="w-4 h-4" />
-              </Button>
+              <CopyButton textToCopy={passphrase.passphrase} />
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
@@ -98,18 +91,10 @@ export const CopyPassphrases = ({
       </div>
 
       <div className="flex flex-col gap-4">
-        <Button
-          type="button"
-          onClick={async () => {
-            await navigator.clipboard.writeText(
-              JSON.stringify(passphrases.passphrases, null, 2),
-            )
-          }}
-          variant="outline"
-        >
-          <Copy className="w-4 h-4" />
-          &nbsp; Copy all
-        </Button>
+        <CopyButton
+          textToCopy={JSON.stringify(passphrases.passphrases, null, 2)}
+          additionalText="Copy all"
+        />
         <Button
           type="button"
           onClick={async () => {
