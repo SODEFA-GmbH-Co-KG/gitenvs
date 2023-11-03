@@ -27,6 +27,7 @@ export const gitenvsRouter = createTRPCRouter({
   createGitenvsJson: publicProcedure
     .input(CreateGitenvsJson)
     .mutation(async ({ input }) => {
+      // TODO: This should happen on the client, no passphrase should be sent to the client
       const stages = await Promise.all(
         input.envStages.map(async (stage) => {
           const keys = await createKeys()
