@@ -105,7 +105,7 @@ export const decryptionScriptFunc = async () => {
                             return `
                         <tr>
                           <td style="font-weight: bold">${key}</td>
-                          <td>${value ?? ''}</td>
+                          <td style="word-break: break-word">${value ?? ''}</td>
                         </tr>
                       `
                           })
