@@ -60,8 +60,9 @@ main({
   - Copy the object with `publicKey` & `encryptedPrivateKey` and paste them into the `keys` object in your `createEnvFiles.ts` file
   - !WARNING! Do not copy & paste the passphrase into `createEnvFiles.ts`. It is a secret! Save it into your password manager.
 - Add the following command to your `package.json`:
-  - `"env:create": "npx ts-node createEnvFiles.ts createEnvFiles"`
-  - `"env:ui": "npx nodemon createEnvFiles.ts ui"`
+  - `"env:create": "cross-env npx tsx createEnvFiles.ts createEnvFiles"`  
+    if you setup just one stage other than 'development' you have to add GITENV_STAGE=YourStageName in front of the npx part. Otherwise the default stage will be used which is 'development'
+  - `"env:ui": "npx tsx watch createEnvFiles.ts ui"`
   - `"prepare": "yarn env:create"` (This is so that the .env files will be created after node_modules were installed)
 - Add `*.passphrase` to your `.gitignore`
 
