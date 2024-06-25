@@ -25,7 +25,7 @@ export const DeployGitenvs = ({
           We can deploy the environment variables to these providers
           automatically.
         </p>
-        <Button variant="outline" className="self-center">
+        <Button variant="outline" className="self-center" onClick={() => alert('Not implemented, yet.')}>
           🚀 Deploy to Vercel
         </Button>
       </div>
