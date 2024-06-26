@@ -6,6 +6,7 @@ import { map } from 'lodash'
 import { useFieldArray } from 'react-hook-form'
 import { encryptEnvVar } from '~/gitenvs/encryptEnvVar'
 import { Gitenvs } from '~/gitenvs/gitenvs.schema'
+import { getNewEnvVarId } from '~/gitenvs/idsGenerator'
 import { api } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
 import { EnvVarInput } from './EnvVarInput'
@@ -161,7 +162,10 @@ export const Table = ({ fileId }: { fileId: string }) => {
           )
           const newGitenvs = {
             ...gitenvs,
-            envVars: [...gitenvs.envVars, { fileId, key: '', values }],
+            envVars: [
+              ...gitenvs.envVars,
+              { id: getNewEnvVarId(), fileId, key: '', values },
+            ],
           }
           await saveGitenvs({ gitenvs: newGitenvs })
           await trpcUtils.gitenvs.invalidate()
