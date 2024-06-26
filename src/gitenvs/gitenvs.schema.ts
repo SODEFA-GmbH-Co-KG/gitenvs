@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const EnvVar = z.object({
+  id: z.string(),
   fileId: z.string(),
   key: z.string(),
   values: z.record(
