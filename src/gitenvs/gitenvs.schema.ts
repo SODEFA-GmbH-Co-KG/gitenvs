@@ -12,7 +12,11 @@ export const EnvVar = z.object({
   ),
 })
 
+export type EnvVar = z.infer<typeof EnvVar>
+
 export const EnvFileType = z.enum(['dotenv'])
+
+export type EnvFileType = z.infer<typeof EnvFileType>
 
 export const EnvFile = z.object({
   id: z.string(),
@@ -21,11 +25,15 @@ export const EnvFile = z.object({
   type: EnvFileType,
 })
 
+export type EnvFile = z.infer<typeof EnvFile>
+
 export const EnvStage = z.object({
   name: z.string(),
   publicKey: z.string(),
   encryptedPrivateKey: z.string(),
 })
+
+export type EnvStage = z.infer<typeof EnvStage>
 
 export const Gitenvs = z.object({
   version: z.string(),

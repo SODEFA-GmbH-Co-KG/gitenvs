@@ -11,6 +11,7 @@ import { useZodForm } from '~/utils/useZodForm'
 import { EnvVarInput } from './EnvVarInput'
 
 export const Table = ({ fileId }: { fileId: string }) => {
+  const trpcUtils = api.useUtils()
   const { data: gitenvs } = api.gitenvs.getGitenvs.useQuery(undefined, {
     // TODO: This is not how you should do it. onSuccess will be deprecated in future.
     onSuccess: (data) => {
@@ -120,26 +121,22 @@ export const Table = ({ fileId }: { fileId: string }) => {
               {stage.name}
             </div>
           ))}
-          {envVars.map((field, index) => {
-            if (field.fileId !== fileId) return null
+          {gitenvs?.envVars.map((envVar, index) => {
+            if (envVar.fileId !== fileId) return null
             return (
               <>
                 <Input
                   className="flex flex-col gap-2"
-                  key={field.id}
+                  key={envVar.key}
                   {...form.register(`envVars.${index}.key`)}
                   autoComplete="new-password"
                 ></Input>
                 {gitenvs?.envStages.map((stage) => {
                   return (
                     <EnvVarInput
-                      key={`${field.id}-${stage.name}`}
-                      stageName={stage.name}
-                      field={field}
-                      index={index}
-                      form={form}
-                      fields={envVarsFields}
-                      encryptedPrivateKey={stage.encryptedPrivateKey}
+                      key={`${envVar.key}-${stage.name}`}
+                      envVar={envVar}
+                      stage={stage}
                     />
                   )
                 })}
@@ -154,7 +151,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
         variant="secondary"
         className="text-black"
         type="button"
-        onClick={() => {
+        onClick={async () => {
           if (!gitenvs) return
           const values = Object.fromEntries(
             gitenvs.envStages.map((stage) => [
@@ -162,7 +159,12 @@ export const Table = ({ fileId }: { fileId: string }) => {
               { value: '', encrypted: true },
             ]),
           )
-          envVarsFields.append({ fileId, key: '', values })
+          const newGitenvs = {
+            ...gitenvs,
+            envVars: [...gitenvs.envVars, { fileId, key: '', values }],
+          }
+          await saveGitenvs({ gitenvs: newGitenvs })
+          await trpcUtils.gitenvs.invalidate()
         }}
       >
         Add
