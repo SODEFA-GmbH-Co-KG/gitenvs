@@ -109,17 +109,32 @@ export const CreateGitenvs = ({
         })}
         className="flex flex-col gap-8"
       >
-        <h1 className="text-2xl text-center">Setup Gitenvs</h1>
+        <h1 className="text-center text-2xl">Setup Gitenvs</h1>
         <div className="flex flex-row gap-4">
-          <div className="flex flex-col gap-4 flex-1">
+          <div className="flex flex-1 flex-col gap-4">
             <h2 className="text-lg">Env File</h2>
+            <div>
+              <FormField
+                control={form.control}
+                name="envFile.filePath"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>File Path</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <div className="flex flex-row gap-4">
               <FormField
                 control={form.control}
                 name="envFile.name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Label</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -157,26 +172,11 @@ export const CreateGitenvs = ({
                 />
               </div>
             </div>
-            <div>
-              <FormField
-                control={form.control}
-                name="envFile.filePath"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>File Path</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
           </div>
 
           <div className="w-[1px] bg-gray-200"></div>
 
-          <div className="flex flex-col gap-4 flex-1">
+          <div className="flex flex-1 flex-col gap-4">
             <h2 className="text-lg">Stages</h2>
             <FormLabel>Name</FormLabel>
             {envStages.fields.map((field, index) => (
