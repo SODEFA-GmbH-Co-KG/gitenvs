@@ -19,11 +19,50 @@
   ],
   "envFiles": [
     {
+      "id": "ec8819f7-3a45-4be6-9989-abf2bd7573bb",
       "name": ".env",
       "filePath": "./.env",
-      "type": "dotenv",
-      "id": "ec8819f7-3a45-4be6-9989-abf2bd7573bb"
+      "type": "dotenv"
     }
   ],
-  "envVars": []
+  "envVars": [
+    {
+      "id": "envVar_b3s1kq4napazcYsQ9oIbx",
+      "fileId": "ec8819f7-3a45-4be6-9989-abf2bd7573bb",
+      "key": "",
+      "values": {
+        "development": {
+          "value": "",
+          "encrypted": true
+        },
+        "staging": {
+          "value": "",
+          "encrypted": true
+        },
+        "production": {
+          "value": "",
+          "encrypted": true
+        }
+      }
+    },
+    {
+      "id": "envVar_k66sXLj7l-BJbOOrmU3lR",
+      "fileId": "ec8819f7-3a45-4be6-9989-abf2bd7573bb",
+      "key": "",
+      "values": {
+        "development": {
+          "value": "",
+          "encrypted": true
+        },
+        "staging": {
+          "value": "",
+          "encrypted": true
+        },
+        "production": {
+          "value": "",
+          "encrypted": true
+        }
+      }
+    }
+  ]
 }

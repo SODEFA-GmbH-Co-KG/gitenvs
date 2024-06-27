@@ -21,5 +21,5 @@ export const Main = () => {
     return <SetupGitenvs onSetupDone={() => refetch()} />
   }
 
-  return <Table fileId={'om234lkm234moi'} />
+  return <Table fileId={'ec8819f7-3a45-4be6-9989-abf2bd7573bb'} />
 }
