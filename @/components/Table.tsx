@@ -8,6 +8,7 @@ import { map } from 'lodash-es'
 import { Fragment, useEffect, useState } from 'react'
 import { getNewEnvVarId } from '~/gitenvs/idsGenerator'
 import { api } from '~/utils/api'
+import { EditEnvKeyDialog } from './EditEnvKeyDialog'
 import { EditEnvVarDialog } from './EditEnvVarDialog'
 
 export const Table = ({ fileId }: { fileId: string }) => {
@@ -119,12 +120,28 @@ export const Table = ({ fileId }: { fileId: string }) => {
           ))}
           {gitenvs?.envVars.map((envVar, index) => {
             if (envVar.fileId !== fileId) return null
+            const handler = async () => {
+              const activeElement = document.activeElement
+              try {
+                await NiceModal.show(EditEnvKeyDialog, {
+                  envVar,
+                  gitenvs,
+                })
+              } finally {
+                setTimeout(() => {
+                  if (activeElement instanceof HTMLElement) {
+                    activeElement.focus()
+                  }
+                }, 200)
+              }
+            }
             return (
               <Fragment key={index}>
                 <div
                   tabIndex={0}
-                  onClick={() => console.log('key')}
-                  className="p-1"
+                  onClick={handler}
+                  onKeyDown={(event) => event.key === 'Enter' && handler()}
+                  className="cursor-pointer p-1"
                 >
                   {envVar.key}
                 </div>
