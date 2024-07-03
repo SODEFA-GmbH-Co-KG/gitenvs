@@ -36,8 +36,8 @@
           "encrypted": false
         },
         "staging": {
-          "value": "2",
-          "encrypted": false
+          "value": "eyJlbmNyeXB0ZWRWYWx1ZSI6IjIvVWlEbDR5R1FwaCtQOXVybFg5bHpUYTcvVGVYdz09IiwiaXYiOiJUV3daYmg0Zll0ckw5UjV0IiwiZW5jcnlwdGVkU3ltbWV0cmljS2V5IjoiaGI4cEg2TkEwNEo3bit0UGp1TkxQU0R1ZUdhdUNiL04wYklDb3hsTmpQYndRbmJFenFkMzA3bFkxRHBWRXlGY2xuNTR4Z2RxaWQrdlVrT0lBZ2JkdExNcUxkRlQ5UW5pcVpDUlUvdmRiNUJaWHRkWXdNK1h0Vm1ramhqUS90RVpOMklKVHBqZS8zblRxbW1oR3BicC8rZkpsMUJ3WS9rc01sK0ZFT2N3OHBqeDJod0xiVlBoeHdkekJJMm05SWgrcDVUbmo2dStHMUxLNCt6SDVQdHpzSlNyY2FwQktPNE02YnFmZzZPRnFiRFJ5SjRXVm5CTmF4V2o3amQrU0hEZjh0RVphMGNTa1NqSzhVdHpzcmhvK0VxZG9ac09MTktIcVllbitFOGQzbTdZNDVzMlJlT2c4a0YrUmtKYkpRb2cyaXI5T3pWY2h2UjhHQytqeUpUQVpmOUFVVVdQbndzeEptclk4b3g1a3E1blYxNlA5b3RtY1l5OHRMYk1yQnhwaGMzOFMwRVZhR3hEWHJDVlFyc2RxVm82U2IySnhPN0daWU5hK1ExR2FseDYvWXMyOGppaVJKK3BSa1lFQWRJK3Z5cVhQT3IxZTI1MzRmNFZiVkhNYVlxcElrc2s4KzZ4cVR6REZLS2sxNkZhaW80UWk0ckNzckZvZFVEckdUeDBENFpxVUJtb21LQVRoNU1aOTlJUzREY3hHVGVZU2Z6Y1ZwcEhwc2ZhQm5sQzZCLzZTZ0xKV2lVMDhMSVYrenlldjNVZXdCdTNmNGZHTE56UGxLYUhHTGt3dnMreUNJc285cDdyZTk2WHQ3YU1ET2xKMXhpSTJxdnF5SFRqdXhqU0FybW0welc4a3dMaHltSTREYWZrZ2VxWVlSOWZRdGtYY3BhUGx2Q3UxYVU9In0=",
+          "encrypted": true
         },
         "production": {
           "value": "3",

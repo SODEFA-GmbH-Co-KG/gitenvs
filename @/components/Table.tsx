@@ -109,7 +109,11 @@ export const Table = ({ fileId }: { fileId: string }) => {
             if (envVar.fileId !== fileId) return null
             return (
               <Fragment key={index}>
-                <div tabIndex={0} onClick={() => console.log('key')}>
+                <div
+                  tabIndex={0}
+                  onClick={() => console.log('key')}
+                  className="p-1"
+                >
                   {envVar.key}
                 </div>
 
@@ -136,9 +140,15 @@ export const Table = ({ fileId }: { fileId: string }) => {
                       tabIndex={0}
                       onClick={handler}
                       onKeyDown={(event) => event.key === 'Enter' && handler()}
-                      className="cursor-pointer"
+                      className="flex cursor-pointer items-center p-1"
                     >
-                      {envVar.values[stage.name]?.value}
+                      {envVar.values[stage.name]?.encrypted ? (
+                        <span className="rounded-sm bg-gray-600 p-1 text-xs uppercase">
+                          Encrypted
+                        </span>
+                      ) : (
+                        envVar.values[stage.name]?.value
+                      )}
                     </div>
                   )
                 })}
