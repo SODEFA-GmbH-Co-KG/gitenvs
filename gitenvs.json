@@ -29,38 +29,38 @@
     {
       "id": "envVar_b3s1kq4napazcYsQ9oIbx",
       "fileId": "ec8819f7-3a45-4be6-9989-abf2bd7573bb",
-      "key": "",
+      "key": "First",
       "values": {
         "development": {
-          "value": "",
-          "encrypted": true
+          "value": "1",
+          "encrypted": false
         },
         "staging": {
-          "value": "",
-          "encrypted": true
+          "value": "2",
+          "encrypted": false
         },
         "production": {
-          "value": "",
-          "encrypted": true
+          "value": "3",
+          "encrypted": false
         }
       }
     },
     {
       "id": "envVar_k66sXLj7l-BJbOOrmU3lR",
       "fileId": "ec8819f7-3a45-4be6-9989-abf2bd7573bb",
-      "key": "",
+      "key": "Second",
       "values": {
         "development": {
-          "value": "",
-          "encrypted": true
+          "value": "4",
+          "encrypted": false
         },
         "staging": {
-          "value": "",
-          "encrypted": true
+          "value": "5",
+          "encrypted": false
         },
         "production": {
-          "value": "",
-          "encrypted": true
+          "value": "6",
+          "encrypted": false
         }
       }
     }

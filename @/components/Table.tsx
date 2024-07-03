@@ -3,13 +3,13 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { map } from 'lodash'
+import { Fragment, useEffect } from 'react'
 import { useFieldArray } from 'react-hook-form'
 import { encryptEnvVar } from '~/gitenvs/encryptEnvVar'
 import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '~/gitenvs/idsGenerator'
 import { api } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
-import { EnvVarInput } from './EnvVarInput'
 
 export const Table = ({ fileId }: { fileId: string }) => {
   const trpcUtils = api.useUtils()
@@ -33,6 +33,53 @@ export const Table = ({ fileId }: { fileId: string }) => {
   })
 
   const envVars = envVarsFields.fields
+  const columns = (gitenvs?.envStages.length ?? 0) + 1
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (document.activeElement?.parentElement?.id !== 'supergrid') {
+        document
+          .querySelector<HTMLElement>('#supergrid > *[tabindex="0"]')
+          ?.focus()
+        return
+      }
+      if (event.key === 'ArrowLeft') {
+        const element = document.activeElement?.previousElementSibling
+        if (element instanceof HTMLElement) {
+          element?.focus()
+        }
+      }
+      if (event.key === 'ArrowRight') {
+        const element = document.activeElement?.nextElementSibling
+        if (element instanceof HTMLElement) {
+          element?.focus()
+        }
+      }
+      if (event.key === 'ArrowUp') {
+        let element: Element | null | undefined = document.activeElement
+        for (let i = 0; i < columns; i++) {
+          element = element?.previousElementSibling
+        }
+        if (element instanceof HTMLElement) {
+          element?.focus()
+        }
+      }
+      if (event.key === 'ArrowDown') {
+        let element: Element | null | undefined = document.activeElement
+        for (let i = 0; i < columns; i++) {
+          element = element?.nextElementSibling
+        }
+        if (element instanceof HTMLElement) {
+          element?.focus()
+        }
+      }
+    }
+    document.addEventListener('keydown', handler)
+
+    return () => {
+      document.removeEventListener('keydown', handler)
+    }
+  }, [columns])
 
   return (
     <form
@@ -95,6 +142,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
       {!!envVars.length ? (
         <div
           className="grid gap-2"
+          id="supergrid"
           style={{
             gridTemplateColumns: `repeat(${
               (gitenvs?.envStages.length ?? 0) + 1
@@ -116,7 +164,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
               type="password"
             ></Input>
           ))}
-          <div>Env Name</div>
+          <div>Key</div>
           {gitenvs?.envStages.map((stage) => (
             <div key={stage.name} className="flex flex-col gap-2">
               {stage.name}
@@ -125,23 +173,24 @@ export const Table = ({ fileId }: { fileId: string }) => {
           {gitenvs?.envVars.map((envVar, index) => {
             if (envVar.fileId !== fileId) return null
             return (
-              <>
-                <Input
-                  className="flex flex-col gap-2"
-                  key={envVar.key}
-                  {...form.register(`envVars.${index}.key`)}
-                  autoComplete="new-password"
-                ></Input>
+              <Fragment key={index}>
+                <div tabIndex={0} onClick={() => console.log('key')}>
+                  {envVar.key}
+                </div>
+
                 {gitenvs?.envStages.map((stage) => {
                   return (
-                    <EnvVarInput
+                    <div
                       key={`${envVar.key}-${stage.name}`}
-                      envVar={envVar}
-                      stage={stage}
-                    />
+                      tabIndex={0}
+                      onClick={() => console.log('value')}
+                      className="cursor-pointer"
+                    >
+                      {envVar.values[stage.name]?.value}
+                    </div>
                   )
                 })}
-              </>
+              </Fragment>
             )
           })}
         </div>
