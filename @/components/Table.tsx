@@ -228,8 +228,6 @@ export const Table = ({ fileId }: { fileId: string }) => {
         <p>No env vars so far. Add a new one</p>
       )}
       <Button
-        variant="secondary"
-        className="text-black"
         type="button"
         onClick={async () => {
           if (!gitenvs) return

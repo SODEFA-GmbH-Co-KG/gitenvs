@@ -92,7 +92,7 @@ export const EditDialog = NiceModal.create(
           }
         }}
       >
-        <DialogContent className=" bg-gradient-to-b from-[#4b0082] to-[#1a0033] text-white sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit Env Var</DialogTitle>
             {/* <DialogDescription>
