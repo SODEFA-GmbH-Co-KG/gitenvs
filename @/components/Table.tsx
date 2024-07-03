@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import NiceModal from '@ebay/nice-modal-react'
 import { map } from 'lodash'
 import { Fragment, useEffect } from 'react'
 import { useFieldArray } from 'react-hook-form'
@@ -10,6 +11,7 @@ import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '~/gitenvs/idsGenerator'
 import { api } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
+import { EditDialog } from './EditDialog'
 
 export const Table = ({ fileId }: { fileId: string }) => {
   const trpcUtils = api.useUtils()
@@ -183,7 +185,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
                     <div
                       key={`${envVar.key}-${stage.name}`}
                       tabIndex={0}
-                      onClick={() => console.log('value')}
+                      onClick={() => NiceModal.show(EditDialog)}
                       className="cursor-pointer"
                     >
                       {envVar.values[stage.name]?.value}
