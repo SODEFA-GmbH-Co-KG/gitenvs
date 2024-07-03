@@ -106,6 +106,14 @@ export const EditDialog = NiceModal.create(
               autoComplete="new-password"
               value={plaintext}
               onChange={(event) => setPlaintext(event.target.value)}
+              onKeyDown={async (event) => {
+                if (event.key === 'Enter') {
+                  if (event.shiftKey) {
+                    return savePlain()
+                  }
+                  return saveEncrypted()
+                }
+              }}
             />
           </div>
           <DialogFooter>
