@@ -18,7 +18,7 @@ export const EditDialog = NiceModal.create(() => {
       open={modal.visible}
       onOpenChange={(show) => (show ? modal.show() : modal.hide())}
     >
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="bg-white sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit profile</DialogTitle>
           <DialogDescription>
