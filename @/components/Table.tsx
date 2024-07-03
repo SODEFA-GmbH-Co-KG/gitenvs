@@ -39,40 +39,51 @@ export const Table = ({ fileId }: { fileId: string }) => {
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (document.activeElement?.parentElement?.id !== 'supergrid') {
-        document
-          .querySelector<HTMLElement>('#supergrid > *[tabindex="0"]')
-          ?.focus()
-        return
-      }
-      if (event.key === 'ArrowLeft') {
-        const element = document.activeElement?.previousElementSibling
-        if (element instanceof HTMLElement) {
-          element?.focus()
+      if (
+        document.activeElement?.parentElement?.id !== 'supergrid' &&
+        !(document.activeElement instanceof HTMLInputElement)
+      ) {
+        if (
+          event.key === 'ArrowLeft' ||
+          event.key === 'ArrowRight' ||
+          event.key === 'ArrowUp' ||
+          event.key === 'ArrowDown'
+        ) {
+          document
+            .querySelector<HTMLElement>('#supergrid > *[tabindex="0"]')
+            ?.focus()
+          return
         }
-      }
-      if (event.key === 'ArrowRight') {
-        const element = document.activeElement?.nextElementSibling
-        if (element instanceof HTMLElement) {
-          element?.focus()
+      } else {
+        if (event.key === 'ArrowLeft') {
+          const element = document.activeElement?.previousElementSibling
+          if (element instanceof HTMLElement) {
+            element?.focus()
+          }
         }
-      }
-      if (event.key === 'ArrowUp') {
-        let element: Element | null | undefined = document.activeElement
-        for (let i = 0; i < columns; i++) {
-          element = element?.previousElementSibling
+        if (event.key === 'ArrowRight') {
+          const element = document.activeElement?.nextElementSibling
+          if (element instanceof HTMLElement) {
+            element?.focus()
+          }
         }
-        if (element instanceof HTMLElement) {
-          element?.focus()
+        if (event.key === 'ArrowUp') {
+          let element: Element | null | undefined = document.activeElement
+          for (let i = 0; i < columns; i++) {
+            element = element?.previousElementSibling
+          }
+          if (element instanceof HTMLElement) {
+            element?.focus()
+          }
         }
-      }
-      if (event.key === 'ArrowDown') {
-        let element: Element | null | undefined = document.activeElement
-        for (let i = 0; i < columns; i++) {
-          element = element?.nextElementSibling
-        }
-        if (element instanceof HTMLElement) {
-          element?.focus()
+        if (event.key === 'ArrowDown') {
+          let element: Element | null | undefined = document.activeElement
+          for (let i = 0; i < columns; i++) {
+            element = element?.nextElementSibling
+          }
+          if (element instanceof HTMLElement) {
+            element?.focus()
+          }
         }
       }
     }
@@ -186,6 +197,9 @@ export const Table = ({ fileId }: { fileId: string }) => {
                       key={`${envVar.key}-${stage.name}`}
                       tabIndex={0}
                       onClick={() => NiceModal.show(EditDialog)}
+                      onKeyDown={(event) =>
+                        event.key === 'Enter' && NiceModal.show(EditDialog)
+                      }
                       className="cursor-pointer"
                     >
                       {envVar.values[stage.name]?.value}
