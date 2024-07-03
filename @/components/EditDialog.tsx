@@ -101,9 +101,9 @@ export const EditDialog = NiceModal.create(
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <Input
-              className="col-span-3"
-              type="password"
-              autoComplete="new-password"
+              className="text-security-disc col-span-3"
+              type="text"
+              autoComplete="off"
               value={plaintext}
               onChange={(event) => setPlaintext(event.target.value)}
               onKeyDown={async (event) => {
