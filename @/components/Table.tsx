@@ -205,7 +205,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
                         if (activeElement instanceof HTMLElement) {
                           activeElement.focus()
                         }
-                      }, 0)
+                      }, 200)
                     }
                   }
                   return (
