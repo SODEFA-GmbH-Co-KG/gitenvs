@@ -3,7 +3,9 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import NiceModal from '@ebay/nice-modal-react'
-import { Fragment, useEffect } from 'react'
+import dotenv, { type DotenvParseOutput } from 'dotenv'
+import { map } from 'lodash-es'
+import { Fragment, useEffect, useState } from 'react'
 import { getNewEnvVarId } from '~/gitenvs/idsGenerator'
 import { api } from '~/utils/api'
 import { EditEnvVarDialog } from './EditEnvVarDialog'
@@ -14,6 +16,16 @@ export const Table = ({ fileId }: { fileId: string }) => {
   const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
 
   const columns = (gitenvs?.envStages.length ?? 0) + 1
+
+  const [envVarsToAdd, setEnvVarsToAdd] = useState<DotenvParseOutput>()
+
+  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault()
+    const text = event.clipboardData.getData('text')
+
+    const result = dotenv.parse(text)
+    setEnvVarsToAdd(result)
+  }
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -73,7 +85,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
   }, [columns])
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex w-full flex-col gap-2 overflow-hidden">
       {!!gitenvs?.envVars.length ? (
         <div
           className="grid gap-2"
@@ -159,6 +171,13 @@ export const Table = ({ fileId }: { fileId: string }) => {
       ) : (
         <p>No env vars so far. Add a new one</p>
       )}
+      {envVarsToAdd &&
+        map(envVarsToAdd, (value, key) => (
+          <div key={key} className="flex w-full">
+            <div className="truncate">{key}=</div>
+            <div className="flex-1 truncate">{value}</div>
+          </div>
+        ))}
       <Button
         type="button"
         onClick={async () => {
