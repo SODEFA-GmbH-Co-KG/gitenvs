@@ -192,14 +192,24 @@ export const Table = ({ fileId }: { fileId: string }) => {
                 </div>
 
                 {gitenvs?.envStages.map((stage) => {
+                  const handler = async () => {
+                    const activeElement = document.activeElement
+                    try {
+                      await NiceModal.show(EditDialog)
+                    } finally {
+                      setTimeout(() => {
+                        if (activeElement instanceof HTMLElement) {
+                          activeElement.focus()
+                        }
+                      }, 0)
+                    }
+                  }
                   return (
                     <div
                       key={`${envVar.key}-${stage.name}`}
                       tabIndex={0}
-                      onClick={() => NiceModal.show(EditDialog)}
-                      onKeyDown={(event) =>
-                        event.key === 'Enter' && NiceModal.show(EditDialog)
-                      }
+                      onClick={handler}
+                      onKeyDown={(event) => event.key === 'Enter' && handler()}
                       className="cursor-pointer"
                     >
                       {envVar.values[stage.name]?.value}
