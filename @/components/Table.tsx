@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import NiceModal from '@ebay/nice-modal-react'
-import { map } from 'lodash'
+import { map } from 'lodash-es'
 import { Fragment, useEffect } from 'react'
 import { useFieldArray } from 'react-hook-form'
 import { encryptEnvVar } from '~/gitenvs/encryptEnvVar'
@@ -195,7 +195,11 @@ export const Table = ({ fileId }: { fileId: string }) => {
                   const handler = async () => {
                     const activeElement = document.activeElement
                     try {
-                      await NiceModal.show(EditDialog)
+                      await NiceModal.show(EditDialog, {
+                        envVar,
+                        envStage: stage,
+                        gitenvs,
+                      })
                     } finally {
                       setTimeout(() => {
                         if (activeElement instanceof HTMLElement) {
