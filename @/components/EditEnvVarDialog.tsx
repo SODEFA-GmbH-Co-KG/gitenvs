@@ -17,7 +17,7 @@ import {
 } from '~/gitenvs/gitenvs.schema'
 import { api } from '~/utils/api'
 
-export const EditDialog = NiceModal.create(
+export const EditEnvVarDialog = NiceModal.create(
   ({
     envVar,
     envStage,

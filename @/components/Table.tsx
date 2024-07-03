@@ -6,7 +6,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import { Fragment, useEffect } from 'react'
 import { getNewEnvVarId } from '~/gitenvs/idsGenerator'
 import { api } from '~/utils/api'
-import { EditDialog } from './EditDialog'
+import { EditEnvVarDialog } from './EditEnvVarDialog'
 
 export const Table = ({ fileId }: { fileId: string }) => {
   const trpcUtils = api.useUtils()
@@ -121,7 +121,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
                   const handler = async () => {
                     const activeElement = document.activeElement
                     try {
-                      await NiceModal.show(EditDialog, {
+                      await NiceModal.show(EditEnvVarDialog, {
                         envVar,
                         envStage: stage,
                         gitenvs,
