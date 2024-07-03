@@ -28,6 +28,7 @@ export const EditDialog = NiceModal.create(
     gitenvs: Gitenvs
   }) => {
     const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
+    const utils = api.useUtils()
     const modal = useModal()
     const [plaintext, setPlaintext] = useState('')
 
@@ -36,12 +37,13 @@ export const EditDialog = NiceModal.create(
       modal.remove()
     }
 
-    const saveEncrypted = async () => {
-      const encrypted = await encryptEnvVar({
-        plaintext,
-        publicKey: envStage.publicKey,
-      })
-
+    const update = async ({
+      value,
+      encrypted,
+    }: {
+      value: string
+      encrypted: boolean
+    }) => {
       const newEnVars = gitenvs.envVars.map((v) => {
         if (v.id !== envVar.id) return v
 
@@ -50,8 +52,8 @@ export const EditDialog = NiceModal.create(
           values: {
             ...v.values,
             [envStage.name]: {
-              value: encrypted,
-              encrypted: true,
+              value: value,
+              encrypted,
             },
           },
         }
@@ -63,6 +65,22 @@ export const EditDialog = NiceModal.create(
           envVars: newEnVars,
         },
       })
+
+      await utils.gitenvs.invalidate()
+    }
+
+    const savePlain = async () => {
+      await update({ value: plaintext, encrypted: false })
+      done()
+    }
+
+    const saveEncrypted = async () => {
+      const encrypted = await encryptEnvVar({
+        plaintext,
+        publicKey: envStage.publicKey,
+      })
+      await update({ value: encrypted, encrypted: true })
+      done()
     }
 
     return (
@@ -85,6 +103,7 @@ export const EditDialog = NiceModal.create(
             <Input
               className="col-span-3"
               type="password"
+              autoComplete="new-password"
               value={plaintext}
               onChange={(event) => setPlaintext(event.target.value)}
             />
@@ -93,8 +112,8 @@ export const EditDialog = NiceModal.create(
             <Button
               variant={'outline'}
               type="button"
-              onClick={() => {
-                done()
+              onClick={async () => {
+                await savePlain()
               }}
             >
               Save plain
