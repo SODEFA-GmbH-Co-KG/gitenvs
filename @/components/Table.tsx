@@ -199,9 +199,6 @@ export const Table = ({ fileId }: { fileId: string }) => {
       >
         Add
       </Button>
-      <Button variant="outline" type="submit">
-        Save
-      </Button>
     </div>
   )
 }
