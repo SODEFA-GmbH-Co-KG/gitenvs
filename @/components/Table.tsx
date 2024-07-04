@@ -80,9 +80,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
           className="grid gap-2"
           id="supergrid"
           style={{
-            gridTemplateColumns: `repeat(${
-              (gitenvs?.envStages.length ?? 0) + 1
-            }, 1fr)`,
+            gridTemplateColumns: `repeat(${columns}, 1fr)`,
           }}
         >
           <div></div>
