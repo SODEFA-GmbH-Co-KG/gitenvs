@@ -15,7 +15,7 @@ export const ActionCommandKeyboardShortcut = ({
     if (disabled) return
     if (!shortcut) return
     const down = async (e: KeyboardEvent) => {
-      if (e.target !== document.body) return
+      if (e.target instanceof HTMLInputElement) return
       if (e.key.toLowerCase() !== shortcut.key.toLowerCase()) return
       if (shortcut.cmdCtrl && (!e.metaKey || !e.ctrlKey)) return
       if (shortcut.shift && !e.shiftKey) return
