@@ -1,5 +1,7 @@
 import { Toaster } from 'sonner'
 import '~/styles/globals.css'
+import { ActionCommandProvider } from '~/super-action/command/ActionCommandProvider'
+import { DialogProvider } from '~/super-action/dialog/DialogProvider'
 import { TrpcProvider } from '~/utils/TrpcProvider'
 import { Providers } from './providers'
 
@@ -18,6 +20,8 @@ export default async function RootLayout({
                 {children}
               </div>
             </main>
+            <ActionCommandProvider />
+            <DialogProvider />
             <Toaster />
           </Providers>
         </TrpcProvider>
