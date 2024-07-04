@@ -1,12 +1,18 @@
 import { Button } from '@/components/ui/button'
 import { DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { saveGitenvs } from '~/gitenvs/gitenvs'
 import { type Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '~/gitenvs/idsGenerator'
+import {
+  streamDialog,
+  streamToast,
+  superAction,
+} from '~/super-action/action/createSuperAction'
+import { ActionForm } from '~/super-action/form/ActionForm'
 import { Label } from './ui/label'
+import { revalidatePath } from 'next/cache'
 
 export const NewEnvFileDialog = ({ gitenvs }: { gitenvs: Gitenvs }) => {
   // const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
@@ -44,27 +50,36 @@ export const NewEnvFileDialog = ({ gitenvs }: { gitenvs: Gitenvs }) => {
 
   return (
     <div className="sm:max-w-[425px]">
-      <form
+      <ActionForm
         action={async (formData) => {
           'use server'
-          const name = z.string().parse(formData.get('name'))
-          const filePath = z.string().parse(formData.get('filePath'))
 
-          await saveGitenvs({
-            ...gitenvs,
-            envFiles: [
-              ...gitenvs.envFiles,
-              {
-                id: getNewEnvVarId(),
-                name,
-                filePath,
-                // TODO: Set type
-                type: 'dotenv',
-              },
-            ],
+          return superAction(async () => {
+            const name = z.string().parse(formData?.get('name'))
+            const filePath = z.string().parse(formData?.get('filePath'))
+
+            await saveGitenvs({
+              ...gitenvs,
+              envFiles: [
+                ...gitenvs.envFiles,
+                {
+                  id: getNewEnvVarId(),
+                  name,
+                  filePath,
+                  // TODO: Set type
+                  type: 'dotenv',
+                },
+              ],
+            })
+
+            streamDialog(null)
+            streamToast({
+              title: 'Env file created',
+              description: 'The env file has been successfully created.',
+            })
+
+            revalidatePath('/', 'layout')
           })
-
-          revalidatePath('/', 'layout')
         }}
         className="flex flex-col gap-4"
       >
@@ -83,7 +98,7 @@ export const NewEnvFileDialog = ({ gitenvs }: { gitenvs: Gitenvs }) => {
         <DialogFooter>
           <Button type="submit">Save</Button>
         </DialogFooter>
-      </form>
+      </ActionForm>
     </div>
   )
 }

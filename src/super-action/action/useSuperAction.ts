@@ -25,10 +25,10 @@ export const useSuperAction = (options: UseSuperActionOptions) => {
   const showDialog = useShowDialog()
 
   const trigger = useCallback(
-    async (evt?: MouseEvent) => {
+    async (evt?: MouseEvent | FormData) => {
       if (isLoading) return
       if (disabled) return
-      if (stopPropagation) {
+      if (stopPropagation && evt instanceof MouseEvent) {
         evt?.stopPropagation()
         evt?.preventDefault()
       }
@@ -37,7 +37,7 @@ export const useSuperAction = (options: UseSuperActionOptions) => {
       }
       setIsLoading(true)
 
-      const response = await action()
+      const response = await action(evt instanceof FormData ? evt : undefined)
 
       if (response && 'superAction' in response) {
         await consumeSuperActionResponse({
