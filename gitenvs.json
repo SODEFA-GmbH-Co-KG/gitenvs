@@ -19,7 +19,7 @@
   ],
   "envFiles": [
     {
-      "id": "ec8819f7-3a45-4be6-9989-abf2bd7573bb",
+      "id": "envFile_6SlecVQOU1jGgiHZcBzef",
       "name": ".env",
       "filePath": "./.env",
       "type": "dotenv"
@@ -28,7 +28,7 @@
   "envVars": [
     {
       "id": "envVar_b3s1kq4napazcYsQ9oIbx",
-      "fileId": "ec8819f7-3a45-4be6-9989-abf2bd7573bb",
+      "fileId": "envFile_6SlecVQOU1jGgiHZcBzef",
       "key": "First",
       "values": {
         "development": {
@@ -47,7 +47,7 @@
     },
     {
       "id": "envVar_k66sXLj7l-BJbOOrmU3lR",
-      "fileId": "ec8819f7-3a45-4be6-9989-abf2bd7573bb",
+      "fileId": "envFile_6SlecVQOU1jGgiHZcBzef",
       "key": "Second",
       "values": {
         "development": {
