@@ -8,7 +8,7 @@ export default async function Page({ params }: { params: { fileId: string } }) {
   return (
     <div className="flex flex-col gap-4">
       <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
-      <Table fileId={params.fileId} />
+      <Table fileId={params.fileId} gitenvs={gitenvs} />
     </div>
   )
 }

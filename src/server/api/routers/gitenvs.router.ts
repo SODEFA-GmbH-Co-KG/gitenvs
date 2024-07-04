@@ -11,11 +11,6 @@ export const gitenvsRouter = createTRPCRouter({
     const gitenvs = await getGitenvs()
     return gitenvs
   }),
-  saveGitenvs: publicProcedure
-    .input(z.object({ gitenvs: Gitenvs }))
-    .mutation(async ({ input }) => {
-      await saveGitenvs(input.gitenvs)
-    }),
   gitenvsJsonExists: publicProcedure.query(async () => {
     return getIsGitenvsExisting()
   }),

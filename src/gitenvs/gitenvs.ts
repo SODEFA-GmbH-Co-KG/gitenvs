@@ -1,4 +1,7 @@
+'use server'
+
 import { readFile, writeFile } from 'fs/promises'
+import { revalidatePath } from 'next/cache'
 import { join } from 'path'
 import { Gitenvs } from './gitenvs.schema'
 
@@ -16,4 +19,6 @@ export const saveGitenvs = async (gitenvs: Gitenvs) => {
     join(process.cwd(), 'gitenvs.json'),
     JSON.stringify(gitenvs, null, 2),
   )
+
+  revalidatePath('/', 'layout')
 }

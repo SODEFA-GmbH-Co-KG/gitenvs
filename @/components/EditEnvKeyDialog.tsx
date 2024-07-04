@@ -9,12 +9,12 @@ import {
 import { Input } from '@/components/ui/input'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useState } from 'react'
+import { saveGitenvs } from '~/gitenvs/gitenvs'
 import { type EnvVar, type Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { api } from '~/utils/api'
 
 export const EditEnvKeyDialog = NiceModal.create(
   ({ envVar, gitenvs }: { envVar: EnvVar; gitenvs: Gitenvs }) => {
-    const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
     const utils = api.useUtils()
     const modal = useModal()
     const [key, setKey] = useState('')
@@ -35,10 +35,8 @@ export const EditEnvKeyDialog = NiceModal.create(
       })
 
       await saveGitenvs({
-        gitenvs: {
-          ...gitenvs,
-          envVars: newEnVars,
-        },
+        ...gitenvs,
+        envVars: newEnVars,
       })
 
       await utils.gitenvs.invalidate()

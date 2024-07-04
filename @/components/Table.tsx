@@ -4,16 +4,19 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import NiceModal from '@ebay/nice-modal-react'
 import { Fragment, useEffect } from 'react'
+import { saveGitenvs } from '~/gitenvs/gitenvs'
+import { type Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '~/gitenvs/idsGenerator'
-import { api } from '~/utils/api'
 import { EditEnvKeyDialog } from './EditEnvKeyDialog'
 import { EditEnvVarDialog } from './EditEnvVarDialog'
 
-export const Table = ({ fileId }: { fileId: string }) => {
-  const trpcUtils = api.useUtils()
-  const { data: gitenvs } = api.gitenvs.getGitenvs.useQuery()
-  const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
-
+export const Table = ({
+  fileId,
+  gitenvs,
+}: {
+  fileId: string
+  gitenvs: Gitenvs
+}) => {
   const columns = (gitenvs?.envStages.length ?? 0) + 1
 
   useEffect(() => {
@@ -196,8 +199,7 @@ export const Table = ({ fileId }: { fileId: string }) => {
               { id: getNewEnvVarId(), fileId, key: '', values },
             ],
           }
-          await saveGitenvs({ gitenvs: newGitenvs })
-          await trpcUtils.gitenvs.invalidate()
+          await saveGitenvs(newGitenvs)
         }}
       >
         Add
