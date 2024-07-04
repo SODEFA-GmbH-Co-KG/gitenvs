@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
-import { DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { saveGitenvs } from '~/gitenvs/gitenvs'
 import { type Gitenvs } from '~/gitenvs/gitenvs.schema'
@@ -12,7 +13,6 @@ import {
 } from '~/super-action/action/createSuperAction'
 import { ActionForm } from '~/super-action/form/ActionForm'
 import { Label } from './ui/label'
-import { revalidatePath } from 'next/cache'
 
 export const NewEnvFileDialog = ({ gitenvs }: { gitenvs: Gitenvs }) => {
   // const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
@@ -83,12 +83,6 @@ export const NewEnvFileDialog = ({ gitenvs }: { gitenvs: Gitenvs }) => {
         }}
         className="flex flex-col gap-4"
       >
-        <DialogHeader>
-          <DialogTitle>New Env File</DialogTitle>
-          {/* <DialogDescription>
-            Make changes to your profile here.
-          </DialogDescription> */}
-        </DialogHeader>
         <div className="flex flex-col gap-4">
           <Label htmlFor="name">Name</Label>
           <Input type="text" autoComplete="off" name="name" />
