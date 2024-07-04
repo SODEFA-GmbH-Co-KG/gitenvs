@@ -23,6 +23,12 @@
       "name": ".env",
       "filePath": "./.env",
       "type": "dotenv"
+    },
+    {
+      "id": "envFile_6SlecVQOUasdadscBzef",
+      "name": "app",
+      "filePath": "./app/.env",
+      "type": "dotenv"
     }
   ],
   "envVars": [

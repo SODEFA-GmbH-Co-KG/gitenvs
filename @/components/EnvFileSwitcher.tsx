@@ -1,6 +1,11 @@
+import { cn } from '@/lib/utils'
 import { getGitenvs } from '~/gitenvs/gitenvs'
 
-export const EnvFileSwitcher = async () => {
+export const EnvFileSwitcher = async ({
+  activeFileId,
+}: {
+  activeFileId: string
+}) => {
   const gitenvs = await getGitenvs()
 
   return (
@@ -10,7 +15,10 @@ export const EnvFileSwitcher = async () => {
           <div key={envFile.id}>
             <a
               href={`/file/${envFile.id}`}
-              className="flex h-7 items-center justify-center rounded-full bg-muted px-4 text-center text-sm font-medium text-primary transition-colors hover:text-primary"
+              className={cn(
+                'flex h-7 items-center justify-center rounded-full px-4 text-center text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-primary',
+                envFile.id === activeFileId && 'bg-muted text-primary',
+              )}
             >
               {envFile.name}
             </a>
