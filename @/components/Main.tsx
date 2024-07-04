@@ -1,6 +1,6 @@
-import { Table } from '@/components/Table'
 import { redirect } from 'next/navigation'
 import { getIsGitenvsExisting } from '~/gitenvs/getIsGitenvsExisting'
+import { getGitenvs } from '~/gitenvs/gitenvs'
 
 export const Main = async () => {
   const isGitenvsExisting = await getIsGitenvsExisting()
@@ -9,5 +9,13 @@ export const Main = async () => {
     return redirect('/setup')
   }
 
-  return <Table fileId={'ec8819f7-3a45-4be6-9989-abf2bd7573bb'} />
+  const gitenvs = await getGitenvs()
+  const envFile = gitenvs.envFiles.at(0)
+
+  if (!envFile) {
+    // TODO: Autofix this
+    throw new Error('No env file found')
+  }
+
+  return redirect(`/file/${envFile.id}`)
 }
