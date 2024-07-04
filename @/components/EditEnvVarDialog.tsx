@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -16,6 +15,7 @@ import {
   type Gitenvs,
 } from '~/gitenvs/gitenvs.schema'
 import { api } from '~/utils/api'
+import { KeyShortcut } from './KeyShortcut'
 
 export const EditEnvVarDialog = NiceModal.create(
   ({
@@ -92,7 +92,7 @@ export const EditEnvVarDialog = NiceModal.create(
           }
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[300px]">
           <DialogHeader>
             <DialogTitle>Edit Env Var</DialogTitle>
             {/* <DialogDescription>
@@ -116,25 +116,32 @@ export const EditEnvVarDialog = NiceModal.create(
               }}
             />
           </div>
-          <DialogFooter>
+          <div className="flex flex-col gap-4">
             <Button
               variant={'outline'}
               type="button"
               onClick={async () => {
                 await savePlain()
               }}
+              className="flex flex-row gap-2"
             >
-              Save plain
+              <span>Save plain</span>
+              <div className="flex flex-row gap-1">
+                <KeyShortcut>Shift</KeyShortcut>
+                <KeyShortcut>Enter</KeyShortcut>
+              </div>
             </Button>
             <Button
               type="button"
               onClick={async () => {
                 await saveEncrypted()
               }}
+              className="flex flex-row gap-2"
             >
-              Save encrypted
+              <span>Save encrypted</span>
+              <KeyShortcut>Enter</KeyShortcut>
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     )
