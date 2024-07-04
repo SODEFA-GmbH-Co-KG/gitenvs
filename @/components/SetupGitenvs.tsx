@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { type Passphrase } from '~/gitenvs/gitenvs.schema'
 import { CopyPassphrases } from './CopyPassphrases'

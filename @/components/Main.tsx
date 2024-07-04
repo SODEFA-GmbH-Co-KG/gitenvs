@@ -1,25 +1,21 @@
-'use client'
+import { redirect } from 'next/navigation'
+import { getIsGitenvsExisting } from '~/gitenvs/getIsGitenvsExisting'
+import { getGitenvs } from '~/gitenvs/gitenvs'
 
-import { Table } from '@/components/Table'
-import { api } from '~/utils/api'
-import { SetupGitenvs } from './SetupGitenvs'
+export const Main = async () => {
+  const isGitenvsExisting = await getIsGitenvsExisting()
 
-export const Main = () => {
-  const {
-    data: gitenvsExists,
-    refetch,
-    isInitialLoading,
-  } = api.gitenvs.gitenvsJsonExists.useQuery(undefined, {
-    staleTime: Infinity,
-  })
-
-  if (isInitialLoading) {
-    return null
+  if (!isGitenvsExisting) {
+    return redirect('/setup')
   }
 
-  if (!gitenvsExists) {
-    return <SetupGitenvs onSetupDone={() => refetch()} />
+  const gitenvs = await getGitenvs()
+  const envFile = gitenvs.envFiles.at(0)
+
+  if (!envFile) {
+    // TODO: Autofix this
+    throw new Error('No env file found')
   }
 
-  return <Table fileId={'ec8819f7-3a45-4be6-9989-abf2bd7573bb'} />
+  return redirect(`/file/${envFile.id}`)
 }

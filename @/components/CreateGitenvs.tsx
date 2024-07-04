@@ -11,6 +11,7 @@ import {
   EnvStage,
   type Passphrase,
 } from '~/gitenvs/gitenvs.schema'
+import { getNewEnvFileId } from '~/gitenvs/idsGenerator'
 import { api } from '~/utils/api'
 import { useZodForm } from '~/utils/useZodForm'
 import { Button } from './ui/button'
@@ -91,7 +92,7 @@ export const CreateGitenvs = ({
               envFiles: [
                 {
                   ...data.envFile,
-                  id: globalThis.crypto.randomUUID(),
+                  id: getNewEnvFileId(),
                 },
               ],
               envVars: [],

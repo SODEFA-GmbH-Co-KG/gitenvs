@@ -1,5 +1,6 @@
 import { writeFile } from 'fs/promises'
 import { z } from 'zod'
+import { getIsGitenvsExisting } from '~/gitenvs/getIsGitenvsExisting'
 import { getGitenvs, saveGitenvs } from '~/gitenvs/gitenvs'
 import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
@@ -16,12 +17,7 @@ export const gitenvsRouter = createTRPCRouter({
       await saveGitenvs(input.gitenvs)
     }),
   gitenvsJsonExists: publicProcedure.query(async () => {
-    try {
-      await getGitenvs()
-      return true
-    } catch (error) {
-      return false
-    }
+    return getIsGitenvsExisting()
   }),
   createGitenvs: publicProcedure.input(Gitenvs).mutation(async ({ input }) => {
     await saveGitenvs(input)
