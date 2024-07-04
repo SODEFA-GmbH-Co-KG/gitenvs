@@ -126,7 +126,12 @@ export const Table = ({ fileId }: { fileId: string }) => {
                 <div
                   tabIndex={0}
                   onClick={handler}
-                  onKeyDown={(event) => event.key === 'Enter' && handler()}
+                  onKeyDown={async (event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault()
+                      await handler()
+                    }
+                  }}
                   className="cursor-pointer p-1"
                 >
                   {envVar.key}
