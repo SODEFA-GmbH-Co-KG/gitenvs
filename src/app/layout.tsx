@@ -1,4 +1,5 @@
-import { Toaster } from 'sonner'
+import { Toaster } from '@/components/ui/toaster'
+import { Toaster as ToasterSonner } from 'sonner'
 import '~/styles/globals.css'
 import { ActionCommandProvider } from '~/super-action/command/ActionCommandProvider'
 import { DialogProvider } from '~/super-action/dialog/DialogProvider'
@@ -23,6 +24,7 @@ export default async function RootLayout({
             <ActionCommandProvider />
             <DialogProvider />
             <Toaster />
+            <ToasterSonner />
           </Providers>
         </TrpcProvider>
       </body>
