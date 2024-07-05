@@ -11,8 +11,8 @@ import {
   superAction,
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
+import { AddEditEnvFileDialog } from './AddEditEnvFileDialog'
 import { KeyShortcut } from './KeyShortcut'
-import { NewEnvFileDialog } from './NewEnvFileDialog'
 
 export const EnvFileSwitcher = ({
   gitenvs,
@@ -58,6 +58,28 @@ export const EnvFileSwitcher = ({
               }}
             />
             <ActionButton
+              hideButton
+              command={{
+                label: `Edit EnvFile: ${envFile.name}`,
+                group: 'Edit',
+              }}
+              action={async () => {
+                'use server'
+
+                return superAction(async () => {
+                  streamDialog({
+                    title: `Edit Env File: ${envFile.name}`,
+                    content: (
+                      <AddEditEnvFileDialog
+                        gitenvs={gitenvs}
+                        envFile={envFile}
+                      />
+                    ),
+                  })
+                })
+              }}
+            />
+            <ActionButton
               variant="vanilla"
               size={'vanilla'}
               action={async () => {
@@ -95,7 +117,7 @@ export const EnvFileSwitcher = ({
           return superAction(async () => {
             streamDialog({
               title: 'New Env File',
-              content: <NewEnvFileDialog gitenvs={gitenvs} />,
+              content: <AddEditEnvFileDialog gitenvs={gitenvs} />,
             })
           })
         }}
