@@ -51,7 +51,7 @@ export const EnvFileSwitcher = ({
                   })
 
                   streamToast({
-                    title: 'Env File Deleted',
+                    title: `${envFile.name} deleted`,
                     description: `The env file ${envFile.name} has been deleted.`,
                   })
                 })
