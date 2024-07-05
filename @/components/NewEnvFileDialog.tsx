@@ -20,6 +20,12 @@ import {
   SelectValue,
 } from './ui/select'
 
+const formNames = {
+  filePath: 'filePath',
+  name: 'name',
+  type: 'type',
+}
+
 export const NewEnvFileDialog = ({ gitenvs }: { gitenvs: Gitenvs }) => {
   return (
     <div className="sm:max-w-[425px]">
@@ -30,9 +36,9 @@ export const NewEnvFileDialog = ({ gitenvs }: { gitenvs: Gitenvs }) => {
           return superAction(async () => {
             const newEnvFile = EnvFile.parse({
               id: getNewEnvFileId(),
-              name: formData?.get('name'),
-              filePath: formData?.get('filePath'),
-              type: formData?.get('type'),
+              name: formData?.get(formNames.name),
+              filePath: formData?.get(formNames.filePath),
+              type: formData?.get(formNames.type),
             })
 
             await saveGitenvs({
@@ -52,17 +58,17 @@ export const NewEnvFileDialog = ({ gitenvs }: { gitenvs: Gitenvs }) => {
         className="flex flex-col gap-4"
       >
         <div className="flex flex-col gap-4">
-          <Label htmlFor="filePath">File Path</Label>
-          <Input type="text" autoComplete="off" name="filePath" />
+          <Label htmlFor={formNames.filePath}>File Path</Label>
+          <Input type="text" autoComplete="off" name={formNames.filePath} />
         </div>
         <div className="flex flex-row justify-stretch gap-4">
           <div className="flex flex-1 flex-col gap-4">
-            <Label htmlFor="name">Name</Label>
-            <Input type="text" autoComplete="off" name="name" />
+            <Label htmlFor={formNames.name}>Name</Label>
+            <Input type="text" autoComplete="off" name={formNames.name} />
           </div>
           <div className="flex flex-1 flex-col gap-4">
-            <Label htmlFor="type">Type</Label>
-            <Select name="type">
+            <Label htmlFor={formNames.type}>Type</Label>
+            <Select name={formNames.type}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
