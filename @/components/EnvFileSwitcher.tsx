@@ -28,7 +28,10 @@ export const EnvFileSwitcher = ({
           <Fragment key={envFile.id}>
             <ActionButton
               hideButton
-              command={{ label: `Delete ${envFile.name}`, group: 'Delete' }}
+              command={{
+                label: `Delete EnvFile: ${envFile.name}`,
+                group: 'Delete',
+              }}
               action={async () => {
                 'use server'
 
