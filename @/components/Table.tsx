@@ -77,7 +77,7 @@ export const Table = ({
   }, [columns])
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 rounded-md border p-4">
       {!!gitenvs?.envVars.length ? (
         <div
           className="grid gap-2"
@@ -92,7 +92,7 @@ export const Table = ({
               {stage.name}
             </div>
           ))}
-          <div>Passphrase</div>
+          <div className="p-1">Passphrase</div>
           {gitenvs?.envStages.map((stage) => (
             <Input
               key={stage.name}
@@ -101,7 +101,7 @@ export const Table = ({
               type="password"
             ></Input>
           ))}
-          <div>Key</div>
+          <div className="p-1">Key</div>
           {gitenvs?.envStages.map((stage) => (
             <div key={stage.name} className="flex flex-col gap-2">
               {stage.name}
