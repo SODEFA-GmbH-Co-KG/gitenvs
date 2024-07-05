@@ -64,5 +64,9 @@
   },
   "ct3aMetadata": {
     "initVersion": "7.21.0"
+  },
+  "resolutions": {
+    "@radix-ui/react-dismissable-layer": "1.0.5",
+    "@radix-ui/react-focus-scope": "1.0.4"
   }
 }
