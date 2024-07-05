@@ -18,8 +18,13 @@ export type UseSuperActionOptions = {
 export const useSuperAction = (options: UseSuperActionOptions) => {
   const [isLoading, setIsLoading] = useState(false)
 
-  const { action, disabled, catchToast, askForConfirmation, stopPropagation } =
-    options
+  const {
+    action,
+    disabled,
+    catchToast = true,
+    askForConfirmation,
+    stopPropagation,
+  } = options
 
   const router = useRouter()
   const showDialog = useShowDialog()

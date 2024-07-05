@@ -4,6 +4,7 @@ import { CommandGroup } from '@/components/ui/command'
 import { atom, useAtomValue } from 'jotai'
 import { groupBy, indexOf, map, orderBy } from 'lodash-es'
 import { Fragment, useState, type ReactNode } from 'react'
+import { type SuperAction } from '../action/createSuperAction'
 import {
   ActionCommandDialog,
   useActionCommandDialog,
@@ -19,7 +20,7 @@ import { ActionCommandKeyboardShortcut } from './ActionCommandKeyboardShortcut'
 export type ActionCommandConfig = {
   children: ReactNode
   group?: ActionCommandGroup
-  action: () => Promise<void>
+  action: SuperAction
   askForConfirmation?: boolean
   shortcut?: {
     key: string
