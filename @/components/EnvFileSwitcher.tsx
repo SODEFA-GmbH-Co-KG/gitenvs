@@ -29,7 +29,7 @@ export const EnvFileSwitcher = ({
             <ActionButton
               hideButton
               command={{
-                label: `Delete EnvFile: ${envFile.name}`,
+                label: `Delete EnvFile "${envFile.name}"`,
                 group: 'Delete',
               }}
               action={async () => {
