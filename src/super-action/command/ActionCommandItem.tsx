@@ -1,6 +1,6 @@
 'use client'
+import { KeyShortcut } from '@/components/KeyShortcut'
 import { CommandItem } from '@/components/ui/command'
-import { type ReactNode } from 'react'
 import { type ActionCommandConfig } from './ActionCommandProvider'
 
 export const ActionCommandItem = ({
@@ -20,21 +20,15 @@ export const ActionCommandItem = ({
       {command.shortcut && (
         <>
           <div className="flex flex-row gap-0.5">
-            {command.shortcut.shift && <Key>Shift</Key>}
-            {command.shortcut.cmdCtrl && <Key>{getCmdCtrlKey()}</Key>}
-            <Key>{command.shortcut.key.toUpperCase()}</Key>
+            {command.shortcut.shift && <KeyShortcut>Shift</KeyShortcut>}
+            {command.shortcut.cmdCtrl && (
+              <KeyShortcut>{getCmdCtrlKey()}</KeyShortcut>
+            )}
+            <KeyShortcut>{command.shortcut.key.toUpperCase()}</KeyShortcut>
           </div>
         </>
       )}
     </CommandItem>
-  )
-}
-
-const Key = ({ children }: { children?: ReactNode }) => {
-  return (
-    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-      {children}
-    </kbd>
   )
 }
 
