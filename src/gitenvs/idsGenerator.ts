@@ -1,4 +1,9 @@
-import { nanoid } from 'nanoid'
+import { customAlphabet } from 'nanoid'
+
+const nanoid = customAlphabet(
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+  22,
+)
 
 export const getNewEnvFileId = () => {
   return `envFile_${nanoid()}`

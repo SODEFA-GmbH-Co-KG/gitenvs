@@ -19,13 +19,13 @@
   ],
   "envFiles": [
     {
-      "id": "envFile_6SlecVQOU1jGgiHZcBzef",
+      "id": "envFile_6SlecVQOU1jGgiHZcBzef1",
       "name": ".env",
       "filePath": "./.env",
       "type": "dotenv"
     },
     {
-      "id": "envFile_6SlecVQOUasdadscBzef",
+      "id": "envFile_6SlecVQOUasdadscBzef1",
       "name": "app",
       "filePath": "./app/.env",
       "type": "dotenv"
@@ -33,8 +33,8 @@
   ],
   "envVars": [
     {
-      "id": "envVar_b3s1kq4napazcYsQ9oIbx",
-      "fileId": "envFile_6SlecVQOU1jGgiHZcBzef",
+      "id": "envVar_b3s1kq4napazcYsQ9oIbx1",
+      "fileId": "envFile_6SlecVQOU1jGgiHZcBzef1",
       "key": "First",
       "values": {
         "development": {
@@ -52,8 +52,8 @@
       }
     },
     {
-      "id": "envVar_k66sXLj7l-BJbOOrmU3lR",
-      "fileId": "envFile_6SlecVQOU1jGgiHZcBzef",
+      "id": "envVar_XZRbdPsQIEAW73HsVicRQP",
+      "fileId": "envFile_6SlecVQOU1jGgiHZcBzef1",
       "key": "Second",
       "values": {
         "development": {
