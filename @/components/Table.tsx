@@ -70,15 +70,7 @@ export const Table = ({
                         gitenvs={gitenvs}
                         envVar={envVar}
                         envStage={stage}
-                      >
-                        {envVar.values[stage.name]?.encrypted ? (
-                          <span className="rounded-sm bg-gray-600 p-1 text-xs uppercase">
-                            Encrypted
-                          </span>
-                        ) : (
-                          envVar.values[stage.name]?.value
-                        )}
-                      </TableEnvVar>
+                      />
                     )
                   })}
                 </Fragment>
@@ -102,7 +94,7 @@ export const Table = ({
               const values = Object.fromEntries(
                 map(gitenvs.envStages, (stage) => [
                   stage.name,
-                  { value: '', encrypted: true },
+                  { value: '', encrypted: false },
                 ]),
               )
               const newGitenvs = {

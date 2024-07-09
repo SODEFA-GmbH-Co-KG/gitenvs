@@ -1,16 +1,17 @@
 import { z } from 'zod'
 
+export const EnvVarValue = z.object({
+  value: z.string(),
+  encrypted: z.boolean(),
+})
+
+export type EnvVarValue = z.infer<typeof EnvVarValue>
+
 export const EnvVar = z.object({
   id: z.string(),
   fileId: z.string(),
   key: z.string(),
-  values: z.record(
-    z.string(),
-    z.object({
-      value: z.string(),
-      encrypted: z.boolean(),
-    }),
-  ),
+  values: z.record(z.string(), EnvVarValue),
 })
 
 export type EnvVar = z.infer<typeof EnvVar>

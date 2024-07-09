@@ -1,21 +1,19 @@
 'use client'
 
 import NiceModal from '@ebay/nice-modal-react'
-import { type ReactNode } from 'react'
 import {
   type EnvStage,
   type EnvVar,
+  type EnvVarValue,
   type Gitenvs,
 } from '~/gitenvs/gitenvs.schema'
 import { EditEnvVarDialog } from './EditEnvVarDialog'
 
 export const TableEnvVar = ({
-  children,
   gitenvs,
   envVar,
   envStage,
 }: {
-  children: ReactNode
   gitenvs: Gitenvs
   envVar: EnvVar
   envStage: EnvStage
@@ -44,7 +42,27 @@ export const TableEnvVar = ({
       onKeyDown={(event) => event.key === 'Enter' && handler()}
       className="flex cursor-pointer items-center p-1"
     >
-      {children}
+      <Content envVarValue={envVar.values[envStage.name]} />
     </div>
   )
+}
+
+const Content = ({ envVarValue }: { envVarValue?: EnvVarValue }) => {
+  if (!envVarValue || envVarValue.value === '') {
+    return (
+      <span className="rounded-sm bg-gray-600 p-1 text-xs uppercase">
+        Empty
+      </span>
+    )
+  }
+
+  if (envVarValue.encrypted) {
+    return (
+      <span className="rounded-sm bg-primary p-1 text-xs uppercase text-black">
+        Encrypted
+      </span>
+    )
+  }
+
+  return envVarValue.value
 }
