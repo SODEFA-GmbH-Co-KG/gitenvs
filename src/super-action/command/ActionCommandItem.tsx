@@ -1,5 +1,5 @@
 'use client'
-import { KeyShortcut } from '@/components/KeyShortcut'
+import { getCmdCtrlKey, KeyShortcut } from '@/components/KeyShortcut'
 import { CommandItem } from '@/components/ui/command'
 import { type ActionCommandConfig } from './ActionCommandProvider'
 
@@ -30,15 +30,4 @@ export const ActionCommandItem = ({
       )}
     </CommandItem>
   )
-}
-
-const getCmdCtrlKey = () => {
-  if (
-    typeof navigator !== 'undefined' &&
-    'platform' in navigator &&
-    navigator.platform.includes('Mac')
-  ) {
-    return '⌘'
-  }
-  return 'Ctrl'
 }

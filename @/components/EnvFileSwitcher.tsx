@@ -12,7 +12,6 @@ import {
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { AddEditEnvFileDialog } from './AddEditEnvFileDialog'
-import { KeyShortcut } from './KeyShortcut'
 
 export const EnvFileSwitcher = ({
   gitenvs,
@@ -98,7 +97,6 @@ export const EnvFileSwitcher = ({
               }}
             >
               <span>{envFile.name}</span>
-              <KeyShortcut>{index + 1}</KeyShortcut>
             </ActionButton>
           </Fragment>
         )
@@ -124,7 +122,6 @@ export const EnvFileSwitcher = ({
       >
         <Plus />
         <span>New</span>
-        <KeyShortcut>N</KeyShortcut>
       </ActionButton>
     </div>
   )

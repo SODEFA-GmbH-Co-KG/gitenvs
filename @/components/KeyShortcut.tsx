@@ -7,3 +7,14 @@ export const KeyShortcut = ({ children }: { children?: ReactNode }) => {
     </kbd>
   )
 }
+
+export const getCmdCtrlKey = () => {
+  if (
+    typeof navigator !== 'undefined' &&
+    'platform' in navigator &&
+    navigator.platform.includes('Mac')
+  ) {
+    return '⌘'
+  }
+  return 'Ctrl'
+}

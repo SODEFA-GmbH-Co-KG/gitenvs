@@ -1,5 +1,6 @@
 'use client'
 
+import { getCmdCtrlKey, KeyShortcut } from '@/components/KeyShortcut'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Loader2 } from 'lucide-react'
@@ -21,6 +22,7 @@ export type ActionButtonProps<Comp extends typeof Button = typeof Button> = {
     'action' | 'children' | 'askForConfirmation'
   > & {
     label?: ReactNode
+    hideKeyShortcut?: boolean
   }
 } & UseSuperActionOptions &
   ComponentPropsWithoutRef<Comp>
@@ -59,7 +61,20 @@ export const ActionButton = <Comp extends typeof Button = typeof Button>(
           {...buttonProps}
           onClick={trigger}
         >
-          {children}
+          <div className="flex flex-row items-center gap-2">
+            {children}
+            {command?.hideKeyShortcut || !command?.shortcut?.key ? null : (
+              <div className="flex flex-row gap-1">
+                {command?.shortcut?.shift && <KeyShortcut>Shift</KeyShortcut>}
+                {command?.shortcut?.cmdCtrl && (
+                  <KeyShortcut>{getCmdCtrlKey()}</KeyShortcut>
+                )}
+                <KeyShortcut>
+                  {command?.shortcut?.key.toUpperCase()}
+                </KeyShortcut>
+              </div>
+            )}
+          </div>
           {!hideIcon && (
             <Icon className={cn('ml-2 h-4 w-4', isLoading && 'animate-spin')} />
           )}
