@@ -1,4 +1,4 @@
-import { getEncryptionToken } from './utils/encryptionToken'
+import { getEncryptionTokenOnServer } from './utils/getEncryptionKeyOnServer'
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
@@ -6,7 +6,7 @@ export async function register() {
     await open(
       `http://localhost:${
         process.env.PORT ?? 3000
-      }/#token=${getEncryptionToken()}`,
+      }/#token=${getEncryptionTokenOnServer()}`,
     )
   }
 }

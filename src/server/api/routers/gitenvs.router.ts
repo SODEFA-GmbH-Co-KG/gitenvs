@@ -5,6 +5,7 @@ import { getGitenvs, saveGitenvs } from '~/gitenvs/gitenvs'
 import { Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
 import { decryptWithEncryptionToken } from '~/utils/encryptionToken'
+import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 
 export const gitenvsRouter = createTRPCRouter({
   getGitenvs: publicProcedure.query(async () => {
@@ -29,9 +30,10 @@ export const gitenvsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const passphrase = await decryptWithEncryptionToken(
-        input.encryptedPassphrase,
-      )
+      const passphrase = await decryptWithEncryptionToken({
+        ...input.encryptedPassphrase,
+        key: await getEncryptionKeyOnServer(),
+      })
 
       await writeFile(`${input.stageName}.gitenvs.passphrase`, passphrase)
     }),
