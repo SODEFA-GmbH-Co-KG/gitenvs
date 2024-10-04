@@ -2,8 +2,11 @@
   "name": "gitenvs",
   "version": "0.1.0",
   "private": true,
+  "bin": {
+    "gitenvs": "dist/main.js"
+  },
   "scripts": {
-    "build": "next build",
+    "build": "tsc scripts/main.ts -outDir dist && next build",
     "dev": "GITENVS_ENCRYPTION_TOKEN=9ec8c2c98cb413a4d6b66d30c764c45f1d02b062b14638138c1c558aed082948 next dev",
     "lint": "next lint",
     "start": "next start"
@@ -30,6 +33,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^1.0.0",
+    "commander": "^12.1.0",
     "jotai": "^2.8.4",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.286.0",
