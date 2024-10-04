@@ -57,13 +57,13 @@ export const ActionButton = <Comp extends typeof Button = typeof Button>(
       {!hideButton && (
         <Component
           type="button"
-          disabled={isLoading || disabled}
+          disabled={isLoading ?? disabled}
           {...buttonProps}
           onClick={trigger}
         >
           <div className="flex flex-row items-center gap-2">
             {children}
-            {command?.hideKeyShortcut || !command?.shortcut?.key ? null : (
+            {command?.hideKeyShortcut ?? !command?.shortcut?.key ? null : (
               <div className="flex flex-row gap-1">
                 {command?.shortcut?.shift && <KeyShortcut>Shift</KeyShortcut>}
                 {command?.shortcut?.cmdCtrl && (
