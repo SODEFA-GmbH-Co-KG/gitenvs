@@ -3,7 +3,9 @@
 import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
 import { getPassphrase } from '@/gitenvs/getPassphrase'
 import { getGitenvs } from '@/gitenvs/gitenvs'
+import { execSync } from 'child_process'
 import { Command } from 'commander'
+import { randomBytes } from 'crypto'
 import { writeFile } from 'fs/promises'
 
 const program = new Command()
@@ -83,9 +85,19 @@ program
     },
   )
 
-// program
-//   .command('ui')
-//   .description('Starts a browser UI for easy interaction')
-//   .action(() => ui(options))
+program
+  .command('ui')
+  .description('Starts a browser UI for easy interaction')
+  .action(() => {
+    // start npm command with env vars
+    execSync('pnpm run dev-next', {
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        GITENVS_DIR: process.cwd(),
+        GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
+      },
+    })
+  })
 
 program.parse()

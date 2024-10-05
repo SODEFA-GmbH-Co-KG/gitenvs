@@ -1,6 +1,7 @@
 import { writeFile } from 'fs/promises'
 import { decryptWithEncryptionToken } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
+import { getCwd } from './getCwd'
 
 export const savePassphraseToFolder = async ({
   encryptedPassphrase,
@@ -17,5 +18,5 @@ export const savePassphraseToFolder = async ({
     key: await getEncryptionKeyOnServer(),
   })
 
-  await writeFile(`${stageName}.gitenvs.passphrase`, passphrase)
+  await writeFile(`${getCwd()}/${stageName}.gitenvs.passphrase`, passphrase)
 }
