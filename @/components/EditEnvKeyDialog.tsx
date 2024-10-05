@@ -7,15 +7,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { saveGitenvs } from '~/lib/gitenvs'
 import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useState } from 'react'
-import { api } from '~/utils/api'
+import { saveGitenvs } from '~/lib/gitenvs'
 
 export const EditEnvKeyDialog = NiceModal.create(
   ({ envVar, gitenvs }: { envVar: EnvVar; gitenvs: Gitenvs }) => {
-    const utils = api.useUtils()
     const modal = useModal()
     const [key, setKey] = useState('')
 
@@ -38,8 +36,6 @@ export const EditEnvKeyDialog = NiceModal.create(
         ...gitenvs,
         envVars: newEnVars,
       })
-
-      await utils.gitenvs.invalidate()
 
       done()
     }
