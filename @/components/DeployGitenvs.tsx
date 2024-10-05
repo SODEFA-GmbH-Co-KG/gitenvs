@@ -1,4 +1,4 @@
-import { type Passphrase } from '~/gitenvs/gitenvs.schema'
+import { type Passphrase } from '@/gitenvs/gitenvs.schema'
 import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import {

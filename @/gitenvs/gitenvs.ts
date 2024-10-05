@@ -1,5 +1,3 @@
-'use server'
-
 import { readFile, writeFile } from 'fs/promises'
 import { revalidatePath } from 'next/cache'
 import { join } from 'path'

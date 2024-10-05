@@ -1,7 +1,7 @@
 import { EnvFileSwitcher } from '@/components/EnvFileSwitcher'
 import { Table } from '@/components/Table'
+import { getGitenvs } from '@/gitenvs/gitenvs'
 import { redirect } from 'next/navigation'
-import { getGitenvs } from '~/gitenvs/gitenvs'
 
 export default async function Page({ params }: { params: { fileId: string } }) {
   const gitenvs = await getGitenvs()

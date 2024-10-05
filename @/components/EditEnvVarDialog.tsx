@@ -6,15 +6,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { useState } from 'react'
-import { encryptEnvVar } from '~/gitenvs/encryptEnvVar'
-import { saveGitenvs } from '~/gitenvs/gitenvs'
+import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
+import { saveGitenvs } from '~/lib/gitenvs'
 import {
   type EnvStage,
   type EnvVar,
   type Gitenvs,
-} from '~/gitenvs/gitenvs.schema'
+} from '@/gitenvs/gitenvs.schema'
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { useState } from 'react'
 import { KeyShortcut } from './KeyShortcut'
 
 export const EditEnvVarDialog = NiceModal.create(

@@ -1,7 +1,7 @@
 'use client'
 
+import { type Passphrase } from '@/gitenvs/gitenvs.schema'
 import { useState } from 'react'
-import { type Passphrase } from '~/gitenvs/gitenvs.schema'
 import { CopyPassphrases } from './CopyPassphrases'
 import { CreateGitenvs } from './CreateGitenvs'
 import { DeployGitenvs } from './DeployGitenvs'

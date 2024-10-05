@@ -1,12 +1,12 @@
 'use client'
 
-import NiceModal from '@ebay/nice-modal-react'
 import {
   type EnvStage,
   type EnvVar,
   type EnvVarValue,
   type Gitenvs,
-} from '~/gitenvs/gitenvs.schema'
+} from '@/gitenvs/gitenvs.schema'
+import NiceModal from '@ebay/nice-modal-react'
 import { EditEnvVarDialog } from './EditEnvVarDialog'
 
 export const TableEnvVar = ({

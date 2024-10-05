@@ -7,10 +7,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { saveGitenvs } from '~/lib/gitenvs'
+import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useState } from 'react'
-import { saveGitenvs } from '~/gitenvs/gitenvs'
-import { type EnvVar, type Gitenvs } from '~/gitenvs/gitenvs.schema'
 import { api } from '~/utils/api'
 
 export const EditEnvKeyDialog = NiceModal.create(

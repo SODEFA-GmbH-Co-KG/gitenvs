@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input'
 import { Toggle } from '@/components/ui/toggle'
+import { type EnvStage, type EnvVar } from '@/gitenvs/gitenvs.schema'
 import { useState } from 'react'
-import { type EnvStage, type EnvVar } from '~/gitenvs/gitenvs.schema'
 
 export const EnvVarInput = ({
   envVar,

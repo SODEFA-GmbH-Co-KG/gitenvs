@@ -1,7 +1,7 @@
+import { type Passphrase } from '@/gitenvs/gitenvs.schema'
 import { Save } from 'lucide-react'
 import { toast } from 'sonner'
-import { type Passphrase } from '~/gitenvs/gitenvs.schema'
-import { api } from '~/utils/api'
+import { savePassphraseToFolder } from '~/lib/gitenvs'
 import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnClient } from '~/utils/getEncryptionKeyOnClient'
 import { CopyButton } from './CopyButton'
@@ -22,9 +22,6 @@ export const CopyPassphrases = ({
   passphrases: Passphrase[]
   onNext: () => void
 }) => {
-  const { mutateAsync: savePassphraseToFolder } =
-    api.gitenvs.savePassphraseToFolder.useMutation()
-
   return (
     <div className="flex max-w-lg flex-col gap-8">
       <h1 className="text-center text-2xl">Your secret Passphrases</h1>

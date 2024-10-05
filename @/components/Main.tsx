@@ -1,6 +1,6 @@
+import { getIsGitenvsExisting } from '@/gitenvs/getIsGitenvsExisting'
+import { getGitenvs } from '@/gitenvs/gitenvs'
 import { redirect } from 'next/navigation'
-import { getIsGitenvsExisting } from '~/gitenvs/getIsGitenvsExisting'
-import { getGitenvs } from '~/gitenvs/gitenvs'
 
 export const Main = async () => {
   const isGitenvsExisting = await getIsGitenvsExisting()

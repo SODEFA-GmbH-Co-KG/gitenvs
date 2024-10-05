@@ -1,18 +1,18 @@
 'use client'
 
-import { Loader2, Trash2 } from 'lucide-react'
-import { useState } from 'react'
-import { useFieldArray } from 'react-hook-form'
-import { z } from 'zod'
-import { createKeys } from '~/gitenvs/createKeys'
+import { createKeys } from '@/gitenvs/createKeys'
 import {
   EnvFile,
   EnvFileType,
   EnvStage,
   type Passphrase,
-} from '~/gitenvs/gitenvs.schema'
-import { getNewEnvFileId } from '~/gitenvs/idsGenerator'
-import { api } from '~/utils/api'
+} from '@/gitenvs/gitenvs.schema'
+import { getNewEnvFileId } from '@/gitenvs/idsGenerator'
+import { Loader2, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { useFieldArray } from 'react-hook-form'
+import { z } from 'zod'
+import { saveGitenvs } from '~/lib/gitenvs'
 import { useZodForm } from '~/utils/useZodForm'
 import { Button } from './ui/button'
 import {
@@ -37,11 +37,9 @@ export const CreateGitenvs = ({
 }: {
   onPassphrases: (passphrases: Passphrase[]) => void
 }) => {
-  const { mutateAsync, isLoading: creatingGitenvsIsLoading } =
-    api.gitenvs.createGitenvs.useMutation()
   const [isGenerating, setIsGenerating] = useState(false)
 
-  const isLoading = creatingGitenvsIsLoading || isGenerating
+  const isLoading = isGenerating
 
   const form = useZodForm({
     schema: z.object({
@@ -86,7 +84,7 @@ export const CreateGitenvs = ({
               }),
             )
 
-            await mutateAsync({
+            await saveGitenvs({
               version: '1',
               envStages: stages.map(({ passphrase: _, ...stage }) => stage), // IMPORTANT: Don't save the passphrase to gitenvs.json
               envFiles: [
