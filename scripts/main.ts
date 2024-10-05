@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 
+import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
+import { getPassphrase } from '@/gitenvs/getPassphrase'
+import { getGitenvs } from '@/gitenvs/gitenvs'
 import { Command } from 'commander'
+import { writeFile } from 'fs/promises'
 
 const program = new Command()
 
@@ -8,27 +12,76 @@ program
   .name('gitenvs')
   .description('Save your env variables in git – encrypted!')
 
-// program
-//   .command('createEnvFiles')
-//   .description('Creates the env files for the provided envName')
-//   .option('--stage <stage>', 'Example: production, staging, development')
-//   .option('--passphrase <passphrase>')
-//   .option('--passphrasePath <passphrasePath>')
-//   .action((localOptions) => console.log(localOptions))
+program
+  .command('create')
+  .description('Creates env files')
+  .option(
+    '--stage <stage>',
+    'Example: production, staging, development',
+    'development',
+  )
+  .option('--passphrase <passphrase>')
+  .option('--passphrasePath <passphrasePath>')
+  .action(
+    async (options: {
+      stage: string
+      passphrase: string
+      passphrasePath: string
+    }) => {
+      const gitenvs = await getGitenvs()
 
-// program
-//   .command('createKeys')
-//   .description('Creates a public/private key pair')
-//   .action(() => createKeys())
+      const envStage = gitenvs.envStages.find(
+        (envStage) => envStage.name === options.stage,
+      )
+      if (!envStage) {
+        console.error(`Env stage ${options.stage} not found`)
+        process.exit(1)
+      }
 
-// program
-//   .command('encrypt')
-//   .description('Returns an encrypted value')
-//   .requiredOption(
-//     '--stage <stage>',
-//     'Example: production, staging, development',
-//   )
-//   .action((localOptions) => encrypt({ ...options, ...localOptions }))
+      const passphrase = await getPassphrase({
+        stage: options.stage,
+        passphrase: options.passphrase,
+        passphrasePath: options.passphrasePath,
+      })
+
+      const promises = []
+      for (const envFile of gitenvs.envFiles) {
+        const envVars = gitenvs.envVars.filter(
+          (envVar) => envVar.fileId === envFile.id,
+        )
+        const dotenvVars = await Promise.all(
+          envVars.map(async (envVar) => {
+            const value = envVar.values[options.stage]
+            if (!value) return { key: envVar.key, value: '' }
+            if (!value.encrypted) {
+              return {
+                key: envVar.key,
+                value: value.value,
+              }
+            }
+
+            // TODO: Whats on error?
+            return {
+              key: envVar.key,
+              value: await decryptEnvVar({
+                encrypted: value.value,
+                encryptedPrivateKey: envStage.encryptedPrivateKey,
+                passphrase,
+              }),
+            }
+          }),
+        )
+
+        const dotenvContent = dotenvVars
+          .map((dotenvVar) => `${dotenvVar.key}=${dotenvVar.value}`)
+          .join('\n')
+
+        promises.push(writeFile(envFile.filePath, dotenvContent, 'utf-8'))
+      }
+
+      await Promise.allSettled(promises)
+    },
+  )
 
 // program
 //   .command('ui')

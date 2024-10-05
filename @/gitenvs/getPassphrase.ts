@@ -5,19 +5,18 @@ import { z } from 'zod'
 export const getPassphrase = async ({
   stage,
   passphrase,
-  passphrasePath = `${process.cwd()}/${stage}.passphrase`,
+  passphrasePath = `${process.cwd()}/${stage}.gitenvs.passphrase`,
 }: {
   stage: string
   passphrase?: string
   passphrasePath?: string
 }) => {
-  const getKeyFromEnvVars = () => {
-    const envVar = `GITENV_PRIVATE_KEY_PASSPHRASE_${stage?.toUpperCase()}`
-    const envVarValue = process.env[envVar]
-    return envVarValue
+  const getFromEnvVars = () => {
+    const passphrase = process.env[`GITENVS_PASSPHRASE_${stage?.toUpperCase()}`]
+    return passphrase
   }
 
-  const getKeyFromFile = async () => {
+  const getFromFile = async () => {
     if (!passphrasePath) return undefined
 
     try {
@@ -31,7 +30,7 @@ export const getPassphrase = async ({
     }
   }
 
-  return passphrase ?? getKeyFromEnvVars() ?? (await getKeyFromFile()) ?? ''
+  return passphrase ?? getFromEnvVars() ?? (await getFromFile()) ?? ''
 }
 
 const readFirstLine = async (pathToFile: string): Promise<string> => {
