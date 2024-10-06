@@ -87,7 +87,7 @@ program
 
 program
   .command('ui')
-  .description('Starts a browser UI for easy interaction')
+  .description('Starts a browser UI to edit env vars')
   .action(() => {
     // start npm command with env vars
     execSync('pnpm run dev-next', {
