@@ -1,5 +1,4 @@
 import { readFile, writeFile } from 'fs/promises'
-import { revalidatePath } from 'next/cache'
 import { join } from 'path'
 import { getCwd } from './getCwd'
 import { Gitenvs } from './gitenvs.schema'
@@ -15,6 +14,4 @@ export const saveGitenvs = async (gitenvs: Gitenvs) => {
     join(getCwd(), 'gitenvs.json'),
     JSON.stringify(gitenvs, null, 2),
   )
-
-  revalidatePath('/', 'layout')
 }
