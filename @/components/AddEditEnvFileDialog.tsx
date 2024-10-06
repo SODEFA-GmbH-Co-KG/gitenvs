@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { saveGitenvs } from '~/lib/gitenvs'
 import { EnvFile, EnvFileType, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvFileId } from '@/gitenvs/idsGenerator'
 import { map } from 'lodash-es'
 import { revalidatePath } from 'next/cache'
+import { saveGitenvs } from '~/lib/gitenvs'
 import {
   streamDialog,
   streamToast,
@@ -40,6 +40,10 @@ export const AddEditEnvFileDialog = ({
         'use server'
 
         return superAction(async () => {
+          if (typeof formData === 'string') {
+            return
+          }
+
           const newEnvFile = EnvFile.parse({
             id: envFile?.id ?? getNewEnvFileId(),
             name: formData?.get(formNames.name),

@@ -107,7 +107,7 @@ export type SuperActionPromise<T> = Promise<{
   superAction: SuperActionResponse<T>
 } | void>
 export type SuperAction<T = unknown> = (
-  formData?: FormData,
+  data?: FormData | string,
 ) => SuperActionPromise<T>
 
 export const streamToast = (toast: SuperActionToast) => {
