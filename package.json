@@ -7,11 +7,11 @@
   },
   "type": "module",
   "scripts": {
-    "build": "pkgroll --src scripts && next build && cp -r .next/standalone dist/next",
-    "dev": "pnpm dev-cli ui",
+    "build": "pkgroll --src cli && next build && cp -r .next/standalone dist/next",
+    "dev": "pnpm dev-cli dev-ui",
     "lint": "next lint",
     "start": "next start",
-    "dev-cli": "mkdir -p playground && GITENVS_DIR=./playground npx tsx ./scripts/main.ts",
+    "dev-cli": "mkdir -p playground && GITENVS_DIR=./playground npx tsx ./cli/main.ts",
     "dev-next": "next dev"
   },
   "dependencies": {
