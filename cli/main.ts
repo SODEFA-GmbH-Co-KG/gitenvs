@@ -8,6 +8,13 @@ import { Command } from 'commander'
 import { randomBytes } from 'crypto'
 import { writeFile } from 'fs/promises'
 
+const getGitenvsUiEnvVars = () => ({
+  ...process.env,
+  GITENVS_DIR: process.cwd(),
+  GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
+  PORT: '1337',
+})
+
 const program = new Command()
 
 program
@@ -93,11 +100,7 @@ program
     // start npm command with env vars
     execSync('pnpm run dev-next', {
       stdio: 'inherit',
-      env: {
-        ...process.env,
-        GITENVS_DIR: process.env.GITENVS_DIR || process.cwd(),
-        GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
-      },
+      env: getGitenvsUiEnvVars(),
     })
   })
 
@@ -110,11 +113,7 @@ program
     // start npm command with env vars
     execSync(`${nodePath} ./dist/next/server.js`, {
       stdio: 'inherit',
-      env: {
-        ...process.env,
-        GITENVS_DIR: process.cwd(),
-        GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
-      },
+      env: getGitenvsUiEnvVars(),
     })
   })
 
