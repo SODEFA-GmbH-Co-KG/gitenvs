@@ -85,12 +85,30 @@ program
     },
   )
 
+// TODO: Should only be visible in dev mode
 program
-  .command('ui')
+  .command('dev-ui')
   .description('Starts a browser UI to edit env vars')
   .action(() => {
     // start npm command with env vars
     execSync('pnpm run dev-next', {
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        GITENVS_DIR: process.env.GITENVS_DIR || process.cwd(),
+        GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
+      },
+    })
+  })
+
+program
+  .command('ui', { isDefault: true })
+  .description('Starts a browser UI to edit env vars')
+  .action(() => {
+    const nodePath = process.argv0
+
+    // start npm command with env vars
+    execSync(`${nodePath} ./dist/next/server.js`, {
       stdio: 'inherit',
       env: {
         ...process.env,
