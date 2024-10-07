@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
 import { getPassphrase } from '@/gitenvs/getPassphrase'
 import { getGitenvs } from '@/gitenvs/gitenvs'
@@ -7,6 +5,8 @@ import { execSync } from 'child_process'
 import { Command } from 'commander'
 import { randomBytes } from 'crypto'
 import { writeFile } from 'fs/promises'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
 
 const getGitenvsUiEnvVars = () => ({
   ...process.env,
@@ -109,9 +109,10 @@ program
   .description('Starts a browser UI to edit env vars')
   .action(() => {
     const nodePath = process.argv0
+    const currentDir = dirname(fileURLToPath(import.meta.url))
 
     // start npm command with env vars
-    execSync(`${nodePath} ./dist/next/server.js`, {
+    execSync(`${nodePath} ${currentDir}/next/server.js`, {
       stdio: 'inherit',
       env: getGitenvsUiEnvVars(),
     })
