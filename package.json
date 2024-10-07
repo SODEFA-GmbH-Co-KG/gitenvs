@@ -1,6 +1,6 @@
 {
   "name": "gitenvs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": false,
   "bin": {
     "gitenvs": "dist/main.mjs"
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "pnpm build-cli && pnpm build-ui",
     "build-cli": "pkgroll --src cli --clean-dist --tsconfig=tsconfig.cli.json",
-    "build-ui": "next build && cp -r .next/standalone dist/next",
+    "build-ui": "next build && cp -r .next/standalone dist/next && cp -r .next/static dist/next/.next/static && cp -r public dist/next/public",
     "dev": "pnpm dev-cli dev-ui",
     "lint": "next lint",
     "start": "next start",
