@@ -38,17 +38,25 @@ program
       passphrasePath: string
     }) => {
       const gitenvs = await getGitenvs()
+      const stage = process.env.GITENVS_STAGE || options.stage
+
+      if (!stage) {
+        console.error(
+          'Stage is required. Set it with --stage <stage> or with env var: GITENVS_STAGE',
+        )
+        process.exit(1)
+      }
 
       const envStage = gitenvs.envStages.find(
-        (envStage) => envStage.name === options.stage,
+        (envStage) => envStage.name === stage,
       )
       if (!envStage) {
-        console.error(`Env stage ${options.stage} not found`)
+        console.error(`Env stage ${stage} not found`)
         process.exit(1)
       }
 
       const passphrase = await getPassphrase({
-        stage: options.stage,
+        stage: stage,
         passphrase: options.passphrase,
         passphrasePath: options.passphrasePath,
       })
@@ -60,7 +68,7 @@ program
         )
         const dotenvVars = await Promise.all(
           envVars.map(async (envVar) => {
-            const value = envVar.values[options.stage]
+            const value = envVar.values[stage]
             if (!value) return { key: envVar.key, value: '' }
             if (!value.encrypted) {
               return {

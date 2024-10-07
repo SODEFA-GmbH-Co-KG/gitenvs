@@ -5,7 +5,7 @@ import { z } from 'zod'
 export const getPassphrase = async ({
   stage,
   passphrase,
-  passphrasePath = `${process.cwd()}/${stage}.gitenvs.passphrase`,
+  passphrasePath = `${process.env.GITENVS_DIR || process.cwd()}/${stage}.gitenvs.passphrase`,
 }: {
   stage: string
   passphrase?: string
