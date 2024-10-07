@@ -58,7 +58,7 @@ export const DeployGitenvs = ({
             <div className="flex flex-col gap-4">
               {passphrases.map((passphrase) => {
                 const dotenvFormat = `GITENVS_STAGE=${passphrase.stageName}
-              GITENVS_PRIVATE_KEY_PASSPHRASE_${passphrase.stageName.toUpperCase()}=${
+              GITENVS_PASSPHRASE_${passphrase.stageName.toUpperCase()}=${
                 passphrase.passphrase
               }`
                 return (
@@ -78,7 +78,7 @@ export const DeployGitenvs = ({
                       </div>
                       <div>
                         <InputWithCopyButton
-                          content={`GITENVS_PRIVATE_KEY_PASSPHRASE_${passphrase.stageName.toUpperCase()}`}
+                          content={`GITENVS_PASSPHRASE_${passphrase.stageName.toUpperCase()}`}
                         />
                       </div>
                       <div>
