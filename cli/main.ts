@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url'
 
 const getGitenvsUiEnvVars = () => ({
   ...process.env,
-  GITENVS_DIR: process.cwd(),
+  GITENVS_DIR: process.env.GITENVS_DIR || process.cwd(),
   GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
   PORT: '1337',
 })
