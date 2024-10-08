@@ -77,7 +77,7 @@ export const EditEnvKeyDialog = NiceModal.create(
               />
             </div>
             <DialogFooter>
-              <Button type="button">Update</Button>
+              <Button type="submit">Update</Button>
             </DialogFooter>
           </form>
         </DialogContent>
