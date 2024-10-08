@@ -1,3 +1,4 @@
+import { ArrowTab } from '@/components/ArrowTab'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as ToasterSonner } from 'sonner'
 import '~/styles/globals.css'
@@ -19,6 +20,7 @@ export default async function RootLayout({
               {children}
             </div>
           </main>
+          <ArrowTab />
           <ActionCommandProvider />
           <DialogProvider />
           <Toaster />

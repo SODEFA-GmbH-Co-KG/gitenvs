@@ -12,6 +12,9 @@ importers:
 
   .:
     dependencies:
+      arrowtab:
+        specifier: ^0.0.4
+        version: 0.0.4
       commander:
         specifier: ^12.1.0
         version: 12.1.0
@@ -1448,6 +1451,9 @@ packages:
   arraybuffer.prototype.slice@1.0.3:
     resolution: {integrity: sha512-bMxMKAjg13EBSVscxTaYA4mRc5t1UAXa2kXiGTNfZ079HIWXEkKmkgFrh/nJqamaLSrXO5H4WFFkPEaLJWbs3A==}
     engines: {node: '>= 0.4'}
+
+  arrowtab@0.0.4:
+    resolution: {integrity: sha512-sEWhhJHX415ny7FbXafun28ObeW8TQFZptP7Yc5OZkuTsisktmRepAq4xcnSMREDqnBTEAUgkxvGQhO/yj2HVQ==}
 
   ast-types-flow@0.0.8:
     resolution: {integrity: sha512-OH/2E5Fg20h2aPrbe+QL8JZQFko0YZaF+j4mnQ7BGhfavO7OpSLa8a0y9sBwomHdSbkhTS8TQNayBfnW5DwbvQ==}
@@ -4298,6 +4304,8 @@ snapshots:
       get-intrinsic: 1.2.4
       is-array-buffer: 3.0.4
       is-shared-array-buffer: 1.0.3
+
+  arrowtab@0.0.4: {}
 
   ast-types-flow@0.0.8: {}
 

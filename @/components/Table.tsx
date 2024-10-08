@@ -1,15 +1,14 @@
 import { Input } from '@/components/ui/input'
-import { saveGitenvs } from '~/lib/gitenvs'
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { map } from 'lodash-es'
 import { Fragment } from 'react'
+import { saveGitenvs } from '~/lib/gitenvs'
 import { superAction } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { EnvKeyMenu } from './EnvKeyMenu'
 import { TableEnvKey } from './TableEnvKey'
 import { TableEnvVar } from './TableEnvVar'
-import { TableKeydownHandler } from './TableKeydownHandler'
 
 export const Table = ({
   fileId,
@@ -22,7 +21,6 @@ export const Table = ({
 
   return (
     <Fragment>
-      <TableKeydownHandler columns={columns} />
       <div className="flex flex-col gap-2 rounded-md border p-4">
         {!!gitenvs?.envVars.length ? (
           <div
