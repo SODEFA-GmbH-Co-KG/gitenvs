@@ -1,11 +1,15 @@
-'use client'
-
 import { Button } from '@/components/ui/button'
 import { DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
-import { ReactNode, useState } from 'react'
+import { map } from 'lodash-es'
+import { ReactNode } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
+import {
+  streamDialog,
+  superAction,
+} from '~/super-action/action/createSuperAction'
+import { ActionForm } from '~/super-action/form/ActionForm'
 
 export const EditEnvKeyDialog = ({
   envVar,
@@ -16,55 +20,50 @@ export const EditEnvKeyDialog = ({
   gitenvs: Gitenvs
   dropdown: ReactNode
 }) => {
-  const [key, setKey] = useState('')
-
-  const updateKey = async () => {
-    const newEnVars = gitenvs.envVars.map((v) => {
-      if (v.id !== envVar.id) return v
-
-      return {
-        ...v,
-        key,
-      }
-    })
-
-    await saveGitenvs({
-      ...gitenvs,
-      envVars: newEnVars,
-    })
-  }
-
   return (
-    <form
-      onSubmit={async (event) => {
-        event.preventDefault()
-        await updateKey()
+    <ActionForm
+      action={async (event) => {
+        'use server'
+
+        return superAction(async () => {
+          if (!(event instanceof FormData)) return
+          const key = event.get('key')?.toString()
+          if (typeof key !== 'string') return
+
+          const newEnVars = map(gitenvs.envVars, (v) => {
+            if (v.id !== envVar.id) return v
+
+            return {
+              ...v,
+              key,
+            }
+          })
+
+          await saveGitenvs({
+            ...gitenvs,
+            envVars: newEnVars,
+          })
+
+          streamDialog(null)
+        })
       }}
     >
       <DialogHeader>
         <DialogTitle>Edit Env Key</DialogTitle>
-        {/* <DialogDescription>
-            Make changes to your profile here.
-          </DialogDescription> */}
       </DialogHeader>
       <div className="grid gap-4 py-4">
         <Input
           className="col-span-3"
           type="text"
           autoComplete="off"
-          value={key}
-          onChange={(event) => setKey(event.target.value)}
-          onKeyDown={async (event) => {
-            if (event.key === 'Enter') {
-              return updateKey()
-            }
-          }}
+          name="key"
+          defaultValue={envVar.key}
         />
       </div>
       <DialogFooter>
         {dropdown}
         <Button type="submit">Update</Button>
       </DialogFooter>
-    </form>
+    </ActionForm>
   )
 }
