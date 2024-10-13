@@ -2,12 +2,15 @@ import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { filter } from 'lodash-es'
 import { MoreVertical } from 'lucide-react'
 import { saveGitenvs } from '~/lib/gitenvs'
-import { superAction } from '~/super-action/action/createSuperAction'
+import {
+  streamDialog,
+  superAction,
+} from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
-import { DropdownMenuItemStopPropagation } from './DropdownMenuItemStopPropagation'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 
@@ -24,7 +27,7 @@ export const EnvKeyMenu = ({
         <MoreVertical className="h-3 w-3 opacity-60" />
       </DropdownMenuTrigger>
       <DropdownMenuContent forceMount>
-        <DropdownMenuItemStopPropagation>
+        <DropdownMenuItem asChild>
           <ActionButton
             variant="vanilla"
             size="vanilla"
@@ -39,6 +42,7 @@ export const EnvKeyMenu = ({
                   envVars: filter(gitenvs.envVars, (v) => v.id !== envVar.id),
                 }
                 await saveGitenvs(newGitenvs)
+                streamDialog(null)
               })
             }}
             command={{
@@ -48,7 +52,7 @@ export const EnvKeyMenu = ({
           >
             Delete
           </ActionButton>
-        </DropdownMenuItemStopPropagation>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

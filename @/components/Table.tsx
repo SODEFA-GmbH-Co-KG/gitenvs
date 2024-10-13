@@ -6,7 +6,6 @@ import { Fragment } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { superAction } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
-import { EnvKeyMenu } from './EnvKeyMenu'
 import { TableEnvKey } from './TableEnvKey'
 import { TableEnvVar } from './TableEnvVar'
 
@@ -58,7 +57,6 @@ export const Table = ({
                 <Fragment key={index}>
                   <TableEnvKey gitenvs={gitenvs} envVar={envVar}>
                     <div>{envVar.key}</div>
-                    <EnvKeyMenu gitenvs={gitenvs} envVar={envVar} />
                   </TableEnvKey>
 
                   {gitenvs?.envStages.map((stage) => {
