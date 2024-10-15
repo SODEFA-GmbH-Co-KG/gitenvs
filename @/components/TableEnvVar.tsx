@@ -8,6 +8,7 @@ import {
 } from '@/gitenvs/gitenvs.schema'
 import NiceModal from '@ebay/nice-modal-react'
 import { EditEnvVarDialog } from './EditEnvVarDialog'
+import { Button } from './ui/button'
 
 export const TableEnvVar = ({
   gitenvs,
@@ -18,32 +19,21 @@ export const TableEnvVar = ({
   envVar: EnvVar
   envStage: EnvStage
 }) => {
-  const handler = async () => {
-    const activeElement = document.activeElement
-    try {
-      await NiceModal.show(EditEnvVarDialog, {
-        envVar,
-        envStage,
-        gitenvs,
-      })
-    } finally {
-      setTimeout(() => {
-        if (activeElement instanceof HTMLElement) {
-          activeElement.focus()
-        }
-      }, 200)
-    }
-  }
-
   return (
-    <div
+    <Button
+      variant="ghost"
       tabIndex={0}
-      onClick={handler}
-      onKeyDown={(event) => event.key === 'Enter' && handler()}
-      className="flex cursor-pointer items-center p-1"
+      onClick={async () => {
+        await NiceModal.show(EditEnvVarDialog, {
+          envVar,
+          envStage,
+          gitenvs,
+        })
+      }}
+      className="flex cursor-pointer items-center justify-start p-1"
     >
       <Content envVarValue={envVar.values[envStage.name]} />
-    </div>
+    </Button>
   )
 }
 
