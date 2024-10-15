@@ -13,8 +13,8 @@ importers:
   .:
     dependencies:
       arrowtab:
-        specifier: ^0.0.4
-        version: 0.0.4
+        specifier: ^0.0.5
+        version: 0.0.5
       commander:
         specifier: ^12.1.0
         version: 12.1.0
@@ -1452,8 +1452,8 @@ packages:
     resolution: {integrity: sha512-bMxMKAjg13EBSVscxTaYA4mRc5t1UAXa2kXiGTNfZ079HIWXEkKmkgFrh/nJqamaLSrXO5H4WFFkPEaLJWbs3A==}
     engines: {node: '>= 0.4'}
 
-  arrowtab@0.0.4:
-    resolution: {integrity: sha512-sEWhhJHX415ny7FbXafun28ObeW8TQFZptP7Yc5OZkuTsisktmRepAq4xcnSMREDqnBTEAUgkxvGQhO/yj2HVQ==}
+  arrowtab@0.0.5:
+    resolution: {integrity: sha512-zGHfDg/YS+so+7M1OJgzgLLT2U4hf35Dt+xWjiiMHPBS194TEi1rz91pdqH27+BHY8+xvLdl36YELJSqBhu6zw==}
 
   ast-types-flow@0.0.8:
     resolution: {integrity: sha512-OH/2E5Fg20h2aPrbe+QL8JZQFko0YZaF+j4mnQ7BGhfavO7OpSLa8a0y9sBwomHdSbkhTS8TQNayBfnW5DwbvQ==}
@@ -4305,7 +4305,7 @@ snapshots:
       is-array-buffer: 3.0.4
       is-shared-array-buffer: 1.0.3
 
-  arrowtab@0.0.4: {}
+  arrowtab@0.0.5: {}
 
   ast-types-flow@0.0.8: {}
 

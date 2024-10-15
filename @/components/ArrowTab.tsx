@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 
 export const ArrowTab = () => {
   useEffect(() => {
-    const { cleanup } = initArrowTab()
+    const { cleanup } = initArrowTab({ autoDetectHistory: true })
 
     return () => {
       cleanup()
