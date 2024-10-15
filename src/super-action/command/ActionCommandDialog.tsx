@@ -40,7 +40,10 @@ export const ActionCommandDialog = ({
 }) => (
   <>
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search..." />
+      <CommandInput
+        placeholder="Type a command or search..."
+        data-arrowtab="disable-down disable-up"
+      />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         {children}
