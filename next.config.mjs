@@ -22,6 +22,8 @@ const config = {
     typedRoutes: true,
     instrumentationHook: true,
   },
+
+  output: 'standalone',
 }
 
 export default config

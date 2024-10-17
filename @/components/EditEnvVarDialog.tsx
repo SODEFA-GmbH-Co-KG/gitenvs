@@ -6,15 +6,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { useState } from 'react'
-import { encryptEnvVar } from '~/gitenvs/encryptEnvVar'
+import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
+import { saveGitenvs } from '~/lib/gitenvs'
 import {
   type EnvStage,
   type EnvVar,
   type Gitenvs,
-} from '~/gitenvs/gitenvs.schema'
-import { api } from '~/utils/api'
+} from '@/gitenvs/gitenvs.schema'
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { useState } from 'react'
 import { KeyShortcut } from './KeyShortcut'
 
 export const EditEnvVarDialog = NiceModal.create(
@@ -27,8 +27,6 @@ export const EditEnvVarDialog = NiceModal.create(
     envStage: EnvStage
     gitenvs: Gitenvs
   }) => {
-    const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
-    const utils = api.useUtils()
     const modal = useModal()
     const [plaintext, setPlaintext] = useState('')
 
@@ -60,13 +58,9 @@ export const EditEnvVarDialog = NiceModal.create(
       })
 
       await saveGitenvs({
-        gitenvs: {
-          ...gitenvs,
-          envVars: newEnVars,
-        },
+        ...gitenvs,
+        envVars: newEnVars,
       })
-
-      await utils.gitenvs.invalidate()
     }
 
     const savePlain = async () => {

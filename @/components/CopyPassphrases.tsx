@@ -1,7 +1,9 @@
+import { type Passphrase } from '@/gitenvs/gitenvs.schema'
 import { Save } from 'lucide-react'
 import { toast } from 'sonner'
-import { api, type RouterOutputs } from '~/utils/api'
+import { savePassphraseToFolder } from '~/lib/gitenvs'
 import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
+import { getEncryptionKeyOnClient } from '~/utils/getEncryptionKeyOnClient'
 import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -12,7 +14,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from './ui/tooltip'
-import { type Passphrase } from '~/gitenvs/gitenvs.schema'
 
 export const CopyPassphrases = ({
   passphrases,
@@ -21,12 +22,9 @@ export const CopyPassphrases = ({
   passphrases: Passphrase[]
   onNext: () => void
 }) => {
-  const { mutateAsync: savePassphraseToFolder } =
-    api.gitenvs.savePassphraseToFolder.useMutation()
-
   return (
-    <div className="flex flex-col gap-8 max-w-lg">
-      <h1 className="text-2xl text-center">Your secret Passphrases</h1>
+    <div className="flex max-w-lg flex-col gap-8">
+      <h1 className="text-center text-2xl">Your secret Passphrases</h1>
       <div className="flex flex-col gap-4">
         <p>
           These are your secret passphrases. You will need them to decrypt your
@@ -65,6 +63,7 @@ export const CopyPassphrases = ({
                           const encryptedPassphrase =
                             await encryptWithEncryptionToken({
                               plaintext: passphrase.passphrase,
+                              key: await getEncryptionKeyOnClient(),
                             })
                           await savePassphraseToFolder({
                             encryptedPassphrase,
@@ -78,7 +77,7 @@ export const CopyPassphrases = ({
                         })
                       }}
                     >
-                      <Save className="w-4 h-4" />
+                      <Save className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -103,6 +102,7 @@ export const CopyPassphrases = ({
               passphrases.map(async (passphrase) => {
                 const encryptedPassphrase = await encryptWithEncryptionToken({
                   plaintext: passphrase.passphrase,
+                  key: await getEncryptionKeyOnClient(),
                 })
 
                 return savePassphraseToFolder({
@@ -119,7 +119,7 @@ export const CopyPassphrases = ({
           }}
           variant="outline"
         >
-          <Save className="w-4 h-4" />
+          <Save className="h-4 w-4" />
           &nbsp; Save all to current folder
         </Button>
         <Button type="button" onClick={async () => onNext()}>

@@ -1,203 +1,112 @@
-'use client'
-
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import NiceModal from '@ebay/nice-modal-react'
-import { Fragment, useEffect } from 'react'
-import { getNewEnvVarId } from '~/gitenvs/idsGenerator'
-import { api } from '~/utils/api'
-import { EditEnvKeyDialog } from './EditEnvKeyDialog'
-import { EditEnvVarDialog } from './EditEnvVarDialog'
+import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
+import { map } from 'lodash-es'
+import { Fragment } from 'react'
+import { saveGitenvs } from '~/lib/gitenvs'
+import { superAction } from '~/super-action/action/createSuperAction'
+import { ActionButton } from '~/super-action/button/ActionButton'
+import { TableEnvKey } from './TableEnvKey'
+import { TableEnvVar } from './TableEnvVar'
 
-export const Table = ({ fileId }: { fileId: string }) => {
-  const trpcUtils = api.useUtils()
-  const { data: gitenvs } = api.gitenvs.getGitenvs.useQuery()
-  const { mutateAsync: saveGitenvs } = api.gitenvs.saveGitenvs.useMutation()
-
+export const Table = ({
+  fileId,
+  gitenvs,
+}: {
+  fileId: string
+  gitenvs: Gitenvs
+}) => {
   const columns = (gitenvs?.envStages.length ?? 0) + 1
 
-  useEffect(() => {
-    const handler = (event: KeyboardEvent) => {
-      if (
-        document.activeElement?.parentElement?.id !== 'supergrid' &&
-        !(document.activeElement instanceof HTMLInputElement)
-      ) {
-        if (
-          event.key === 'ArrowLeft' ||
-          event.key === 'ArrowRight' ||
-          event.key === 'ArrowUp' ||
-          event.key === 'ArrowDown'
-        ) {
-          document
-            .querySelector<HTMLElement>('#supergrid > *[tabindex="0"]')
-            ?.focus()
-          return
-        }
-      } else {
-        if (event.key === 'ArrowLeft') {
-          const element = document.activeElement?.previousElementSibling
-          if (element instanceof HTMLElement) {
-            element?.focus()
-          }
-        }
-        if (event.key === 'ArrowRight') {
-          const element = document.activeElement?.nextElementSibling
-          if (element instanceof HTMLElement) {
-            element?.focus()
-          }
-        }
-        if (event.key === 'ArrowUp') {
-          let element: Element | null | undefined = document.activeElement
-          for (let i = 0; i < columns; i++) {
-            element = element?.previousElementSibling
-          }
-          if (element instanceof HTMLElement) {
-            element?.focus()
-          }
-        }
-        if (event.key === 'ArrowDown') {
-          let element: Element | null | undefined = document.activeElement
-          for (let i = 0; i < columns; i++) {
-            element = element?.nextElementSibling
-          }
-          if (element instanceof HTMLElement) {
-            element?.focus()
-          }
-        }
-      }
-    }
-    document.addEventListener('keydown', handler)
-
-    return () => {
-      document.removeEventListener('keydown', handler)
-    }
-  }, [columns])
-
   return (
-    <div className="flex w-full flex-col gap-2 overflow-hidden">
-      {!!gitenvs?.envVars.length ? (
-        <div
-          className="grid gap-2"
-          id="supergrid"
-          style={{
-            gridTemplateColumns: `repeat(${columns}, 1fr)`,
+    <Fragment>
+      <div className="flex flex-col gap-2 rounded-md border p-4">
+        {!!gitenvs?.envVars.length ? (
+          <div
+            className="grid gap-2"
+            id="supergrid"
+            style={{
+              gridTemplateColumns: `repeat(${columns}, 1fr)`,
+            }}
+          >
+            <div></div>
+            {gitenvs?.envStages.map((stage) => (
+              <div key={stage.name} className="flex flex-col gap-2">
+                {stage.name}
+              </div>
+            ))}
+            <div className="p-1">Passphrase</div>
+            {gitenvs?.envStages.map((stage) => (
+              <Input
+                key={stage.name}
+                className="flex flex-col gap-2"
+                autoComplete="new-password"
+                type="password"
+              ></Input>
+            ))}
+            <div className="p-1">Key</div>
+            {gitenvs?.envStages.map((stage) => (
+              <div key={stage.name} className="flex flex-col gap-2">
+                {stage.name}
+              </div>
+            ))}
+            {gitenvs?.envVars.map((envVar, index) => {
+              if (envVar.fileId !== fileId) return null
+
+              return (
+                <Fragment key={index}>
+                  <TableEnvKey gitenvs={gitenvs} envVar={envVar}>
+                    <div>{envVar.key}</div>
+                  </TableEnvKey>
+
+                  {gitenvs?.envStages.map((stage) => {
+                    return (
+                      <TableEnvVar
+                        key={`${envVar.key}-${stage.name}`}
+                        gitenvs={gitenvs}
+                        envVar={envVar}
+                        envStage={stage}
+                      />
+                    )
+                  })}
+                </Fragment>
+              )
+            })}
+          </div>
+        ) : (
+          <p>No env vars so far. Add a new one</p>
+        )}
+        <ActionButton
+          command={{
+            shortcut: {
+              key: 'a',
+            },
+            label: 'Add new env var',
+          }}
+          action={async () => {
+            'use server'
+
+            return superAction(async () => {
+              const values = Object.fromEntries(
+                map(gitenvs.envStages, (stage) => [
+                  stage.name,
+                  { value: '', encrypted: false },
+                ]),
+              )
+              const newGitenvs = {
+                ...gitenvs,
+                envVars: [
+                  ...gitenvs.envVars,
+                  { id: getNewEnvVarId(), fileId, key: '', values },
+                ],
+              }
+              await saveGitenvs(newGitenvs)
+            })
           }}
         >
-          <div></div>
-          {gitenvs?.envStages.map((stage) => (
-            <div key={stage.name} className="flex flex-col gap-2">
-              {stage.name}
-            </div>
-          ))}
-          <div>Passphrase</div>
-          {gitenvs?.envStages.map((stage) => (
-            <Input
-              key={stage.name}
-              className="flex flex-col gap-2"
-              autoComplete="new-password"
-              type="password"
-            ></Input>
-          ))}
-          <div>Key</div>
-          {gitenvs?.envStages.map((stage) => (
-            <div key={stage.name} className="flex flex-col gap-2">
-              {stage.name}
-            </div>
-          ))}
-          {gitenvs?.envVars.map((envVar, index) => {
-            if (envVar.fileId !== fileId) return null
-            const handler = async () => {
-              const activeElement = document.activeElement
-              try {
-                await NiceModal.show(EditEnvKeyDialog, {
-                  envVar,
-                  gitenvs,
-                })
-              } finally {
-                setTimeout(() => {
-                  if (activeElement instanceof HTMLElement) {
-                    activeElement.focus()
-                  }
-                }, 200)
-              }
-            }
-            return (
-              <Fragment key={index}>
-                <div
-                  tabIndex={0}
-                  onClick={handler}
-                  onKeyDown={(event) => event.key === 'Enter' && handler()}
-                  className="cursor-pointer p-1"
-                >
-                  {envVar.key}
-                </div>
-
-                {gitenvs?.envStages.map((stage) => {
-                  const handler = async () => {
-                    const activeElement = document.activeElement
-                    try {
-                      await NiceModal.show(EditEnvVarDialog, {
-                        envVar,
-                        envStage: stage,
-                        gitenvs,
-                      })
-                    } finally {
-                      setTimeout(() => {
-                        if (activeElement instanceof HTMLElement) {
-                          activeElement.focus()
-                        }
-                      }, 200)
-                    }
-                  }
-                  return (
-                    <div
-                      key={`${envVar.key}-${stage.name}`}
-                      tabIndex={0}
-                      onClick={handler}
-                      onKeyDown={(event) => event.key === 'Enter' && handler()}
-                      className="flex cursor-pointer items-center p-1"
-                    >
-                      {envVar.values[stage.name]?.encrypted ? (
-                        <span className="rounded-sm bg-gray-600 p-1 text-xs uppercase">
-                          Encrypted
-                        </span>
-                      ) : (
-                        envVar.values[stage.name]?.value
-                      )}
-                    </div>
-                  )
-                })}
-              </Fragment>
-            )
-          })}
-        </div>
-      ) : (
-        <p>No env vars so far. Add a new one</p>
-      )}
-
-      <Button
-        type="button"
-        onClick={async () => {
-          if (!gitenvs) return
-          const values = Object.fromEntries(
-            gitenvs.envStages.map((stage) => [
-              stage.name,
-              { value: '', encrypted: true },
-            ]),
-          )
-          const newGitenvs = {
-            ...gitenvs,
-            envVars: [
-              ...gitenvs.envVars,
-              { id: getNewEnvVarId(), fileId, key: '', values },
-            ],
-          }
-          await saveGitenvs({ gitenvs: newGitenvs })
-          await trpcUtils.gitenvs.invalidate()
-        }}
-      >
-        Add
-      </Button>
-    </div>
+          Add
+        </ActionButton>
+      </div>
+    </Fragment>
   )
 }

@@ -7,7 +7,7 @@ export default function Page() {
     <SetupGitenvs
       onSetupDone={async () => {
         'use server'
-        revalidatePath('/')
+        revalidatePath('/', 'layout')
         redirect('/')
       }}
     />
