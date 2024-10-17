@@ -3,10 +3,13 @@
 import { Slot } from '@radix-ui/react-slot'
 import { map } from 'lodash-es'
 import { ArrowRight, Loader2 } from 'lucide-react'
-import { DOMAttributes, forwardRef, ReactNode } from 'react'
-import { useSuperAction, UseSuperActionOptions } from '../action/useSuperAction'
+import { type DOMAttributes, forwardRef, type ReactNode } from 'react'
+import {
+  useSuperAction,
+  type UseSuperActionOptions,
+} from '../action/useSuperAction'
 import { ActionCommand } from '../command/ActionCommand'
-import { ActionCommandConfig } from '../command/ActionCommandProvider'
+import { type ActionCommandConfig } from '../command/ActionCommandProvider'
 
 type ReactEventHandler = Exclude<
   {
@@ -36,7 +39,7 @@ export type ActionWrapperProps = {
     label?: ReactNode
   }
   triggerOn?: ReactEventHandler[]
-} & UseSuperActionOptions
+} & UseSuperActionOptions<void, undefined>
 
 ActionWrapperSlot.displayName = 'ActionWrapperSlot'
 
@@ -70,7 +73,10 @@ export const ActionWrapper = forwardRef<HTMLElement, ActionWrapperProps>(
           isLoading={isLoading}
           {...buttonProps}
           {...Object.fromEntries(
-            map(triggerOn, (superOn) => [superOn, trigger]),
+            map(triggerOn, (superOn) => [
+              superOn,
+              (evt: MouseEvent) => trigger(undefined, evt),
+            ]),
           )}
         >
           {children}
@@ -79,6 +85,7 @@ export const ActionWrapper = forwardRef<HTMLElement, ActionWrapperProps>(
           <ActionCommand
             icon={Icon}
             {...command}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             action={trigger as any} // TODO: fix type
           >
             {command.label ?? children}
