@@ -1,20 +1,20 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { useCallback, type ReactNode } from 'react'
+import { type ReactNode, useCallback } from 'react'
 import { type SuperActionDialog } from '../action/createSuperAction'
 
 const renderAtom = atom<ReactNode>(null)
 
 export const DialogProvider = () => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - shrug
   const render = useAtomValue(renderAtom)
   return <>{render}</>
 }
@@ -22,9 +22,15 @@ export const DialogProvider = () => {
 export const useShowDialog = () => {
   const setRender = useSetAtom(renderAtom)
   return useCallback(
-    (dialog: SuperActionDialog) => {
-      const newRender = dialog && <SuperDialog dialog={dialog} />
-      setRender(newRender)
+    async (dialog: SuperActionDialog) => {
+      const confirmed = await new Promise<boolean>((res) => {
+        const newRender = dialog && (
+          <SuperDialog dialog={dialog} onConfirm={res} />
+        )
+        setRender(newRender)
+      })
+      setRender(null) // close dialog on confirm
+      return confirmed
     },
     [setRender],
   )
@@ -32,8 +38,10 @@ export const useShowDialog = () => {
 
 const SuperDialog = ({
   dialog,
+  onConfirm,
 }: {
   dialog: NonNullable<SuperActionDialog>
+  onConfirm?: (value: boolean) => void
 }) => {
   const setRender = useSetAtom(renderAtom)
   return (
@@ -53,6 +61,20 @@ const SuperDialog = ({
             </DialogHeader>
           )}
           {dialog.content}
+          {(!!dialog.confirm || !!dialog.cancel) && (
+            <DialogFooter>
+              {dialog.cancel && (
+                <Button variant={'outline'} onClick={() => onConfirm?.(false)}>
+                  {dialog.cancel}
+                </Button>
+              )}
+              {dialog.confirm && (
+                <Button onClick={() => onConfirm?.(true)} autoFocus>
+                  {dialog.confirm}
+                </Button>
+              )}
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </>
