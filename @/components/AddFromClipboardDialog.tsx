@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { saveGitenvs } from '@/gitenvs/gitenvs'
-import { Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { type DotenvParseOutput } from 'dotenv'
 import { map } from 'lodash-es'
@@ -22,7 +22,7 @@ export const AddFromClipboardDialog = ({
 }) => {
   return (
     <ActionForm
-      action={async (event) => {
+      action={async () => {
         'use server'
 
         return superAction(async () => {
