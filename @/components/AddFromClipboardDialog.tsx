@@ -9,6 +9,7 @@ import {
   streamDialog,
   superAction,
 } from '~/super-action/action/createSuperAction'
+import { streamRevalidatePath } from '~/super-action/action/streamRevalidatePath'
 import { ActionForm } from '~/super-action/form/ActionForm'
 
 export const AddFromClipboardDialog = ({
@@ -43,6 +44,8 @@ export const AddFromClipboardDialog = ({
           }
           await saveGitenvs(newGitenvs)
           streamDialog(null)
+
+          streamRevalidatePath('/', 'layout')
         })
       }}
     >
