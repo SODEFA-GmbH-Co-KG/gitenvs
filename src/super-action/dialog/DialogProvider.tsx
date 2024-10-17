@@ -15,6 +15,8 @@ import { type SuperActionDialog } from '../action/createSuperAction'
 const renderAtom = atom<ReactNode>(null)
 
 export const DialogProvider = () => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - shrug
   const render = useAtomValue(renderAtom)
   return <>{render}</>
 }
