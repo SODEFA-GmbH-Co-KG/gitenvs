@@ -18,6 +18,8 @@ export type SuperActionToast = {
 export type SuperActionDialog = {
   title?: string
   content?: ReactNode
+  confirm?: string
+  cancel?: string
 } | null
 
 export type SuperActionError = {
@@ -37,6 +39,7 @@ export type SuperActionResponse<T> = {
   dialog?: SuperActionDialog
   error?: SuperActionError
   redirect?: SuperActionRedirect
+  action?: SuperAction<T, undefined>
 }
 
 type SuperActionContext = {
@@ -103,12 +106,15 @@ export const superAction = <T>(action: () => Promise<T>) => {
   return firstPromise.then((superAction) => ({ superAction }))
 }
 
-export type SuperActionPromise<T> = Promise<{
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SuperActionPromise<T = any> = Promise<{
   superAction: SuperActionResponse<T>
 } | void>
-export type SuperAction<T = unknown> = (
-  data?: FormData | string,
-) => SuperActionPromise<T>
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SuperAction<Output = any, Input = undefined> = (
+  input: Input,
+) => SuperActionPromise<Output>
 
 export const streamToast = (toast: SuperActionToast) => {
   const ctx = serverContext.getOrThrow()
@@ -118,4 +124,9 @@ export const streamToast = (toast: SuperActionToast) => {
 export const streamDialog = (dialog: SuperActionDialog) => {
   const ctx = serverContext.getOrThrow()
   ctx.chain({ dialog })
+}
+
+export const streamAction = (action: SuperAction) => {
+  const ctx = serverContext.getOrThrow()
+  ctx.chain({ action })
 }

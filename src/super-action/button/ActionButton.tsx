@@ -4,10 +4,17 @@ import { getCmdCtrlKey, KeyShortcut } from '@/components/KeyShortcut'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Loader2 } from 'lucide-react'
-import { ComponentPropsWithoutRef, forwardRef, ReactNode } from 'react'
-import { UseSuperActionOptions } from '../action/useSuperAction'
+import {
+  type ComponentPropsWithoutRef,
+  forwardRef,
+  type ReactNode,
+} from 'react'
 import { type ActionCommandConfig } from '../command/ActionCommandProvider'
-import { ActionWrapper, ActionWrapperSlotProps } from './ActionWrapper'
+import {
+  ActionWrapper,
+  type ActionWrapperProps,
+  type ActionWrapperSlotProps,
+} from './ActionWrapper'
 
 export type ActionButtonProps = {
   children?: React.ReactNode
@@ -20,7 +27,7 @@ export type ActionButtonProps = {
     label?: ReactNode
     hideKeyShortcut?: boolean
   }
-} & UseSuperActionOptions &
+} & ActionWrapperProps &
   ComponentPropsWithoutRef<typeof Button>
 
 export const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
