@@ -3,7 +3,7 @@
 import { useSetAtom } from 'jotai'
 import { useId, useLayoutEffect } from 'react'
 import {
-  type ActionCommandConfig,
+  ActionCommandConfig,
   actionCommandsAtom,
 } from './ActionCommandProvider'
 

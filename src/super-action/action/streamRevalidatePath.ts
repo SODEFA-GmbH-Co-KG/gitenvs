@@ -1,5 +1,5 @@
-import { streamAction } from '@/super-action/action/createSuperAction'
 import { revalidatePath } from 'next/cache'
+import { streamAction } from './createSuperAction'
 
 export const streamRevalidatePath = (
   ...args: Parameters<typeof revalidatePath>

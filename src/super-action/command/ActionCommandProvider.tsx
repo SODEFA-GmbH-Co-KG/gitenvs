@@ -3,15 +3,15 @@
 import { CommandGroup } from '@/components/ui/command'
 import { atom, useAtomValue } from 'jotai'
 import { groupBy, indexOf, map, orderBy } from 'lodash-es'
-import { Fragment, useState, type ReactNode } from 'react'
+import { Fragment, ReactNode, useState } from 'react'
 import {
   ActionCommandDialog,
   useActionCommandDialog,
 } from './ActionCommandDialog'
 import {
+  ActionCommandGroup,
   DEFAULT_ACTION_COMMAND_GROUP,
   actionCommandGroups,
-  type ActionCommandGroup,
 } from './ActionCommandGroups'
 import { ActionCommandItem } from './ActionCommandItem'
 import { ActionCommandKeyboardShortcut } from './ActionCommandKeyboardShortcut'

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect } from 'react'
-import { type ActionCommandConfig } from './ActionCommandProvider'
+import { ActionCommandConfig } from './ActionCommandProvider'
 
 export const ActionCommandKeyboardShortcut = ({
   command,
@@ -14,15 +14,16 @@ export const ActionCommandKeyboardShortcut = ({
   useEffect(() => {
     if (disabled) return
     if (!shortcut) return
-    const down = async (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return
+    const down = (e: KeyboardEvent) => {
+      if (e.target !== document.body) return
       if (e.key.toLowerCase() !== shortcut.key.toLowerCase()) return
       if (shortcut.cmdCtrl && (!e.metaKey || !e.ctrlKey)) return
       if (shortcut.shift && !e.shiftKey) return
       // if (shortcut.alt && !e.altKey) return
 
       e.preventDefault()
-      await action()
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      action()
     }
 
     document.addEventListener('keydown', down)

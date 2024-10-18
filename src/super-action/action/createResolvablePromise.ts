@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createResolvablePromise<T = any>() {
+export function createResolvablePromise<T>() {
   let resolve: (value: T) => void, reject: (error: unknown) => void
   const promise = new Promise<T>((res, rej) => {
     resolve = res

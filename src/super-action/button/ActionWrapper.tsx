@@ -3,13 +3,10 @@
 import { Slot } from '@radix-ui/react-slot'
 import { map } from 'lodash-es'
 import { ArrowRight, Loader2 } from 'lucide-react'
-import { type DOMAttributes, forwardRef, type ReactNode } from 'react'
-import {
-  useSuperAction,
-  type UseSuperActionOptions,
-} from '../action/useSuperAction'
+import { DOMAttributes, ReactNode, forwardRef } from 'react'
+import { UseSuperActionOptions, useSuperAction } from '../action/useSuperAction'
 import { ActionCommand } from '../command/ActionCommand'
-import { type ActionCommandConfig } from '../command/ActionCommandProvider'
+import { ActionCommandConfig } from '../command/ActionCommandProvider'
 
 type ReactEventHandler = Exclude<
   {

@@ -1,6 +1,6 @@
-import { ArrowRight, type LucideIcon } from 'lucide-react'
+import { ArrowRight, LucideIcon } from 'lucide-react'
 import { ActionCommandClient } from './ActionCommandClient'
-import { type ActionCommandConfig } from './ActionCommandProvider'
+import { ActionCommandConfig } from './ActionCommandProvider'
 
 export const ActionCommand = ({
   icon: Icon = ArrowRight,
