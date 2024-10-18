@@ -7,6 +7,7 @@ import { DOMAttributes, forwardRef, ReactNode } from 'react'
 import { useSuperAction, UseSuperActionOptions } from '../action/useSuperAction'
 import { ActionCommand } from '../command/ActionCommand'
 import { ActionCommandConfig } from '../command/ActionCommandProvider'
+import { SuperAction } from '../action/createSuperAction'
 
 type ReactEventHandler = Exclude<
   {
@@ -79,7 +80,7 @@ export const ActionWrapper = forwardRef<HTMLElement, ActionWrapperProps>(
           <ActionCommand
             icon={Icon}
             {...command}
-            action={trigger as any} // TODO: fix type
+            action={trigger as SuperAction} // TODO: fix type
           >
             {command.label ?? children}
           </ActionCommand>
