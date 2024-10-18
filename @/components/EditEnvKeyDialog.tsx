@@ -22,12 +22,11 @@ export const EditEnvKeyDialog = ({
 }) => {
   return (
     <ActionForm
-      action={async (event) => {
+      action={async (formData) => {
         'use server'
 
         return superAction(async () => {
-          if (!(event instanceof FormData)) return
-          const key = event.get('key')?.toString()
+          const key = formData.get('key')?.toString()
           if (typeof key !== 'string') return
 
           const newEnVars = map(gitenvs.envVars, (v) => {

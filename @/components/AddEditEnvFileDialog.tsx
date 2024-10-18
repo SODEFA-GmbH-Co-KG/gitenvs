@@ -40,10 +40,6 @@ export const AddEditEnvFileDialog = ({
         'use server'
 
         return superAction(async () => {
-          if (typeof formData === 'string') {
-            return
-          }
-
           const newEnvFile = EnvFile.parse({
             id: envFile?.id ?? getNewEnvFileId(),
             name: formData?.get(formNames.name),
