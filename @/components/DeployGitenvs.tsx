@@ -1,3 +1,4 @@
+import { getPassphraseEnvName, GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { type Passphrase } from '@/gitenvs/gitenvs.schema'
 import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
@@ -57,8 +58,8 @@ export const DeployGitenvs = ({
           <CollapsibleContent>
             <div className="flex flex-col gap-4">
               {passphrases.map((passphrase) => {
-                const dotenvFormat = `GITENVS_STAGE=${passphrase.stageName}
-              GITENVS_PASSPHRASE_${passphrase.stageName.toUpperCase()}=${
+                const dotenvFormat = `${GITENVS_STAGE_ENV_NAME}=${passphrase.stageName}
+              ${getPassphraseEnvName({ stage: passphrase.stageName })}=${
                 passphrase.passphrase
               }`
                 return (
@@ -71,14 +72,16 @@ export const DeployGitenvs = ({
                       <div>Key</div>
                       <div>Value</div>
                       <div>
-                        <InputWithCopyButton content="GITENVS_STAGE" />
+                        <InputWithCopyButton content={GITENVS_STAGE_ENV_NAME} />
                       </div>
                       <div>
                         <InputWithCopyButton content={passphrase.stageName} />
                       </div>
                       <div>
                         <InputWithCopyButton
-                          content={`GITENVS_PASSPHRASE_${passphrase.stageName.toUpperCase()}`}
+                          content={getPassphraseEnvName({
+                            stage: passphrase.stageName,
+                          })}
                         />
                       </div>
                       <div>
