@@ -5,47 +5,52 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 import { useShowDialog } from '../dialog/DialogProvider'
 import { consumeSuperActionResponse } from './consumeSuperActionResponse'
-import { type SuperAction } from './createSuperAction'
+import { SuperAction, SuperActionDialog } from './createSuperAction'
 
-export type UseSuperActionOptions = {
-  action: SuperAction
+export type UseSuperActionOptions<Result, Input> = {
+  action: SuperAction<Result, Input>
   disabled?: boolean
   catchToast?: boolean
-  askForConfirmation?: boolean
+  askForConfirmation?: boolean | SuperActionDialog
   stopPropagation?: boolean
 }
 
-export const useSuperAction = (options: UseSuperActionOptions) => {
+export const useSuperAction = <Result = undefined, Input = undefined>(
+  options: UseSuperActionOptions<Result, Input>,
+) => {
   const [isLoading, setIsLoading] = useState(false)
 
-  const {
-    action,
-    disabled,
-    catchToast = true,
-    askForConfirmation,
-    stopPropagation,
-  } = options
+  const { action, disabled, catchToast, askForConfirmation, stopPropagation } =
+    options
 
   const router = useRouter()
   const showDialog = useShowDialog()
 
   const trigger = useCallback(
-    async (evt?: MouseEvent | FormData) => {
+    async (input: Input, evt?: MouseEvent) => {
       if (isLoading) return
       if (disabled) return
-      if (stopPropagation && evt instanceof MouseEvent) {
+      if (stopPropagation) {
         evt?.stopPropagation()
         evt?.preventDefault()
       }
       if (askForConfirmation) {
-        if (!confirm('Are you sure?')) return
+        const dialogOptions =
+          typeof askForConfirmation === 'object' ? askForConfirmation : {}
+        const res = await showDialog({
+          title: 'Are you sure?',
+          confirm: 'Yes',
+          cancel: 'No',
+          ...dialogOptions,
+        })
+        if (!res) return
       }
       setIsLoading(true)
 
-      const response = await action(evt instanceof FormData ? evt : undefined)
+      const response = await action(input)
 
       if (response && 'superAction' in response) {
-        await consumeSuperActionResponse({
+        const result = await consumeSuperActionResponse({
           response: Promise.resolve(response.superAction),
           onToast: (t) => {
             toast({
@@ -54,6 +59,7 @@ export const useSuperAction = (options: UseSuperActionOptions) => {
             })
           },
           onDialog: (d) => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             showDialog(d)
           },
           onRedirect: (r) => {
@@ -72,6 +78,9 @@ export const useSuperAction = (options: UseSuperActionOptions) => {
               }
             : undefined,
         })
+
+        setIsLoading(false)
+        return result
       }
 
       setIsLoading(false)
@@ -82,8 +91,8 @@ export const useSuperAction = (options: UseSuperActionOptions) => {
       stopPropagation,
       askForConfirmation,
       action,
-      catchToast,
       showDialog,
+      catchToast,
       router,
     ],
   )

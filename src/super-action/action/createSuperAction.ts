@@ -1,13 +1,12 @@
 import { createServerContext } from '@sodefa/next-server-context'
-import { isObject } from 'lodash-es'
 import {
   getRedirectStatusCodeFromError,
   getRedirectTypeFromError,
   getURLFromRedirectError,
   isRedirectError,
 } from 'next/dist/client/components/redirect'
-import { type useRouter } from 'next/navigation'
-import { type ReactNode } from 'react'
+import { ReactNode } from 'react'
+import { z } from 'zod'
 import { createResolvablePromise } from './createResolvablePromise'
 
 export type SuperActionToast = {
@@ -18,6 +17,8 @@ export type SuperActionToast = {
 export type SuperActionDialog = {
   title?: string
   content?: ReactNode
+  confirm?: string
+  cancel?: string
 } | null
 
 export type SuperActionError = {
@@ -25,41 +26,44 @@ export type SuperActionError = {
 }
 
 export type SuperActionRedirect = {
-  url: Parameters<ReturnType<typeof useRouter>['replace']>['0']
+  url: string
   type: 'push' | 'replace'
   statusCode: number
 }
 
-export type SuperActionResponse<T> = {
-  result?: T
-  next?: Promise<SuperActionResponse<T>>
+export type SuperActionResponse<Result, Input> = {
+  result?: Result
+  next?: Promise<SuperActionResponse<Result, Input>>
   toast?: SuperActionToast
   dialog?: SuperActionDialog
   error?: SuperActionError
   redirect?: SuperActionRedirect
+  action?: SuperAction<Result, undefined>
 }
 
-type SuperActionContext = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  chain: (val: SuperActionResponse<any>) => void
+type SuperActionContext<Result, Input> = {
+  chain: (val: SuperActionResponse<Result, Input>) => void
 }
 
-const serverContext = createServerContext<SuperActionContext>()
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const serverContext = createServerContext<SuperActionContext<any, any>>()
 
-export const superAction = <T>(action: () => Promise<T>) => {
-  let next = createResolvablePromise<SuperActionResponse<T>>()
+export const superAction = async <Result, Input>(
+  action: () => Promise<Result>,
+) => {
+  let next = createResolvablePromise<SuperActionResponse<Result, Input>>()
   const firstPromise = next.promise
 
-  const chain = (val: SuperActionResponse<T>) => {
+  const chain = (val: SuperActionResponse<Result, Input>) => {
     const oldNext = next
-    next = createResolvablePromise<SuperActionResponse<T>>()
+    next = createResolvablePromise<SuperActionResponse<Result, Input>>()
     oldNext.resolve({ ...val, next: next.promise })
   }
-  const complete = (val: SuperActionResponse<T>) => {
+  const complete = (val: SuperActionResponse<Result, Input>) => {
     next.resolve(val)
   }
 
-  const ctx: SuperActionContext = {
+  const ctx: SuperActionContext<Result, Input> = {
     chain,
   }
 
@@ -79,8 +83,6 @@ export const superAction = <T>(action: () => Promise<T>) => {
         // We send the redirect as a response instead for the client to handle
         complete({
           redirect: {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore - next's redirect() is not typed as router.push or router.replace
             url: getURLFromRedirectError(error),
             type: getRedirectTypeFromError(error),
             statusCode: getRedirectStatusCodeFromError(error),
@@ -88,27 +90,34 @@ export const superAction = <T>(action: () => Promise<T>) => {
         })
         return
       }
+
+      const parsed = z
+        .object({
+          message: z.string(),
+        })
+        .safeParse(error)
+
       complete({
         error: {
-          message:
-            isObject(error) &&
-            'message' in error &&
-            typeof error.message === 'string'
-              ? error?.message
-              : 'Unknown error',
+          message: parsed.success ? parsed.data?.message : 'Unknown error',
         },
       })
     })
 
-  return firstPromise.then((superAction) => ({ superAction }))
+  const superAction = await firstPromise
+  return { superAction }
 }
 
-export type SuperActionPromise<T> = Promise<{
-  superAction: SuperActionResponse<T>
+export type SuperActionPromise<Result, Input> = Promise<{
+  superAction: SuperActionResponse<Result, Input>
 } | void>
-export type SuperAction<T = unknown> = (
-  data?: FormData | string,
-) => SuperActionPromise<T>
+
+export type SuperAction<Result, Input> = (
+  input: Input,
+) => SuperActionPromise<Result, Input>
+
+export type SuperActionWithInput<Input> = SuperAction<unknown, Input>
+export type SuperActionWithResult<Result> = SuperAction<Result, unknown>
 
 export const streamToast = (toast: SuperActionToast) => {
   const ctx = serverContext.getOrThrow()
@@ -118,4 +127,11 @@ export const streamToast = (toast: SuperActionToast) => {
 export const streamDialog = (dialog: SuperActionDialog) => {
   const ctx = serverContext.getOrThrow()
   ctx.chain({ dialog })
+}
+
+export const streamAction = <Result>(
+  action: SuperAction<Result, undefined>,
+) => {
+  const ctx = serverContext.getOrThrow()
+  ctx.chain({ action })
 }

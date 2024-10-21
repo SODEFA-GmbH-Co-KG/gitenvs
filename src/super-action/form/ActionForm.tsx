@@ -8,7 +8,7 @@ import {
 export type ActionFormProps = {
   children?: React.ReactNode
   className?: string
-} & UseSuperActionOptions
+} & UseSuperActionOptions<void, FormData>
 
 export const ActionForm = ({
   children,
