@@ -13,7 +13,7 @@ import {
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { type DotenvParseOutput } from 'dotenv'
-import { keys, map } from 'lodash-es'
+import { intersection, keys, map } from 'lodash-es'
 import { z } from 'zod'
 import { Checkbox } from '~/components/ui/checkbox'
 import { type SuperActionWithInput } from '~/super-action/action/createSuperAction'
@@ -54,8 +54,11 @@ export const AddFromClipboardDialogClient = ({
     defaultValues: {
       stages: stages.map((stage) => stage.name),
       envVars: map(envVars, (_, key) => key),
+      encrypted: false,
     },
   })
+
+  const activatedStages = form.watch('stages')
 
   return (
     <div className="h-full max-h-screen w-full overflow-hidden p-1 md:max-h-[80vh]">
@@ -155,7 +158,7 @@ export const AddFromClipboardDialogClient = ({
                     New environment variables to add.
                   </FormDescription>
                 </div>
-                <div className="flex h-full flex-col gap-1">
+                <div className="flex h-full flex-col gap-2">
                   {map(envVars, (envVar, key) => (
                     <FormField
                       key={key}
@@ -167,8 +170,13 @@ export const AddFromClipboardDialogClient = ({
                         )
 
                         const stagesWithKey = !!keyExists
-                          ? keys(keyExists.values)
+                          ? intersection(
+                              keys(keyExists.values),
+                              activatedStages,
+                            )
                           : null
+                        const hasConflicts =
+                          !!stagesWithKey && !!stagesWithKey.length
 
                         return (
                           <div className="pr-8">
@@ -190,12 +198,7 @@ export const AddFromClipboardDialogClient = ({
                                   }}
                                 />
                               </FormControl>
-                              <FormLabel
-                                className={cn(
-                                  'flex w-full flex-col',
-                                  !!keyExists && 'text-yellow-500',
-                                )}
-                              >
+                              <FormLabel className={cn('flex w-full flex-col')}>
                                 <div className="break-words">
                                   <span className="text-[rgb(168,216,248)]">
                                     {key}
@@ -206,8 +209,8 @@ export const AddFromClipboardDialogClient = ({
                                   </span>
                                 </div>
 
-                                {!!keyExists && (
-                                  <div className="flex gap-1">
+                                {!!hasConflicts && (
+                                  <div className="flex gap-1 text-yellow-500">
                                     Conflict:{' '}
                                     {map(stagesWithKey, (stage) => (
                                       <div key={stage}>{stage}</div>
