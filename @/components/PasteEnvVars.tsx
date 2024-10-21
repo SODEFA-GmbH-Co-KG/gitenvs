@@ -1,16 +1,15 @@
 'use client'
 import { useEffect } from 'react'
-import { type SuperActionPromise } from '~/super-action/action/createSuperAction'
+import { SuperActionWithInput } from '~/super-action/action/createSuperAction'
 import { useSuperAction } from '~/super-action/action/useSuperAction'
 
 export const PasteEnvVars = ({
   action,
 }: {
-  action: (options: { clipboardText: string }) => SuperActionPromise<unknown>
+  action: SuperActionWithInput<{ clipboardText: string }>
 }) => {
   const { trigger } = useSuperAction({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    action: action as any,
+    action: action,
   })
 
   // const [envVarsToAdd, setEnvVarsToAdd] = useState<DotenvParseOutput>()
@@ -20,8 +19,7 @@ export const PasteEnvVars = ({
 
     if (!text) return
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-    await trigger({ clipboardText: text } as any)
+    await trigger({ clipboardText: text })
     // const result = dotenv.parse(text)
     // const hasResults = Object.keys(result).length > 0
     // if (!hasResults) return
