@@ -1,4 +1,6 @@
+import { GITENVS_DIR_ENV_NAME } from './env'
+
 export const getCwd = () => {
-  const cwd = process.env.GITENVS_DIR || process.cwd()
+  const cwd = process.env[GITENVS_DIR_ENV_NAME] || process.cwd()
   return cwd
 }

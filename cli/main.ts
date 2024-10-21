@@ -1,4 +1,5 @@
 import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
+import { GITENVS_DIR_ENV_NAME, GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { getPassphrase } from '@/gitenvs/getPassphrase'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import { execSync } from 'child_process'
@@ -10,7 +11,7 @@ import { fileURLToPath } from 'url'
 
 const getGitenvsUiEnvVars = () => ({
   ...process.env,
-  GITENVS_DIR: process.env.GITENVS_DIR || process.cwd(),
+  GITENVS_DIR: process.env[GITENVS_DIR_ENV_NAME] || process.cwd(),
   GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
   PORT: '1337',
 })
@@ -38,11 +39,11 @@ program
       passphrasePath: string
     }) => {
       const gitenvs = await getGitenvs()
-      const stage = process.env.GITENVS_STAGE || options.stage
+      const stage = process.env[GITENVS_STAGE_ENV_NAME] || options.stage
 
       if (!stage) {
         console.error(
-          'Stage is required. Set it with --stage <stage> or with env var: GITENVS_STAGE',
+          `Stage is required. Set it with --stage <stage> or with env var: ${GITENVS_STAGE_ENV_NAME}`,
         )
         process.exit(1)
       }
