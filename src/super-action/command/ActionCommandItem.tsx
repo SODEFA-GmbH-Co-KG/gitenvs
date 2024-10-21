@@ -1,33 +1,61 @@
 'use client'
-import { getCmdCtrlKey, KeyShortcut } from '@/components/KeyShortcut'
 import { CommandItem } from '@/components/ui/command'
-import { type ActionCommandConfig } from './ActionCommandProvider'
+import { ReactNode } from 'react'
+import { useSuperAction } from '../action/useSuperAction'
+import { SuperIcon } from '../button/SuperIcon'
+import { ActionCommandConfig } from './ActionCommandProvider'
 
 export const ActionCommandItem = ({
   command,
-  disabled,
+  onActionExecuted,
 }: {
-  command: ActionCommandConfig
-  disabled?: boolean
+  command: Omit<ActionCommandConfig<unknown>, 'group'>
+  onActionExecuted?: () => void
 }) => {
+  const { children, shortcut, icon, ...superActionOptions } = command
+  const { isLoading, trigger } = useSuperAction(superActionOptions)
+
   return (
     <CommandItem
-      disabled={disabled}
-      onSelect={command.action}
+      disabled={isLoading}
+      onSelect={async () => {
+        await trigger(undefined)
+        onActionExecuted?.()
+      }}
       className="flex flex-row"
     >
-      <div className="flex flex-1 flex-row">{command.children}</div>
-      {command.shortcut && (
+      <div className="flex-1 flex flex-row">
+        <SuperIcon icon={icon} isLoading={isLoading} className="mr-2" />
+        {children}
+      </div>
+      {shortcut && (
         <>
           <div className="flex flex-row gap-0.5">
-            {command.shortcut.shift && <KeyShortcut>Shift</KeyShortcut>}
-            {command.shortcut.cmdCtrl && (
-              <KeyShortcut>{getCmdCtrlKey()}</KeyShortcut>
-            )}
-            <KeyShortcut>{command.shortcut.key.toUpperCase()}</KeyShortcut>
+            {shortcut.shift && <Key>Shift</Key>}
+            {shortcut.cmdCtrl && <Key>{getCmdCtrlKey()}</Key>}
+            <Key>{shortcut.key.toUpperCase()}</Key>
           </div>
         </>
       )}
     </CommandItem>
   )
+}
+
+const Key = ({ children }: { children?: ReactNode }) => {
+  return (
+    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+      {children}
+    </kbd>
+  )
+}
+
+const getCmdCtrlKey = () => {
+  if (
+    typeof navigator !== 'undefined' &&
+    'platform' in navigator &&
+    navigator.platform.includes('Mac')
+  ) {
+    return '⌘'
+  }
+  return 'Ctrl'
 }
