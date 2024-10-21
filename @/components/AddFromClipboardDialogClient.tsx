@@ -158,7 +158,7 @@ export const AddFromClipboardDialogClient = ({
                     New environment variables to add.
                   </FormDescription>
                 </div>
-                <div className="flex h-full flex-col gap-2">
+                <div className="flex h-full flex-col gap-2 overflow-auto">
                   {map(envVars, (envVar, key) => (
                     <FormField
                       key={key}
