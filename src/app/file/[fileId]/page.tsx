@@ -33,7 +33,6 @@ export default async function Page({ params }: { params: { fileId: string } }) {
               content: (
                 <AddFromClipboardDialog
                   envVars={result}
-                  gitenvs={gitenvs}
                   fileId={params.fileId}
                 />
               ),

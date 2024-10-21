@@ -1,65 +1,89 @@
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
-import { saveGitenvs } from '@/gitenvs/gitenvs'
-import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { getGitenvs, saveGitenvs } from '@/gitenvs/gitenvs'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { type DotenvParseOutput } from 'dotenv'
-import { map } from 'lodash-es'
+import { filter, find, map } from 'lodash-es'
 import {
   streamDialog,
   superAction,
 } from '~/super-action/action/createSuperAction'
 import { streamRevalidatePath } from '~/super-action/action/streamRevalidatePath'
-import { ActionForm } from '~/super-action/form/ActionForm'
+import {
+  AddFromClipboardDialogClient,
+  type StagesSchema,
+} from './AddFromClipboardDialogClient'
 
-export const AddFromClipboardDialog = ({
+export const AddFromClipboardDialog = async ({
   envVars,
   fileId,
-  gitenvs,
 }: {
   fileId: string
   envVars: DotenvParseOutput
-  gitenvs: Gitenvs
 }) => {
+  const gitenvs = await getGitenvs()
   return (
-    <ActionForm
-      action={async () => {
+    <AddFromClipboardDialogClient
+      stages={gitenvs.envStages}
+      envVars={envVars}
+      gitenvs={gitenvs}
+      formAction={async ({
+        stages,
+        envVars: envVarsSelected,
+        encrypted,
+      }: StagesSchema) => {
         'use server'
 
         return superAction(async () => {
-          const pastedEnvVars = map(envVars, (value, key) => ({
-            id: getNewEnvVarId(),
-            fileId,
-            key,
-            values: Object.fromEntries(
-              map(gitenvs.envStages, (stage) => [
-                stage.name,
-                { value, encrypted: false },
-              ]),
-            ),
-          }))
+          const stagesToAdd = filter(gitenvs.envStages, (stage) => {
+            return stages.includes(stage.name)
+          })
+          const pastedEnvVars = filter(
+            map(envVars, (value, key) => ({
+              id: getNewEnvVarId(),
+              fileId,
+              key,
+              values: Object.fromEntries(
+                map(stagesToAdd, (stage) => [
+                  stage.name,
+                  { value, encrypted: encrypted },
+                ]),
+              ),
+            })),
+            (envVar) => {
+              return envVarsSelected.includes(envVar.key)
+            },
+          )
+
+          const keysMerged = map(gitenvs.envVars, (envVar) => {
+            const existingKey = find(pastedEnvVars, (pastedEnvVar) => {
+              return pastedEnvVar.key === envVar.key
+            })
+            if (!existingKey) {
+              return envVar
+            }
+            return {
+              ...envVar,
+              values: {
+                ...envVar.values,
+                ...existingKey.values,
+              },
+            }
+          })
+
+          const newEnvVars = filter(pastedEnvVars, (pastedEnvVar) => {
+            return !find(gitenvs.envVars, (envVar) => {
+              return envVar.key === pastedEnvVar.key
+            })
+          })
+
           const newGitenvs = {
             ...gitenvs,
-            envVars: [...gitenvs.envVars, ...pastedEnvVars],
+            envVars: [...keysMerged, ...newEnvVars],
           }
           await saveGitenvs(newGitenvs)
-          streamDialog(null)
-
           streamRevalidatePath('/', 'layout')
+          streamDialog(null)
         })
       }}
-    >
-      <div className="grid gap-4 py-4">
-        {map(envVars, (value, key) => (
-          <div key={key} className="flex w-full">
-            <div className="truncate">{key}=</div>
-            <div className="flex-1 truncate">{value}</div>
-          </div>
-        ))}
-      </div>
-      <DialogFooter>
-        <Button type="submit">Save</Button>
-      </DialogFooter>
-    </ActionForm>
+    />
   )
 }
