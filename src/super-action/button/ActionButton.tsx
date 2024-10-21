@@ -1,32 +1,18 @@
 'use client'
 
-import { getCmdCtrlKey, KeyShortcut } from '@/components/KeyShortcut'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { ArrowRight, Loader2 } from 'lucide-react'
-import {
-  type ComponentPropsWithoutRef,
-  forwardRef,
-  type ReactNode,
-} from 'react'
-import { type ActionCommandConfig } from '../command/ActionCommandProvider'
+import { ComponentPropsWithoutRef, forwardRef, ReactNode } from 'react'
 import {
   ActionWrapper,
-  type ActionWrapperProps,
-  type ActionWrapperSlotProps,
+  ActionWrapperProps,
+  ActionWrapperSlotProps,
 } from './ActionWrapper'
+import { SuperIcon } from './SuperIcon'
 
 export type ActionButtonProps = {
-  children?: React.ReactNode
   hideIcon?: boolean
   hideButton?: boolean
-  command?: Omit<
-    ActionCommandConfig,
-    'action' | 'children' | 'askForConfirmation'
-  > & {
-    label?: ReactNode
-    hideKeyShortcut?: boolean
-  }
+  icon?: ReactNode
 } & ActionWrapperProps &
   ComponentPropsWithoutRef<typeof Button>
 
@@ -40,6 +26,7 @@ export const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
       askForConfirmation,
       stopPropagation,
       command,
+      icon,
       ...buttonProps
     } = props
 
@@ -53,9 +40,10 @@ export const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
           command={command}
           catchToast={catchToast}
           triggerOn={['onClick']}
+          icon={icon}
         >
           {!hideButton && (
-            <InnerButton command={command} {...buttonProps} ref={ref} />
+            <InnerButton icon={icon} {...buttonProps} ref={ref} />
           )}
         </ActionWrapper>
       </>
@@ -67,27 +55,13 @@ ActionButton.displayName = 'ActionButton'
 
 const InnerButton = forwardRef<
   HTMLButtonElement,
-  Pick<ActionButtonProps, 'command' | 'children' | 'hideIcon'> &
-    ActionWrapperSlotProps
->(({ isLoading, children, hideIcon = true, command, ...props }, ref) => {
-  const Icon = isLoading ? Loader2 : ArrowRight
-
+  { hideIcon?: boolean; icon?: ReactNode } & ActionWrapperSlotProps
+>(({ isLoading, children, hideIcon = true, icon, ...props }, ref) => {
   return (
     <Button type="button" {...props} ref={ref}>
-      <div className="flex flex-row items-center gap-2">
-        {children}
-        {command?.hideKeyShortcut ?? !command?.shortcut?.key ? null : (
-          <div className="flex flex-row items-center justify-center gap-1">
-            {command?.shortcut?.shift && <KeyShortcut>Shift</KeyShortcut>}
-            {command?.shortcut?.cmdCtrl && (
-              <KeyShortcut>{getCmdCtrlKey()}</KeyShortcut>
-            )}
-            <KeyShortcut>{command?.shortcut?.key.toUpperCase()}</KeyShortcut>
-          </div>
-        )}
-      </div>
+      {children}
       {!hideIcon && (
-        <Icon className={cn('ml-2 h-4 w-4', isLoading && 'animate-spin')} />
+        <SuperIcon icon={icon} className="ml-2" isLoading={isLoading} />
       )}
     </Button>
   )

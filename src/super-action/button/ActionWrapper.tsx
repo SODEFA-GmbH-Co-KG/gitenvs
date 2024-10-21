@@ -2,14 +2,10 @@
 
 import { Slot } from '@radix-ui/react-slot'
 import { map } from 'lodash-es'
-import { ArrowRight, Loader2 } from 'lucide-react'
-import { type DOMAttributes, forwardRef, type ReactNode } from 'react'
-import {
-  useSuperAction,
-  type UseSuperActionOptions,
-} from '../action/useSuperAction'
+import { DOMAttributes, ReactNode, forwardRef } from 'react'
+import { UseSuperActionOptions, useSuperAction } from '../action/useSuperAction'
 import { ActionCommand } from '../command/ActionCommand'
-import { type ActionCommandConfig } from '../command/ActionCommandProvider'
+import { ActionCommandConfig } from '../command/ActionCommandProvider'
 
 type ReactEventHandler = Exclude<
   {
@@ -33,13 +29,14 @@ const ActionWrapperSlot = forwardRef<HTMLElement, ActionWrapperSlotProps>(
 export type ActionWrapperProps = {
   children?: React.ReactNode
   command?: Omit<
-    ActionCommandConfig,
+    ActionCommandConfig<unknown>,
     'action' | 'children' | 'askForConfirmation'
   > & {
     label?: ReactNode
   }
   triggerOn?: ReactEventHandler[]
-} & UseSuperActionOptions<void, undefined>
+  icon?: ReactNode
+} & UseSuperActionOptions<unknown, undefined>
 
 ActionWrapperSlot.displayName = 'ActionWrapperSlot'
 
@@ -54,7 +51,8 @@ export const ActionWrapper = forwardRef<HTMLElement, ActionWrapperProps>(
       stopPropagation,
       command,
       triggerOn = ['onClick'],
-      ...buttonProps
+      icon,
+      ...slotProps
     } = props
     const { isLoading, trigger } = useSuperAction({
       action,
@@ -63,15 +61,13 @@ export const ActionWrapper = forwardRef<HTMLElement, ActionWrapperProps>(
       askForConfirmation,
       stopPropagation,
     })
-    const Icon = isLoading ? Loader2 : ArrowRight
-
     return (
       <>
         <ActionWrapperSlot
           ref={ref}
           disabled={isLoading || disabled}
           isLoading={isLoading}
-          {...buttonProps}
+          {...slotProps}
           {...Object.fromEntries(
             map(triggerOn, (superOn) => [
               superOn,
@@ -82,11 +78,14 @@ export const ActionWrapper = forwardRef<HTMLElement, ActionWrapperProps>(
           {children}
         </ActionWrapperSlot>
         {command && (
-          <ActionCommand
-            icon={Icon}
+          <ActionCommand<unknown>
+            icon={icon}
             {...command}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            action={trigger as any} // TODO: fix type
+            action={action}
+            disabled={isLoading || disabled}
+            catchToast={catchToast}
+            askForConfirmation={askForConfirmation}
+            stopPropagation={stopPropagation}
           >
             {command.label ?? children}
           </ActionCommand>
