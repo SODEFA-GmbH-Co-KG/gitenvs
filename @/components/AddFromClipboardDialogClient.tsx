@@ -16,7 +16,7 @@ import { type DotenvParseOutput } from 'dotenv'
 import { keys, map } from 'lodash-es'
 import { z } from 'zod'
 import { Checkbox } from '~/components/ui/checkbox'
-import { type SuperActionPromise } from '~/super-action/action/createSuperAction'
+import { SuperActionWithInput } from '~/super-action/action/createSuperAction'
 import { useSuperAction } from '~/super-action/action/useSuperAction'
 import { createZodForm } from '~/utils/useZodForm'
 
@@ -38,16 +38,13 @@ export const AddFromClipboardDialogClient = ({
   envVars,
   gitenvs,
 }: {
-  formAction: (data: StagesSchema) => SuperActionPromise
+  formAction: SuperActionWithInput<StagesSchema>
   stages: Gitenvs['envStages']
   envVars: DotenvParseOutput
   gitenvs: Gitenvs
 }) => {
   const { trigger, isLoading } = useSuperAction({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    action: async () => {
-      return formAction(form.getValues())
-    },
+    action: formAction,
     catchToast: true,
   })
 
@@ -64,8 +61,8 @@ export const AddFromClipboardDialogClient = ({
     <>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(async () => {
-            await trigger(undefined)
+          onSubmit={form.handleSubmit(async (data) => {
+            await trigger(data)
           })}
           className="flex flex-col gap-4"
         >
