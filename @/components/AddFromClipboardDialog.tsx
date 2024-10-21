@@ -9,7 +9,7 @@ import {
 import { streamRevalidatePath } from '~/super-action/action/streamRevalidatePath'
 import {
   AddFromClipboardDialogClient,
-  type StagesSchema,
+  type AddFromClipboardSchema,
 } from './AddFromClipboardDialogClient'
 
 export const AddFromClipboardDialog = async ({
@@ -28,7 +28,7 @@ export const AddFromClipboardDialog = async ({
         stages,
         envVars: envVarsSelected,
         encrypted,
-      }: StagesSchema) => {
+      }: AddFromClipboardSchema) => {
         'use server'
 
         return superAction(async () => {

@@ -20,7 +20,7 @@ import { type SuperActionWithInput } from '~/super-action/action/createSuperActi
 import { useSuperAction } from '~/super-action/action/useSuperAction'
 import { createZodForm } from '~/utils/useZodForm'
 
-const StagesSchema = z.object({
+const AddFromClipboardSchema = z.object({
   stages: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: 'You have to select at least one item.',
   }),
@@ -28,16 +28,16 @@ const StagesSchema = z.object({
   encrypted: z.boolean(),
 })
 
-export type StagesSchema = z.infer<typeof StagesSchema>
+export type AddFromClipboardSchema = z.infer<typeof AddFromClipboardSchema>
 
-const [useStagesForm] = createZodForm(StagesSchema)
+const [useStagesForm] = createZodForm(AddFromClipboardSchema)
 
 export const AddFromClipboardDialogClient = ({
   formAction,
   envVars,
   gitenvs,
 }: {
-  formAction: SuperActionWithInput<StagesSchema>
+  formAction: SuperActionWithInput<AddFromClipboardSchema>
   envVars: DotenvParseOutput
   gitenvs: Gitenvs
 }) => {
