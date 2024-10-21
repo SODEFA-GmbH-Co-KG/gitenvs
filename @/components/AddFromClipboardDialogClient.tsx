@@ -16,7 +16,7 @@ import { type DotenvParseOutput } from 'dotenv'
 import { keys, map } from 'lodash-es'
 import { z } from 'zod'
 import { Checkbox } from '~/components/ui/checkbox'
-import { SuperActionWithInput } from '~/super-action/action/createSuperAction'
+import { type SuperActionWithInput } from '~/super-action/action/createSuperAction'
 import { useSuperAction } from '~/super-action/action/useSuperAction'
 import { createZodForm } from '~/utils/useZodForm'
 
@@ -34,15 +34,15 @@ const [useStagesForm] = createZodForm(StagesSchema)
 
 export const AddFromClipboardDialogClient = ({
   formAction,
-  stages,
   envVars,
   gitenvs,
 }: {
   formAction: SuperActionWithInput<StagesSchema>
-  stages: Gitenvs['envStages']
   envVars: DotenvParseOutput
   gitenvs: Gitenvs
 }) => {
+  const stages = gitenvs.envStages
+
   const { trigger, isLoading } = useSuperAction({
     action: formAction,
     catchToast: true,

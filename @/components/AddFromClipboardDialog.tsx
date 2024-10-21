@@ -22,7 +22,6 @@ export const AddFromClipboardDialog = async ({
   const gitenvs = await getGitenvs()
   return (
     <AddFromClipboardDialogClient
-      stages={gitenvs.envStages}
       envVars={envVars}
       gitenvs={gitenvs}
       formAction={async ({
