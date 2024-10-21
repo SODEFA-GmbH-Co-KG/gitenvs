@@ -58,13 +58,13 @@ export const AddFromClipboardDialogClient = ({
   })
 
   return (
-    <>
+    <div className="h-full max-h-screen w-full overflow-hidden p-1 md:max-h-[80vh]">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(async (data) => {
             await trigger(data)
           })}
-          className="flex flex-col gap-4"
+          className="flex h-full w-full flex-col gap-4"
         >
           <FormField
             control={form.control}
@@ -143,76 +143,85 @@ export const AddFromClipboardDialogClient = ({
               )
             }}
           />
+
           <FormField
             control={form.control}
             name="envVars"
             render={() => (
-              <FormItem>
+              <FormItem className="flex min-h-0 w-full flex-1 flex-col">
                 <div className="mb-4">
                   <FormLabel className="text-xl">Env Vars</FormLabel>
                   <FormDescription>
                     New environment variables to add.
                   </FormDescription>
                 </div>
-                {map(envVars, (envVar, key) => (
-                  <FormField
-                    key={key}
-                    control={form.control}
-                    name="envVars"
-                    render={({ field }) => {
-                      const keyExists = gitenvs.envVars.find(
-                        (envVar) => envVar.key === key,
-                      )
+                <div className="flex h-full flex-col gap-1">
+                  {map(envVars, (envVar, key) => (
+                    <FormField
+                      key={key}
+                      control={form.control}
+                      name="envVars"
+                      render={({ field }) => {
+                        const keyExists = gitenvs.envVars.find(
+                          (envVar) => envVar.key === key,
+                        )
 
-                      const stagesWithKey = !!keyExists
-                        ? keys(keyExists.values)
-                        : null
+                        const stagesWithKey = !!keyExists
+                          ? keys(keyExists.values)
+                          : null
 
-                      return (
-                        <>
-                          <FormItem
-                            key={key}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(key)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...field.value, key])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== key,
-                                        ),
-                                      )
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel
-                              className={cn(
-                                'flex flex-col',
-                                !!keyExists && 'text-yellow-500',
-                              )}
+                        return (
+                          <div className="pr-8">
+                            <FormItem
+                              key={key}
+                              className="flex flex-row items-start space-x-3 space-y-0"
                             >
-                              <div>
-                                {key}={envVar}
-                              </div>
-
-                              {!!keyExists && (
-                                <div className="flex gap-1">
-                                  Conflict:{' '}
-                                  {map(stagesWithKey, (stage) => (
-                                    <div key={stage}>{stage}</div>
-                                  ))}
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(key)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([...field.value, key])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== key,
+                                          ),
+                                        )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel
+                                className={cn(
+                                  'flex w-full flex-col',
+                                  !!keyExists && 'text-yellow-500',
+                                )}
+                              >
+                                <div className="break-words">
+                                  <span className="text-[rgb(168,216,248)]">
+                                    {key}
+                                  </span>
+                                  =
+                                  <span className="text-[rgb(191,143,120)]">
+                                    {envVar}
+                                  </span>
                                 </div>
-                              )}
-                            </FormLabel>
-                          </FormItem>
-                        </>
-                      )
-                    }}
-                  />
-                ))}
+
+                                {!!keyExists && (
+                                  <div className="flex gap-1">
+                                    Conflict:{' '}
+                                    {map(stagesWithKey, (stage) => (
+                                      <div key={stage}>{stage}</div>
+                                    ))}
+                                  </div>
+                                )}
+                              </FormLabel>
+                            </FormItem>
+                          </div>
+                        )
+                      }}
+                    />
+                  ))}
+                </div>
                 <FormMessage />
               </FormItem>
             )}
@@ -224,6 +233,6 @@ export const AddFromClipboardDialogClient = ({
           </div>
         </form>
       </Form>
-    </>
+    </div>
   )
 }
