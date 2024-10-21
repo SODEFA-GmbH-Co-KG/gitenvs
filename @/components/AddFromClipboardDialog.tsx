@@ -52,28 +52,33 @@ export const AddFromClipboardDialog = async ({
             },
           )
 
+          // Merge values for existing keys, new values have priority over existing
           const keysMerged = map(gitenvs.envVars, (envVar) => {
-            const existingKey = find(pastedEnvVars, (pastedEnvVar) => {
-              return pastedEnvVar.key === envVar.key
-            })
-            if (!existingKey) {
+            const pastedEnvVarForExistingKey = find(
+              pastedEnvVars,
+              (pastedEnvVar) => {
+                return pastedEnvVar.key === envVar.key
+              },
+            )
+            if (!pastedEnvVarForExistingKey) {
               return envVar
             }
             return {
               ...envVar,
               values: {
                 ...envVar.values,
-                ...existingKey.values,
+                ...pastedEnvVarForExistingKey.values,
               },
             }
           })
-
+          // filter new env vars that are already merged with existing keys
           const newEnvVars = filter(pastedEnvVars, (pastedEnvVar) => {
             return !find(gitenvs.envVars, (envVar) => {
               return envVar.key === pastedEnvVar.key
             })
           })
 
+          // combine existing keys with merged keys and new keys
           const newGitenvs = {
             ...gitenvs,
             envVars: [...keysMerged, ...newEnvVars],
