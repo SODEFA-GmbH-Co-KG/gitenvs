@@ -1,31 +1,51 @@
 'use client'
-import { useEffect } from 'react'
-import { SuperActionWithInput } from '~/super-action/action/createSuperAction'
-import { useSuperAction } from '~/super-action/action/useSuperAction'
+import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
+import { parse } from 'dotenv'
+import { atom, useSetAtom } from 'jotai'
+import { map } from 'lodash-es'
+import { useCallback, useEffect } from 'react'
+
+export const envVarsToAddAtom = atom<EnvVar[] | undefined>(undefined)
 
 export const PasteEnvVars = ({
-  action,
+  gitenvs,
+  fileId,
 }: {
-  action: SuperActionWithInput<{ clipboardText: string }>
+  gitenvs: Gitenvs
+  fileId: string
 }) => {
-  const { trigger } = useSuperAction({
-    action: action,
-  })
+  // const { trigger } = useSuperAction({
+  //   action: action,
+  // })
 
   // const [envVarsToAdd, setEnvVarsToAdd] = useState<DotenvParseOutput>()
+  const setEnvs = useSetAtom(envVarsToAddAtom)
+  const handlePaste = useCallback(
+    async (event: ClipboardEvent) => {
+      const text = event.clipboardData?.getData('text')
 
-  const handlePaste = async (event: ClipboardEvent) => {
-    const text = event.clipboardData?.getData('text')
+      if (!text) return
 
-    if (!text) return
-
-    await trigger({ clipboardText: text })
-    // const result = dotenv.parse(text)
-    // const hasResults = Object.keys(result).length > 0
-    // if (!hasResults) return
-    // event.preventDefault()
-    // setEnvVarsToAdd(result)
-  }
+      // await trigger({ clipboardText: text })
+      const result = parse(text)
+      const hasResults = Object.keys(result).length > 0
+      if (!hasResults) return
+      event.preventDefault()
+      setEnvs(
+        map(result, (value, key) => {
+          const values = Object.fromEntries(
+            map(gitenvs.envStages, (stage) => [
+              stage.name,
+              { value, encrypted: false },
+            ]),
+          )
+          return { id: getNewEnvVarId(), fileId, key, values }
+        }),
+      )
+    },
+    [fileId, gitenvs.envStages, setEnvs],
+  )
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -36,7 +56,7 @@ export const PasteEnvVars = ({
         window.removeEventListener('paste', handlePaste)
       }
     }
-  }, [])
+  }, [handlePaste])
 
   return null
 }

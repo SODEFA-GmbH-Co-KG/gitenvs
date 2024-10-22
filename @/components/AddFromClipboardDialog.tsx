@@ -1,6 +1,4 @@
-import { getGitenvs, saveGitenvs } from '@/gitenvs/gitenvs'
-import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
-import { type DotenvParseOutput } from 'dotenv'
+import { getGitenvs } from '@/gitenvs/gitenvs'
 import { filter, find, map } from 'lodash-es'
 import {
   streamDialog,
@@ -12,50 +10,43 @@ import {
   type AddFromClipboardSchema,
 } from './AddFromClipboardDialogClient'
 
-export const AddFromClipboardDialog = async ({
-  envVars,
-  fileId,
-}: {
-  fileId: string
-  envVars: DotenvParseOutput
-}) => {
+export const AddFromClipboardDialog = async () => {
   const gitenvs = await getGitenvs()
   return (
     <AddFromClipboardDialogClient
-      envVars={envVars}
       gitenvs={gitenvs}
       formAction={async ({
-        stages,
         envVars: envVarsSelected,
-        encrypted,
       }: AddFromClipboardSchema) => {
         'use server'
 
         return superAction(async () => {
-          const stagesToAdd = filter(gitenvs.envStages, (stage) => {
-            return stages.includes(stage.name)
-          })
-          const pastedEnvVars = filter(
-            map(envVars, (value, key) => ({
-              id: getNewEnvVarId(),
-              fileId,
-              key,
-              values: Object.fromEntries(
-                map(stagesToAdd, (stage) => [
-                  stage.name,
-                  { value, encrypted: encrypted },
-                ]),
-              ),
-            })),
-            (envVar) => {
-              return envVarsSelected.includes(envVar.key)
-            },
-          )
+          console.log({ envVarsSelected })
+
+          // const stagesToAdd = filter(gitenvs.envStages, (stage) => {
+          //   return stages.includes(stage.name)
+          // })
+          // const pastedEnvVars = filter(
+          //   map(envVars, (value, key) => ({
+          //     id: getNewEnvVarId(),
+          //     fileId,
+          //     key,
+          //     values: Object.fromEntries(
+          //       map(stagesToAdd, (stage) => [
+          //         stage.name,
+          //         { value, encrypted: encrypted },
+          //       ]),
+          //     ),
+          //   })),
+          //   (envVar) => {
+          //     return envVarsSelected.includes(envVar.key)
+          //   },
+          // )
 
           // Merge values for existing keys, new values have priority over existing
           const keysMerged = map(gitenvs.envVars, (envVar) => {
             const pastedEnvVarForExistingKey = find(
-              pastedEnvVars,
+              envVarsSelected,
               (pastedEnvVar) => {
                 return pastedEnvVar.key === envVar.key
               },
@@ -72,7 +63,7 @@ export const AddFromClipboardDialog = async ({
             }
           })
           // filter new env vars that are already merged with existing keys
-          const newEnvVars = filter(pastedEnvVars, (pastedEnvVar) => {
+          const newEnvVars = filter(envVarsSelected, (pastedEnvVar) => {
             return !find(gitenvs.envVars, (envVar) => {
               return envVar.key === pastedEnvVar.key
             })
@@ -83,7 +74,8 @@ export const AddFromClipboardDialog = async ({
             ...gitenvs,
             envVars: [...keysMerged, ...newEnvVars],
           }
-          await saveGitenvs(newGitenvs)
+
+          // await saveGitenvs(newGitenvs)
           streamRevalidatePath('/', 'layout')
           streamDialog(null)
         })
