@@ -4,6 +4,7 @@ import { Toaster as ToasterSonner } from 'sonner'
 import '~/styles/globals.css'
 import { ActionCommandProvider } from '~/super-action/command/ActionCommandProvider'
 import { DialogProvider } from '~/super-action/dialog/DialogProvider'
+import { EncryptionTokenSideEffect } from '~/utils/encryptionKeyOnClient'
 import { Providers } from './providers'
 
 export default async function RootLayout({
@@ -25,6 +26,7 @@ export default async function RootLayout({
           <DialogProvider />
           <Toaster />
           <ToasterSonner />
+          <EncryptionTokenSideEffect />
         </Providers>
       </body>
     </html>
