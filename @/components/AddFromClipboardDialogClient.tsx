@@ -1,11 +1,11 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { EnvVar, Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { filter, map } from 'lodash-es'
-import { Lock, Unlock } from 'lucide-react'
+import { filter, intersection, keys, map } from 'lodash-es'
+import { AlertCircle, Lock, Unlock } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { Checkbox } from '~/components/ui/checkbox'
@@ -35,8 +35,6 @@ const AddFromClipboardSchema = z.object({
 
 export type AddFromClipboardSchema = z.infer<typeof AddFromClipboardSchema>
 
-// const [useStagesForm] = createZodForm(AddFromClipboardSchema)
-
 export const AddFromClipboardDialogClient = ({
   formAction,
   gitenvs,
@@ -55,18 +53,6 @@ export const AddFromClipboardDialogClient = ({
     () => map(envVarsConfig, (envVar) => envVar.id),
     [envVarsConfig],
   )
-
-  // const [stages, setStages] = useState(map(gitenvs.envStages, (stage) => ({stage, active: true})))
-  // const [envVarsConfig, setEnvVarsConfig] = useState(
-  //   map(envVars, (envVar) => ({
-  //     ...envVar,
-  //     values: map(envVar.values, (value, key) => ({
-  //       stage: key,
-  //       value,
-  //       active: true,
-  //     })),
-  //   })),
-  // )
 
   const [activeState, setActiveState] = useState<{
     stages: string[]
@@ -152,106 +138,6 @@ export const AddFromClipboardDialogClient = ({
     }
   }
 
-  // const setEnvVarActiveState = ({
-  //   id,
-  //   active,
-  //   encrypted,
-  // }: {
-  //   id: string
-  // } & (
-  //   | { active?: undefined; encrypted: boolean }
-  //   | { active: boolean; encrypted?: undefined }
-  // )) => {
-  //   console.log({ id, active })
-
-  //   setEnvVarsConfig((prev) =>
-  //     prev?.map((envVar) => {
-  //       if (envVar.id === id) {
-  //         if (encrypted !== undefined) {
-  //           return {
-  //             ...envVar,
-  //             values: map(envVar.values, (value) => ({ ...value, encrypted })),
-  //           }
-  //         }
-  //         if (active !== undefined) {
-  //           return {
-  //             ...envVar,
-  //             values: map(envVar.values, (value) => ({ ...value, active })),
-  //           }
-  //         }
-  //       }
-  //       return envVar
-  //     }),
-  //   )
-  // }
-
-  // const setStageActiveState = ({
-  //   name,
-  //   active,
-  //   encrypted,
-  // }: {
-  //   name: string
-  // } & (
-  //   | { active?: undefined; encrypted: boolean }
-  //   | { active: boolean; encrypted?: undefined }
-  // )) => {
-  //   setEnvVarsConfig((prev) =>
-  //     prev?.map((envVar) => {
-  //       return {
-  //         ...envVar,
-  //         values: map(envVar.values, (value) => {
-  //           if (value.stage === name) {
-  //             if (encrypted !== undefined) {
-  //               return { ...value, encrypted }
-  //             }
-  //             if (active !== undefined) {
-  //               return { ...value, active }
-  //             }
-  //           }
-  //           return value
-  //         }),
-  //       }
-  //     }),
-  //   )
-  // }
-
-  // const getStageActiveState = ({ name }: { name: string }) => {
-  //   const active = every(envVarsConfig, (envVar) => {
-  //     return envVar.values.find((value) => value.stage === name)?.active
-  //   })
-  //     ? true
-  //     : every(envVarsConfig, (envVar) => {
-  //           return !envVar.values.find((value) => value.stage === name)?.active
-  //         })
-  //       ? false
-  //       : ('indeterminate' as const)
-
-  //   const encrypted = every(envVarsConfig, (envVar) => {
-  //     return envVar.values.find((value) => value.stage === name)?.encrypted
-  //   })
-  //   return {
-  //     active,
-  //     encrypted,
-  //   }
-  // }
-
-  // const getEnvVarActiveState = ({ id }: { id: string }) => {
-  //   const envVarToCheck = envVarsConfig?.find((envVar) => envVar.id === id)
-  //   const active = every(envVarToCheck?.values, ({ active }) => active === true)
-  //     ? true
-  //     : every(envVarToCheck?.values, ({ active }) => active === false)
-  //       ? false
-  //       : ('indeterminate' as const)
-  //   const encrypted = every(
-  //     envVarToCheck?.values,
-  //     ({ encrypted }) => encrypted === true,
-  //   )
-  //   return {
-  //     active,
-  //     encrypted,
-  //   }
-  // }
-
   const { trigger, isLoading } = useSuperAction({
     action: formAction,
     catchToast: true,
@@ -303,182 +189,6 @@ export const AddFromClipboardDialogClient = ({
           <DialogTitle>Add new Env vars</DialogTitle>
         </DialogHeader>
         <div className="h-full max-h-screen w-full overflow-hidden p-1 md:max-h-[80vh]">
-          {/* <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(async (data) => {
-                await trigger(data)
-              })}
-              className="flex h-full w-full flex-col gap-4"
-            >
-              <FormField
-                control={form.control}
-                name="stages"
-                render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <FormLabel className="text-xl">Stages</FormLabel>
-                      <FormDescription>
-                        Select the stages to add the new environment variables
-                        to.
-                      </FormDescription>
-                    </div>
-                    {stages.map((stage) => (
-                      <FormField
-                        key={stage.name}
-                        control={form.control}
-                        name="stages"
-                        render={({ field }) => {
-                          return (
-                            <>
-                              <FormItem
-                                key={stage.name}
-                                className="flex flex-row items-start space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(stage.name)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([
-                                            ...field.value,
-                                            stage.name,
-                                          ])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== stage.name,
-                                            ),
-                                          )
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  {stage.name}
-                                </FormLabel>
-                              </FormItem>
-                            </>
-                          )
-                        }}
-                      />
-                    ))}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="">
-                <FormLabel className="text-xl">Encrypt</FormLabel>
-              </div>
-              <FormField
-                control={form.control}
-                name="encrypted"
-                render={({ field }) => {
-                  return (
-                    <>
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          Save Encrypted
-                        </FormLabel>
-                      </FormItem>
-                    </>
-                  )
-                }}
-              />
-
-              <FormField
-                control={form.control}
-                name="envVars"
-                render={() => (
-                  <FormItem className="flex min-h-0 w-full flex-1 flex-col">
-                    <div className="mb-4">
-                      <FormLabel className="text-xl">Env Vars</FormLabel>
-                      <FormDescription>
-                        New environment variables to add.
-                      </FormDescription>
-                    </div>
-                    <div className="flex h-full flex-col gap-2 overflow-auto">
-                      {map(envVars, (envVar, key) => (
-                        <FormField
-                          key={key}
-                          control={form.control}
-                          name="envVars"
-                          render={({ field }) => {
-                            const keyExists = gitenvs.envVars.find(
-                              (envVar) => envVar.key === key,
-                            )
-
-                            const stagesWithKey = !!keyExists
-                              ? intersection(
-                                  keys(keyExists.values),
-                                  activatedStages,
-                                )
-                              : null
-                            const hasConflicts =
-                              !!stagesWithKey && !!stagesWithKey.length
-
-                            return (
-                              <div className="pr-8">
-                                <FormItem
-                                  key={key}
-                                  className="flex flex-row items-start space-x-3 space-y-0"
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value?.includes(key)}
-                                      onCheckedChange={(checked) => {
-                                        return checked
-                                          ? field.onChange([
-                                              ...field.value,
-                                              key,
-                                            ])
-                                          : field.onChange(
-                                              field.value?.filter(
-                                                (value) => value !== key,
-                                              ),
-                                            )
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormLabel
-                                    className={cn('flex w-full flex-col')}
-                                  >
-                                    <div className="break-words">
-                                      <span className="text-[rgb(168,216,248)]">
-                                        {key}
-                                      </span>
-                                      =
-                                      <span className="text-[rgb(191,143,120)]">
-                                        {envVar}
-                                      </span>
-                                    </div>
-
-                                    {!!hasConflicts && (
-                                      <div className="flex gap-1 text-yellow-500">
-                                        Conflict:{' '}
-                                        {map(stagesWithKey, (stage) => (
-                                          <div key={stage}>{stage}</div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </FormLabel>
-                                </FormItem>
-                              </div>
-                            )
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form> */}
-
           <Table className="table-fixed">
             <TableHeader>
               <TableRow>
@@ -585,6 +295,21 @@ export const AddFromClipboardDialogClient = ({
                       const isEncrypted = !!encryptionState.find(
                         (es) => es.id === envVar.id && es.stage === stage,
                       )
+
+                      const keyExists = gitenvs.envVars.find(
+                        (existingEnvVar) => existingEnvVar.key === envVar.key,
+                      )
+
+                      const stagesWithKey = !!keyExists
+                        ? intersection(
+                            keys(keyExists.values),
+                            activeState.stages,
+                          )
+                        : null
+                      const hasConflicts =
+                        !!stagesWithKey &&
+                        !!stagesWithKey.length &&
+                        stagesWithKey.includes(stage)
                       return (
                         <TableCell
                           key={`${stage}${envVar.id}`}
@@ -592,7 +317,12 @@ export const AddFromClipboardDialogClient = ({
                           title={envVarInCell?.value ?? 'Empty'}
                         >
                           <div className="group relative flex items-center gap-2 pr-10">
-                            <div className="truncate">
+                            {hasConflicts && (
+                              <div title="Conflict with existing">
+                                <AlertCircle className="h-4 w-4 text-yellow-500" />
+                              </div>
+                            )}
+                            <div className="flex-1 truncate">
                               <TableEnvVarTag
                                 envVarValue={{
                                   value: isActive ? envVarInCell.value : '',
