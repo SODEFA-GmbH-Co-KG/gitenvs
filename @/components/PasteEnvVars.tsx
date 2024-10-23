@@ -1,12 +1,23 @@
 'use client'
-import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { parse } from 'dotenv'
 import { atom, useSetAtom } from 'jotai'
 import { map } from 'lodash-es'
 import { useCallback, useEffect } from 'react'
 
-export const envVarsToAddAtom = atom<EnvVar[] | undefined>(undefined)
+type EnvVarToPaste = {
+  id: string
+  fileId: string
+  key: string
+  values: {
+    stage: string
+    value: string
+    encrypted: boolean
+    active: boolean
+  }[]
+}
+export const envVarsToAddAtom = atom<EnvVarToPaste[] | undefined>(undefined)
 
 export const PasteEnvVars = ({
   gitenvs,
@@ -34,12 +45,13 @@ export const PasteEnvVars = ({
       event.preventDefault()
       setEnvs(
         map(result, (value, key) => {
-          const values = Object.fromEntries(
-            map(gitenvs.envStages, (stage) => [
-              stage.name,
-              { value, encrypted: false },
-            ]),
-          )
+          const values = map(gitenvs.envStages, (stage) => ({
+            stage: stage.name,
+            value,
+            encrypted: false,
+            active: true,
+          }))
+
           return { id: getNewEnvVarId(), fileId, key, values }
         }),
       )

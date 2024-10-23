@@ -2,10 +2,10 @@
 
 import { Button } from '@/components/ui/button'
 import { EnvVar, Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { cn } from '@/lib/utils'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { every, map } from 'lodash-es'
-import { Lock } from 'lucide-react'
-import { useState } from 'react'
+import { every, find, map } from 'lodash-es'
+import { Lock, Unlock } from 'lucide-react'
 import { z } from 'zod'
 import { Checkbox } from '~/components/ui/checkbox'
 import {
@@ -19,6 +19,7 @@ import {
 import { type SuperActionWithInput } from '~/super-action/action/createSuperAction'
 import { useSuperAction } from '~/super-action/action/useSuperAction'
 import { envVarsToAddAtom } from './PasteEnvVars'
+import { TableEnvVarTag } from './TableEnvVarTag'
 import {
   Dialog,
   DialogContent,
@@ -42,52 +43,120 @@ export const AddFromClipboardDialogClient = ({
   formAction: SuperActionWithInput<AddFromClipboardSchema>
   gitenvs: Gitenvs
 }) => {
-  const setEnvs = useSetAtom(envVarsToAddAtom)
-  const envVars = useAtomValue(envVarsToAddAtom)
+  const setEnvVarsConfig = useSetAtom(envVarsToAddAtom)
+  const envVarsConfig = useAtomValue(envVarsToAddAtom)
 
   const stages = gitenvs.envStages
   // const [stages, setStages] = useState(map(gitenvs.envStages, (stage) => ({stage, active: true})))
-  const [envVarsConfig, setEnvVarsConfig] = useState(
-    map(gitenvs.envVars, (envVar) => ({
-      ...envVar,
-      values: map(envVar.values, (value, key) => ({
-        stage: key,
-        value,
-        active: true,
-      })),
-    })),
-  )
+  // const [envVarsConfig, setEnvVarsConfig] = useState(
+  //   map(envVars, (envVar) => ({
+  //     ...envVar,
+  //     values: map(envVar.values, (value, key) => ({
+  //       stage: key,
+  //       value,
+  //       active: true,
+  //     })),
+  //   })),
+  // )
 
-  const toggleStage = ({
-    name,
-    checked,
-  }: {
-    name: string
-    checked: boolean
-  }) => {
-    // setStages((prev) => prev.map((stage) => {
-    //   if (stage.stage.name === name) {
-    //     return {...stage, active: checked}
-    //   }
-    //   return stage
-    // }))
-  }
-
-  const setEnvVarActive = ({
+  const setEnvVarActiveState = ({
     id,
-    checked,
+    active,
+    encrypted,
   }: {
     id: string
-    checked: boolean
-  }) => {
+  } & (
+    | { active?: undefined; encrypted: boolean }
+    | { active: boolean; encrypted?: undefined }
+  )) => {
+    console.log({ id, active })
+
     setEnvVarsConfig((prev) =>
-      prev.map((envVar) => {
-        if (envVar.envVar.id === id) {
-          return { ...envVar, active: checked }
+      prev?.map((envVar) => {
+        if (envVar.id === id) {
+          if (encrypted !== undefined) {
+            return {
+              ...envVar,
+              values: map(envVar.values, (value) => ({ ...value, encrypted })),
+            }
+          }
+          if (active !== undefined) {
+            return {
+              ...envVar,
+              values: map(envVar.values, (value) => ({ ...value, active })),
+            }
+          }
         }
         return envVar
       }),
     )
+  }
+
+  const setStageActiveState = ({
+    name,
+    active,
+    encrypted,
+  }: {
+    name: string
+  } & (
+    | { active?: undefined; encrypted: boolean }
+    | { active: boolean; encrypted?: undefined }
+  )) => {
+    setEnvVarsConfig((prev) =>
+      prev?.map((envVar) => {
+        return {
+          ...envVar,
+          values: map(envVar.values, (value) => {
+            if (value.stage === name) {
+              if (encrypted !== undefined) {
+                return { ...value, encrypted }
+              }
+              if (active !== undefined) {
+                return { ...value, active }
+              }
+            }
+            return value
+          }),
+        }
+      }),
+    )
+  }
+
+  const getStageActiveState = ({ name }: { name: string }) => {
+    const active = every(envVarsConfig, (envVar) => {
+      return envVar.values.find((value) => value.stage === name)?.active
+    })
+      ? true
+      : every(envVarsConfig, (envVar) => {
+            return !envVar.values.find((value) => value.stage === name)?.active
+          })
+        ? false
+        : ('indeterminate' as const)
+
+    const encrypted = every(envVarsConfig, (envVar) => {
+      return envVar.values.find((value) => value.stage === name)?.encrypted
+    })
+    return {
+      active,
+      encrypted,
+    }
+  }
+
+  const getEnvVarActiveState = ({ id }: { id: string }) => {
+    const envVarToCheck = envVarsConfig?.find((envVar) => envVar.id === id)
+    const active = every(envVarToCheck?.values, ({ active }) => active === true)
+      ? true
+      : every(envVarToCheck?.values, ({ active }) => active === false)
+        ? false
+        : ('indeterminate' as const)
+    const encrypted = every(
+      envVarToCheck?.values,
+      ({ encrypted }) => encrypted === true,
+    )
+    return {
+      active,
+      encrypted,
+    }
   }
 
   const { trigger, isLoading } = useSuperAction({
@@ -109,10 +178,10 @@ export const AddFromClipboardDialogClient = ({
 
   return (
     <Dialog
-      open={!!envVars}
+      open={!!envVarsConfig}
       onOpenChange={(open) => {
         if (!open) {
-          setEnvs(undefined)
+          setEnvVarsConfig(undefined)
         }
       }}
     >
@@ -301,63 +370,134 @@ export const AddFromClipboardDialogClient = ({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-32 truncate">Key</TableHead>
-                {map(stages, (stage) => (
-                  <TableHead key={stage.name} className="w-32 truncate">
-                    <div className="group relative flex items-center gap-2">
-                      <Checkbox
-                        checked={
-                          every(envVarsConfig, (envVar) => envVar.active)
-                            ? true
-                            : every(envVarsConfig, (envVar) => !envVar.active)
-                              ? false
-                              : 'indeterminate'
-                        }
-                        onCheckedChange={(value) => {
-                          console.log({ value })
-                        }}
-                      />
-                      {stage.name}
-                      <div className="absolute right-0 hidden group-hover:block">
-                        <Button size={'icon'} variant={'ghost'}>
-                          <Lock className="h-4 w-4" />
-                        </Button>
+                {map(stages, (stage) => {
+                  const stageState = getStageActiveState({ name: stage.name })
+                  return (
+                    <TableHead key={stage.name} className="w-32 truncate">
+                      <div className="group relative flex items-center gap-2">
+                        <Checkbox
+                          checked={
+                            getStageActiveState({ name: stage.name }).active
+                          }
+                          onCheckedChange={(value) => {
+                            if (value === 'indeterminate') {
+                              console.error('indeterminate state not supported')
+                              return
+                            }
+                            setStageActiveState({
+                              name: stage.name,
+                              active: value,
+                            })
+                          }}
+                        />
+                        {stage.name}
+                        <div className="absolute right-0 hidden group-hover:block">
+                          <Button
+                            size={'icon'}
+                            variant={'ghost'}
+                            onClick={() => {
+                              setStageActiveState({
+                                name: stage.name,
+                                encrypted: !stageState.encrypted,
+                              })
+                            }}
+                          >
+                            {stageState.encrypted ? (
+                              <Unlock className="h-4 w-4" />
+                            ) : (
+                              <Lock className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </TableHead>
-                ))}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
             </TableHeader>
             <TableBody className="w-full truncate">
-              {map(envVars, (envVar) => {
+              {map(envVarsConfig, (envVar) => {
+                const allDeactivated = every(
+                  envVar.values,
+                  ({ active }) => !active,
+                )
+                const envVarState = getEnvVarActiveState({ id: envVar.id })
                 return (
-                  <TableRow key={envVar.id} className="w-full">
+                  <TableRow
+                    key={envVar.id}
+                    className={cn('w-full', allDeactivated && 'opacity-50')}
+                  >
                     <TableCell className="w-32" title={envVar.key}>
                       <div className="group relative flex items-center gap-2 pr-10">
-                        <Checkbox />
+                        <Checkbox
+                          checked={envVarState.active}
+                          onCheckedChange={(value) => {
+                            if (value === 'indeterminate') {
+                              console.error('indeterminate state not supported')
+                              return
+                            }
+                            setEnvVarActiveState({
+                              id: envVar.id,
+                              active: value,
+                            })
+                          }}
+                        />
                         <div className="truncate">{envVar.key}</div>
                         <div className="absolute right-0 hidden group-hover:block">
-                          <Button size={'icon'} variant={'ghost'}>
-                            <Lock className="h-4 w-4" />
+                          <Button
+                            size={'icon'}
+                            variant={'ghost'}
+                            onClick={() => {
+                              setEnvVarActiveState({
+                                id: envVar.id,
+                                encrypted: !envVarState.encrypted,
+                              })
+                            }}
+                          >
+                            {envVarState.encrypted ? (
+                              <Unlock className="h-4 w-4" />
+                            ) : (
+                              <Lock className="h-4 w-4" />
+                            )}
                           </Button>
                         </div>
                       </div>
                     </TableCell>
                     {map(stages, (stage) => {
+                      const envVarInCell = find(
+                        envVar.values,
+                        (ev) => ev.stage === stage.name,
+                      )
+                      if (!envVarInCell) {
+                        console.error(
+                          `envVarInCell not found for ${stage.name} in ${envVar.key}`,
+                        )
+                        return null
+                      }
                       return (
                         <TableCell
                           key={`${stage.name}${envVar.id}`}
                           className="w-32"
-                          title={envVar.values[stage.name]?.value ?? 'Empty'}
+                          title={envVarInCell?.value ?? 'Empty'}
                         >
                           <div className="group relative flex items-center gap-2 pr-10">
                             <div className="truncate">
-                              {envVar.values[stage.name]?.value ?? 'Empty'}
+                              <TableEnvVarTag
+                                envVarValue={{
+                                  value: envVarInCell.active
+                                    ? envVarInCell.value
+                                    : '',
+                                  encrypted: envVarInCell?.encrypted ?? false,
+                                }}
+                              />
                             </div>
-                            <div className="absolute right-0 hidden group-hover:block">
-                              <Button size={'icon'} variant={'ghost'}>
-                                <Lock className="h-4 w-4" />
-                              </Button>
-                            </div>
+                            {envVarInCell.active && (
+                              <div className="absolute right-0 hidden group-hover:block">
+                                <Button size={'icon'} variant={'ghost'}>
+                                  <Lock className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </TableCell>
                       )
@@ -369,7 +509,10 @@ export const AddFromClipboardDialogClient = ({
           </Table>
         </div>
         <DialogFooter>
-          <Button variant={'outline'} onClick={() => setEnvs(undefined)}>
+          <Button
+            variant={'outline'}
+            onClick={() => setEnvVarsConfig(undefined)}
+          >
             Cancel
           </Button>
           <Button type="submit" disabled={disabled}>
