@@ -21,28 +21,6 @@ export const AddFromClipboardDialog = async () => {
         'use server'
 
         return superAction(async () => {
-          console.log({ envVarsSelected })
-
-          // const stagesToAdd = filter(gitenvs.envStages, (stage) => {
-          //   return stages.includes(stage.name)
-          // })
-          // const pastedEnvVars = filter(
-          //   map(envVars, (value, key) => ({
-          //     id: getNewEnvVarId(),
-          //     fileId,
-          //     key,
-          //     values: Object.fromEntries(
-          //       map(stagesToAdd, (stage) => [
-          //         stage.name,
-          //         { value, encrypted: encrypted },
-          //       ]),
-          //     ),
-          //   })),
-          //   (envVar) => {
-          //     return envVarsSelected.includes(envVar.key)
-          //   },
-          // )
-
           // Merge values for existing keys, new values have priority over existing
           const keysMerged = map(gitenvs.envVars, (envVar) => {
             const pastedEnvVarForExistingKey = find(
