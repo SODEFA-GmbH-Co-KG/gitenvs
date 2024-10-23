@@ -1,4 +1,4 @@
-import { getGitenvs } from '@/gitenvs/gitenvs'
+import { getGitenvs, saveGitenvs } from '@/gitenvs/gitenvs'
 import { filter, find, map } from 'lodash-es'
 import {
   streamDialog,
@@ -75,7 +75,7 @@ export const AddFromClipboardDialog = async () => {
             envVars: [...keysMerged, ...newEnvVars],
           }
 
-          // await saveGitenvs(newGitenvs)
+          await saveGitenvs(newGitenvs)
           streamRevalidatePath('/', 'layout')
           streamDialog(null)
         })
