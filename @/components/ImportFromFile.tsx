@@ -2,7 +2,7 @@ import { getGitenvs } from '@/gitenvs/gitenvs'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { parse } from 'dotenv'
 import { readdir, readFile } from 'fs/promises'
-import { map } from 'lodash-es'
+import { filter, map } from 'lodash-es'
 import { join } from 'path'
 import { Fragment } from 'react'
 import {
@@ -18,8 +18,10 @@ export const ImportFromFile = async ({
 }: {
   onNext: SuperAction<null, void>
 }) => {
-  const fileNames = await readdir(process.cwd())
   const gitenvs = await getGitenvs()
+  const fileNames = filter(await readdir(process.cwd()), (fileName) =>
+    fileName.includes('.env'),
+  )
   const file = gitenvs.envFiles[0]
   const fileId = file?.id ?? 'unknown'
   return (
@@ -78,6 +80,9 @@ export const ImportFromFile = async ({
             </ActionButton>
           </Fragment>
         ))}
+        {fileNames.length === 0 && (
+          <div className="col-span-4 text-center">No files found</div>
+        )}
       </div>
 
       <ActionButton action={onNext}>Next</ActionButton>
