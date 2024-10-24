@@ -1,3 +1,5 @@
+'use client'
+
 import { getPassphraseEnvName, GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { notFound } from 'next/navigation'
@@ -11,7 +13,7 @@ import {
 } from './ui/collapsible'
 import { Input } from './ui/input'
 
-export const DeployGitenvs = ({ onNext }: { onNext: () => void }) => {
+export const DeployGitenvs = ({ onNext }: { onNext: () => Promise<void> }) => {
   const passphrases = useAtomValue(passPhrasesAtom)
   const setPassphrases = useSetAtom(passPhrasesAtom)
 
@@ -106,8 +108,8 @@ export const DeployGitenvs = ({ onNext }: { onNext: () => void }) => {
 
       <Button
         onClick={async () => {
+          await onNext()
           setPassphrases(undefined)
-          onNext()
         }}
       >
         Done

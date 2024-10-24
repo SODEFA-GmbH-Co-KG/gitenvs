@@ -31,7 +31,7 @@ export default function Page({ params }: { params: { step: string } }) {
 
   return (
     <DeployGitenvs
-      onNext={() => async () => {
+      onNext={async () => {
         'use server'
         revalidatePath('/', 'layout')
         redirect('/')

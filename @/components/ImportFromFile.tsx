@@ -19,9 +19,14 @@ export const ImportFromFile = async ({
   onNext: SuperAction<null, void>
 }) => {
   const fileNames = await readdir(process.cwd())
+  const gitenvs = await getGitenvs()
+  const file = gitenvs.envFiles[0]
+  const fileId = file?.id ?? 'unknown'
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-center text-2xl">Import Files</h1>
+      <h1 className="text-center text-2xl">
+        Import Files into //TODO: FILESWITCHER {file?.name}
+      </h1>
 
       <div className="grid grid-cols-4 gap-2">
         {fileNames.map((fileName) => (
@@ -34,9 +39,6 @@ export const ImportFromFile = async ({
               action={async () => {
                 'use server'
 
-                const gitenvs = await getGitenvs()
-
-                const fileId = gitenvs.envFiles[0]?.id || ''
                 const content = await readFile(
                   join(process.cwd(), fileName),
                   'utf8',
