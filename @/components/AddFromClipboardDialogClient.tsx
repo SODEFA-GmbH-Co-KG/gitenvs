@@ -311,16 +311,15 @@ export const AddFromClipboardDialogClient = ({
                         (existingEnvVar) => existingEnvVar.key === envVar.key,
                       )
 
-                      const stagesWithKey = !!keyExists
-                        ? intersection(
-                            keys(keyExists.values),
-                            activeState.stages,
-                          )
-                        : null
+                      const stagesWithKey =
+                        isActive && !!keyExists
+                          ? intersection(
+                              keys(keyExists.values),
+                              activeState.stages,
+                            )
+                          : null
                       const hasConflicts =
-                        !!stagesWithKey &&
-                        !!stagesWithKey.length &&
-                        stagesWithKey.includes(stage)
+                        !!stagesWithKey && !!stagesWithKey.length
                       return (
                         <TableCell
                           key={`${stage}${envVar.id}`}
