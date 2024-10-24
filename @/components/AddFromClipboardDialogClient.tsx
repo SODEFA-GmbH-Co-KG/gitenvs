@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { filter, intersection, keys, map } from 'lodash-es'
 import { AlertCircle, Lock, Unlock } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { z } from 'zod'
 import { Checkbox } from '~/components/ui/checkbox'
 import {
@@ -63,12 +63,14 @@ export const AddFromClipboardDialogClient = ({
     return { stages, ids }
   })
 
-  useEffect(() => {
-    console.log('init', { allIds })
-    setActiveState((prev) => {
-      return { ...prev, stages: allStages, ids: allIds }
-    })
-  }, [allIds, allStages])
+  // 💡 this useEffect is needed if this dialog is mounted before the envVars are written into the jotai atom
+  //
+  // useEffect(() => {
+  //   console.log('init', { allIds })
+  //   setActiveState((prev) => {
+  //     return { ...prev, stages: allStages, ids: allIds }
+  //   })
+  // }, [allIds, allStages])
 
   const toggleActiveState = ({
     stage,
@@ -77,6 +79,7 @@ export const AddFromClipboardDialogClient = ({
     stage?: string
     id?: string
   }) => {
+    //toggle active state for one stage
     if (stage && !id) {
       setActiveState((prev) => {
         const stages = prev.stages.includes(stage)
@@ -85,6 +88,7 @@ export const AddFromClipboardDialogClient = ({
         return { ...prev, stages }
       })
     }
+    //toggle active state for one env id
     if (id && !stage) {
       setActiveState((prev) => {
         const ids = prev.ids.includes(id)
@@ -106,6 +110,7 @@ export const AddFromClipboardDialogClient = ({
     id?: string
     stage?: string
   }) => {
+    //toggle encryption for all stages for one env id
     if (id && !stage) {
       setEncryptionState((prev) => {
         const allStagesForIdEncrypted = allStages.every((stage) =>
@@ -116,6 +121,8 @@ export const AddFromClipboardDialogClient = ({
           : [...prev, ...map(allStages, (s) => ({ id, stage: s }))]
       })
     }
+
+    //toggle encryption for all ids in one stage
     if (stage && !id) {
       setEncryptionState((prev) => {
         const allIdsInStageEncrypted = allIds.every((id) =>
@@ -126,6 +133,8 @@ export const AddFromClipboardDialogClient = ({
           : [...prev, ...map(allIds, (i) => ({ id: i, stage }))]
       })
     }
+
+    //toggle encryption for one env id in one stage
     if (!!id && !!stage) {
       setEncryptionState((prev) => {
         const exists = prev.find(
@@ -148,12 +157,14 @@ export const AddFromClipboardDialogClient = ({
   const handleSubmit = async () => {
     if (!envVarsConfig) return
 
+    //filter for ids that are deactivated
     let envVarsToSave = filter(envVarsConfig, (envVar) => {
       return activeState.ids.includes(envVar.id)
     })
 
     envVarsToSave = map(envVarsToSave, (envVar) => {
       const values = Object.fromEntries(
+        //only map active stages
         map(activeState.stages, (stage) => [
           stage,
           {

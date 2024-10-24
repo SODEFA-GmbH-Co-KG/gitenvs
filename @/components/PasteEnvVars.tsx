@@ -1,33 +1,35 @@
 'use client'
-import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { parse } from 'dotenv'
-import { atom, useSetAtom } from 'jotai'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { map } from 'lodash-es'
 import { useCallback, useEffect } from 'react'
+import { type SuperActionWithInput } from '~/super-action/action/createSuperAction'
+import {
+  AddFromClipboardDialogClient,
+  type AddFromClipboardSchema,
+} from './AddFromClipboardDialogClient'
 
 export const envVarsToAddAtom = atom<EnvVar[] | undefined>(undefined)
 
 export const PasteEnvVars = ({
   gitenvs,
   fileId,
+  saveAction,
 }: {
   gitenvs: Gitenvs
   fileId: string
+  saveAction: SuperActionWithInput<AddFromClipboardSchema>
 }) => {
-  // const { trigger } = useSuperAction({
-  //   action: action,
-  // })
-
-  // const [envVarsToAdd, setEnvVarsToAdd] = useState<DotenvParseOutput>()
   const setEnvs = useSetAtom(envVarsToAddAtom)
+
+  const envVarsInAtom = useAtomValue(envVarsToAddAtom)
   const handlePaste = useCallback(
     async (event: ClipboardEvent) => {
       const text = event.clipboardData?.getData('text')
 
       if (!text) return
-
-      // await trigger({ clipboardText: text })
       const result = parse(text)
       const hasResults = Object.keys(result).length > 0
       if (!hasResults) return
@@ -58,5 +60,8 @@ export const PasteEnvVars = ({
     }
   }, [handlePaste])
 
-  return null
+  if (!envVarsInAtom) return null
+  return (
+    <AddFromClipboardDialogClient gitenvs={gitenvs} formAction={saveAction} />
+  )
 }
