@@ -5,7 +5,7 @@ import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
 import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { every, filter, intersection, keys, map } from 'lodash-es'
+import { every, filter, find, intersection, keys, map } from 'lodash-es'
 import { AlertCircle, Lock, Unlock } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { z } from 'zod'
@@ -18,8 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table'
-import { type SuperActionWithInput } from '~/super-action/action/createSuperAction'
-import { useSuperAction } from '~/super-action/action/useSuperAction'
+import { saveGitenvs } from '~/lib/gitenvs'
 import { envVarsToAddAtom } from './PasteEnvVars'
 import { TableEnvVarTag } from './TableEnvVarTag'
 import {
@@ -37,10 +36,8 @@ const AddFromClipboardSchema = z.object({
 export type AddFromClipboardSchema = z.infer<typeof AddFromClipboardSchema>
 
 export const AddFromClipboardDialogClient = ({
-  formAction,
   gitenvs,
 }: {
-  formAction: SuperActionWithInput<AddFromClipboardSchema>
   gitenvs: Gitenvs
 }) => {
   const setEnvVarsConfig = useSetAtom(envVarsToAddAtom)
@@ -148,13 +145,6 @@ export const AddFromClipboardDialogClient = ({
     }
   }
 
-  const { trigger, isLoading } = useSuperAction({
-    action: formAction,
-    catchToast: true,
-  })
-
-  const disabled = isLoading
-
   const handleSubmit = async () => {
     if (!envVarsConfig) return
 
@@ -206,7 +196,39 @@ export const AddFromClipboardDialogClient = ({
       }),
     )
 
-    await trigger({ envVars: envVarsToSave })
+    // Merge values for existing keys, new values have priority over existing
+    const keysMerged = map(gitenvs.envVars, (envVar) => {
+      const pastedEnvVarForExistingKey = find(envVarsToSave, (pastedEnvVar) => {
+        return (
+          pastedEnvVar.key === envVar.key &&
+          pastedEnvVar.fileId === envVar.fileId
+        )
+      })
+      if (!pastedEnvVarForExistingKey) {
+        return envVar
+      }
+      return {
+        ...envVar,
+        values: {
+          ...envVar.values,
+          ...pastedEnvVarForExistingKey.values,
+        },
+      }
+    })
+    // filter new env vars that are already merged with existing keys
+    const newEnvVars = filter(envVarsToSave, (pastedEnvVar) => {
+      return !find(gitenvs.envVars, (envVar) => {
+        return envVar.key === pastedEnvVar.key
+      })
+    })
+
+    // combine existing keys with merged keys and new keys
+    const newGitenvs = {
+      ...gitenvs,
+      envVars: [...keysMerged, ...newEnvVars],
+    }
+
+    await saveGitenvs(newGitenvs)
     setEnvVarsConfig(undefined)
   }
 
@@ -412,7 +434,7 @@ export const AddFromClipboardDialogClient = ({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={disabled} onClick={handleSubmit}>
+          <Button type="submit" onClick={handleSubmit}>
             Save
           </Button>
         </DialogFooter>

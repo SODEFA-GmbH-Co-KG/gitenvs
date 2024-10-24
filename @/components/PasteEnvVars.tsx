@@ -16,11 +16,9 @@ export const envVarsToAddAtom = atom<EnvVar[] | undefined>(undefined)
 export const PasteEnvVars = ({
   gitenvs,
   fileId,
-  saveAction,
 }: {
   gitenvs: Gitenvs
   fileId: string
-  saveAction: SuperActionWithInput<AddFromClipboardSchema>
 }) => {
   const setEnvs = useSetAtom(envVarsToAddAtom)
 
@@ -63,6 +61,6 @@ export const PasteEnvVars = ({
 
   if (!envVarsInAtom) return null
   return (
-    <AddFromClipboardDialogClient gitenvs={gitenvs} formAction={saveAction} />
+    <AddFromClipboardDialogClient gitenvs={gitenvs} />
   )
 }
