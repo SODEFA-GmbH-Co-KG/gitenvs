@@ -9,7 +9,7 @@ import { ActionButton } from '~/super-action/button/ActionButton'
 import { TableEnvKey } from './TableEnvKey'
 import { TableEnvVar } from './TableEnvVar'
 
-export const Table = ({
+export const EnvVarsTable = ({
   fileId,
   gitenvs,
 }: {
@@ -40,7 +40,7 @@ export const Table = ({
               <Input
                 key={stage.name}
                 className="flex flex-col gap-2"
-                autoComplete="new-password"
+                autoComplete="off"
                 type="password"
               ></Input>
             ))}
