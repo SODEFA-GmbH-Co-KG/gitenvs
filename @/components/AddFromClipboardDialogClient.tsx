@@ -37,8 +37,10 @@ export type AddFromClipboardSchema = z.infer<typeof AddFromClipboardSchema>
 
 export const AddFromClipboardDialogClient = ({
   gitenvs,
+  fileId,
 }: {
   gitenvs: Gitenvs
+  fileId: string
 }) => {
   const setEnvVarsConfig = useSetAtom(envVarsToAddAtom)
   const envVarsConfig = useAtomValue(envVarsToAddAtom)
@@ -196,8 +198,16 @@ export const AddFromClipboardDialogClient = ({
       }),
     )
 
+    const existingEnvVarsInCurrentFile = filter(
+      gitenvs.envVars,
+      (envVar) => envVar.fileId === fileId,
+    )
+    const envVarsInOtherFiles = filter(
+      gitenvs.envVars,
+      (envVar) => envVar.fileId !== fileId,
+    )
     // Merge values for existing keys, new values have priority over existing
-    const keysMerged = map(gitenvs.envVars, (envVar) => {
+    const keysMerged = map(existingEnvVarsInCurrentFile, (envVar) => {
       const pastedEnvVarForExistingKey = find(envVarsToSave, (pastedEnvVar) => {
         return (
           pastedEnvVar.key === envVar.key &&
@@ -217,7 +227,7 @@ export const AddFromClipboardDialogClient = ({
     })
     // filter new env vars that are already merged with existing keys
     const newEnvVars = filter(envVarsToSave, (pastedEnvVar) => {
-      return !find(gitenvs.envVars, (envVar) => {
+      return !find(existingEnvVarsInCurrentFile, (envVar) => {
         return envVar.key === pastedEnvVar.key
       })
     })
@@ -225,7 +235,7 @@ export const AddFromClipboardDialogClient = ({
     // combine existing keys with merged keys and new keys
     const newGitenvs = {
       ...gitenvs,
-      envVars: [...keysMerged, ...newEnvVars],
+      envVars: [...envVarsInOtherFiles, ...keysMerged, ...newEnvVars],
     }
 
     await saveGitenvs(newGitenvs)
@@ -314,7 +324,9 @@ export const AddFromClipboardDialogClient = ({
                 )
 
                 const existingKey = gitenvs.envVars.find(
-                  (existingEnvVar) => existingEnvVar.key === envVar.key,
+                  (existingEnvVar) =>
+                    existingEnvVar.key === envVar.key &&
+                    existingEnvVar.fileId === fileId,
                 )
 
                 const stagesWithKey =

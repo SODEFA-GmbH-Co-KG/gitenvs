@@ -56,5 +56,5 @@ export const PasteEnvVars = ({
   }, [handlePaste])
 
   if (!envVarsInAtom) return null
-  return <AddFromClipboardDialogClient gitenvs={gitenvs} />
+  return <AddFromClipboardDialogClient gitenvs={gitenvs} fileId={fileId} />
 }
