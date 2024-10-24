@@ -275,13 +275,16 @@ export const AddFromClipboardDialogClient = ({
         <DialogHeader>
           <DialogTitle>Add new Env vars</DialogTitle>
         </DialogHeader>
-        <Table className="table-fixed">
-          <TableHeader className="sticky top-0 z-10 bg-background">
-            <TableRow>
-              <TableHead className="w-32 truncate">
-                <div className="relative flex items-center">
+        <Table className="table-fixed  ">
+          <TableHeader
+            className="sticky top-0 z-10 bg-background shadow-primary"
+            style={{ boxShadow: 'inset 0 -2px 0 0 var(--tw-shadow-color)' }}
+          >
+            <TableRow className="">
+              <TableHead className="w-32 truncate  ">
+                <div className="relative flex items-center ">
                   Key
-                  <div className="absolute -right-4">
+                  <div className="absolute -right-3">
                     <Button
                       size={'sm'}
                       variant={allKeysAllStagesEncrypted ? 'ghost' : 'default'}
@@ -370,7 +373,7 @@ export const AddFromClipboardDialogClient = ({
                       />
                       <div className="truncate">{envVar.key}</div>
                       {isActive && (
-                        <div className="absolute right-0">
+                        <div className="absolute right-1">
                           <Button
                             size={'icon'}
                             variant={
@@ -417,7 +420,7 @@ export const AddFromClipboardDialogClient = ({
                         className={cn('w-32', stageInactive && 'opacity-50')}
                         title={envVarInCell?.value ?? 'Empty'}
                       >
-                        <div className="group relative flex items-center gap-2 pr-10">
+                        <div className="relative flex items-center gap-2 pr-10">
                           {hasConflicts && (
                             <div title="Conflict with existing">
                               <AlertCircle className="h-4 w-4 text-yellow-500" />
@@ -431,31 +434,6 @@ export const AddFromClipboardDialogClient = ({
                               }}
                             />
                           </div>
-                          {isActive && (
-                            <div
-                              className={cn(
-                                'absolute right-0',
-                                !isEncrypted && 'hidden group-hover:block',
-                              )}
-                            >
-                              <Button
-                                size={'icon'}
-                                variant={!isEncrypted ? 'ghost' : 'default'}
-                                onClick={() => {
-                                  toggleEncryptionState({
-                                    id: envVar.id,
-                                    stages: [stage],
-                                  })
-                                }}
-                              >
-                                {!isEncrypted ? (
-                                  <Unlock className="h-4 w-4" />
-                                ) : (
-                                  <Lock className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          )}
                         </div>
                       </TableCell>
                     )
