@@ -1,3 +1,4 @@
+import { AddFromClipboardDialog } from '@/components/AddFromClipboardDialog'
 import { EnvFileSwitcher } from '@/components/EnvFileSwitcher'
 import { Table } from '@/components/Table'
 import { getGitenvs } from '@/gitenvs/gitenvs'
@@ -13,6 +14,7 @@ export default async function Page({ params }: { params: { fileId: string } }) {
   return (
     <div className="flex flex-col gap-2">
       <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
+      <AddFromClipboardDialog fileId={params.fileId} />
       <Table fileId={params.fileId} gitenvs={gitenvs} />
     </div>
   )

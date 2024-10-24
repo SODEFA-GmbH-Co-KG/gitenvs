@@ -6,6 +6,7 @@ import {
   streamDialog,
   superAction,
 } from '~/super-action/action/createSuperAction'
+import { streamRevalidatePath } from '~/super-action/action/streamRevalidatePath'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import {
   DropdownMenu,
@@ -42,6 +43,7 @@ export const EnvKeyMenu = ({
                   envVars: filter(gitenvs.envVars, (v) => v.id !== envVar.id),
                 }
                 await saveGitenvs(newGitenvs)
+                streamRevalidatePath('/', 'layout')
                 streamDialog(null)
               })
             }}
