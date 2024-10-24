@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { filter, intersection, keys, map } from 'lodash-es'
+import { every, filter, intersection, keys, map } from 'lodash-es'
 import { AlertCircle, Lock, Unlock } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { z } from 'zod'
@@ -206,8 +206,13 @@ export const AddFromClipboardDialogClient = ({
                 <TableHead className="w-32 truncate">Key</TableHead>
                 {map(allStages, (stage) => {
                   const stageInactive = !activeState.stages.includes(stage)
-                  const stageEncrypted = encryptionState.some(
-                    (es) => es.stage === stage,
+                  const everyKeyInStageEncrypted = every(
+                    activeState.ids,
+                    (id) => {
+                      return encryptionState.some(
+                        (es) => es.id === id && es.stage === stage,
+                      )
+                    },
                   )
                   return (
                     <TableHead
@@ -229,14 +234,14 @@ export const AddFromClipboardDialogClient = ({
                           <div className="absolute right-0 hidden group-hover:block">
                             <Button
                               size={'icon'}
-                              variant={stageEncrypted ? 'ghost' : 'default'}
+                              variant={
+                                everyKeyInStageEncrypted ? 'ghost' : 'default'
+                              }
                               onClick={() => {
                                 toggleEncryptionState({ stage: stage })
                               }}
                             >
-                              {encryptionState.some(
-                                (es) => es.stage === stage,
-                              ) ? (
+                              {everyKeyInStageEncrypted ? (
                                 <Unlock className="h-4 w-4" />
                               ) : (
                                 <Lock className="h-4 w-4" />
@@ -253,9 +258,17 @@ export const AddFromClipboardDialogClient = ({
             <TableBody className="w-full truncate">
               {map(envVarsConfig, (envVar) => {
                 const isActive = activeState.ids.some((id) => id === envVar.id)
-                const isEncrypted = encryptionState.some(
-                  (es) => es.id === envVar.id,
+                const everyActiveStageEncrypted = every(
+                  activeState.stages,
+                  (stage) => {
+                    return encryptionState.some(
+                      (es) => es.id === envVar.id && es.stage === stage,
+                    )
+                  },
                 )
+                // const isEncrypted = encryptionState.some(
+                //   (es) => es.id === envVar.id,
+                // )
                 return (
                   <TableRow
                     key={envVar.id}
@@ -274,14 +287,14 @@ export const AddFromClipboardDialogClient = ({
                           <div className="absolute right-0 hidden group-hover:block">
                             <Button
                               size={'icon'}
-                              variant={isEncrypted ? 'ghost' : 'default'}
+                              variant={
+                                everyActiveStageEncrypted ? 'ghost' : 'default'
+                              }
                               onClick={() => {
                                 toggleEncryptionState({ id: envVar.id })
                               }}
                             >
-                              {encryptionState.some(
-                                (es) => es.id === envVar.id,
-                              ) ? (
+                              {everyActiveStageEncrypted ? (
                                 <Unlock className="h-4 w-4" />
                               ) : (
                                 <Lock className="h-4 w-4" />
