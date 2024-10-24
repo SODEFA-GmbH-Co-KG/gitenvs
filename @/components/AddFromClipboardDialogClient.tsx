@@ -37,6 +37,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from './ui/dialog'
+import { Label } from './ui/label'
 
 const AddFromClipboardSchema = z.object({
   envVars: z.array(EnvVar),
@@ -328,8 +329,9 @@ export const AddFromClipboardDialogClient = ({
                         onCheckedChange={() => {
                           toggleActiveState({ stage: stage })
                         }}
+                        id={stage}
                       />
-                      {stage}
+                      <Label htmlFor={stage}>{stage}</Label>
                     </div>
                   </TableHead>
                 )
