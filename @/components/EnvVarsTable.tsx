@@ -9,7 +9,7 @@ import { ActionButton } from '~/super-action/button/ActionButton'
 import { TableEnvKey } from './TableEnvKey'
 import { TableEnvVar } from './TableEnvVar'
 
-export const Table = ({
+export const EnvVarsTable = ({
   fileId,
   gitenvs,
 }: {

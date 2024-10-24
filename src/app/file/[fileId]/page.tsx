@@ -1,5 +1,5 @@
 import { EnvFileSwitcher } from '@/components/EnvFileSwitcher'
-import { Table } from '@/components/Table'
+import { EnvVarsTable } from '@/components/EnvVarsTable'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import { redirect } from 'next/navigation'
 
@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { fileId: string } }) {
   return (
     <div className="flex flex-col gap-2">
       <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
-      <Table fileId={params.fileId} gitenvs={gitenvs} />
+      <EnvVarsTable fileId={params.fileId} gitenvs={gitenvs} />
     </div>
   )
 }
