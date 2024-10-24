@@ -266,9 +266,6 @@ export const AddFromClipboardDialogClient = ({
                     )
                   },
                 )
-                // const isEncrypted = encryptionState.some(
-                //   (es) => es.id === envVar.id,
-                // )
                 return (
                   <TableRow
                     key={envVar.id}
