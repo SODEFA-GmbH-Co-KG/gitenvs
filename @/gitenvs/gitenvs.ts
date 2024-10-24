@@ -12,8 +12,6 @@ export const getGitenvs = async () => {
 
 export const saveGitenvs = async (gitenvs: Gitenvs) => {
   const path = join(getCwd(), 'gitenvs.json')
-  console.log({ path })
-
   await writeFile(path, JSON.stringify(gitenvs, null, 2))
   await updateGitIgnore()
 }
