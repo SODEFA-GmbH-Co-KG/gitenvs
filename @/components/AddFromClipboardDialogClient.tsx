@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
 import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { useAtomValue, useSetAtom } from 'jotai'
@@ -162,25 +163,48 @@ export const AddFromClipboardDialogClient = ({
       return activeState.ids.includes(envVar.id)
     })
 
-    envVarsToSave = map(envVarsToSave, (envVar) => {
-      const values = Object.fromEntries(
-        //only map active stages
-        map(activeState.stages, (stage) => [
-          stage,
-          {
-            value: envVar.values[stage]!.value,
-            encrypted: !!encryptionState.find(
-              (es) => es.id === envVar.id && es.stage === stage,
-            ),
-          },
-        ]),
-      )
+    envVarsToSave = await Promise.all(
+      map(envVarsToSave, async (envVar) => {
+        const values = Object.fromEntries(
+          //only map active stages
+          await Promise.all(
+            map(activeState.stages, async (stage) => {
+              const encrypted = !!encryptionState.find(
+                (es) => es.id === envVar.id && es.stage === stage,
+              )
 
-      return {
-        ...envVar,
-        values,
-      } satisfies EnvVar
-    })
+              let value = envVar.values[stage]!.value
+
+              if (encrypted) {
+                const stagePublicKey = gitenvs.envStages.find(
+                  (s) => s.name === stage,
+                )?.publicKey
+                if (!stagePublicKey) {
+                  throw new Error(`public key not found for ${stage}`)
+                }
+                value = await encryptEnvVar({
+                  plaintext: value,
+                  publicKey: stagePublicKey,
+                })
+              }
+
+              return [
+                stage,
+                {
+                  value,
+                  encrypted,
+                },
+              ]
+            }),
+          ),
+        )
+
+        return {
+          ...envVar,
+          values,
+        } satisfies EnvVar
+      }),
+    )
 
     await trigger({ envVars: envVarsToSave })
     setEnvVarsConfig(undefined)
