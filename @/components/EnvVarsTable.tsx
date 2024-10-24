@@ -40,7 +40,7 @@ export const EnvVarsTable = ({
               <Input
                 key={stage.name}
                 className="flex flex-col gap-2"
-                autoComplete="new-password"
+                autoComplete="off"
                 type="password"
               ></Input>
             ))}
