@@ -197,17 +197,8 @@ export const AddFromClipboardDialogClient = ({
         } satisfies EnvVar
       }),
     )
-
-    const existingEnvVarsInCurrentFile = filter(
-      gitenvs.envVars,
-      (envVar) => envVar.fileId === fileId,
-    )
-    const envVarsInOtherFiles = filter(
-      gitenvs.envVars,
-      (envVar) => envVar.fileId !== fileId,
-    )
     // Merge values for existing keys, new values have priority over existing
-    const keysMerged = map(existingEnvVarsInCurrentFile, (envVar) => {
+    const keysMerged = map(gitenvs.envVars, (envVar) => {
       const pastedEnvVarForExistingKey = find(envVarsToSave, (pastedEnvVar) => {
         return (
           pastedEnvVar.key === envVar.key &&
@@ -227,15 +218,18 @@ export const AddFromClipboardDialogClient = ({
     })
     // filter new env vars that are already merged with existing keys
     const newEnvVars = filter(envVarsToSave, (pastedEnvVar) => {
-      return !find(existingEnvVarsInCurrentFile, (envVar) => {
-        return envVar.key === pastedEnvVar.key
+      return !find(gitenvs.envVars, (envVar) => {
+        return (
+          envVar.key === pastedEnvVar.key &&
+          pastedEnvVar.fileId === envVar.fileId
+        )
       })
     })
 
     // combine existing keys with merged keys and new keys
     const newGitenvs = {
       ...gitenvs,
-      envVars: [...envVarsInOtherFiles, ...keysMerged, ...newEnvVars],
+      envVars: [...keysMerged, ...newEnvVars],
     }
 
     await saveGitenvs(newGitenvs)
