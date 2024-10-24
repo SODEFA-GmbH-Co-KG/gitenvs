@@ -30,7 +30,7 @@ export const TableEnvVar = ({
           gitenvs,
         })
       }}
-      className="flex cursor-pointer items-center justify-start p-1"
+      className="flex w-full cursor-pointer items-center justify-start p-1"
     >
       <Content envVarValue={envVar.values[envStage.name]} />
     </Button>
@@ -54,5 +54,5 @@ const Content = ({ envVarValue }: { envVarValue?: EnvVarValue }) => {
     )
   }
 
-  return envVarValue.value
+  return <div className="truncate">{envVarValue.value}</div>
 }
