@@ -11,7 +11,7 @@ export default async function Page({ params }: { params: { fileId: string } }) {
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="container flex flex-col gap-2">
       <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
       <EnvVarsTable fileId={params.fileId} gitenvs={gitenvs} />
     </div>
