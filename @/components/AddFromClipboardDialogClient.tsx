@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
 import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useSetAtom } from 'jotai'
 import {
   each,
   every,
@@ -28,6 +28,8 @@ import {
   TableRow,
 } from '~/components/ui/table'
 import { saveGitenvs } from '~/lib/gitenvs'
+import { SuperAction } from '~/super-action/action/createSuperAction'
+import { useSuperAction } from '~/super-action/action/useSuperAction'
 import { envVarsToAddAtom } from './PasteEnvVars'
 import { TableEnvVarTag } from './TableEnvVarTag'
 import {
@@ -48,20 +50,25 @@ export type AddFromClipboardSchema = z.infer<typeof AddFromClipboardSchema>
 export const AddFromClipboardDialogClient = ({
   gitenvs,
   fileId,
+  envVarsToAdd,
+  onClose,
 }: {
   gitenvs: Gitenvs
   fileId: string
+  envVarsToAdd: Gitenvs['envVars']
+  onClose?: SuperAction<void, undefined>
 }) => {
-  const setEnvVarsConfig = useSetAtom(envVarsToAddAtom)
-  const envVarsConfig = useAtomValue(envVarsToAddAtom)
-
+  const setEnvVarsToAdd = useSetAtom(envVarsToAddAtom)
+  const { trigger: handleOnClose } = useSuperAction({
+    action: onClose ?? (async () => {}),
+  })
   const allStages = useMemo(
     () => gitenvs.envStages.map((stage) => stage.name),
     [gitenvs.envStages],
   )
   const allIds = useMemo(
-    () => map(envVarsConfig, (envVar) => envVar.id),
-    [envVarsConfig],
+    () => map(envVarsToAdd, (envVar) => envVar.id),
+    [envVarsToAdd],
   )
 
   const [activeState, setActiveState] = useState<{
@@ -169,10 +176,8 @@ export const AddFromClipboardDialogClient = ({
   }
 
   const handleSubmit = async () => {
-    if (!envVarsConfig) return
-
     //filter for ids that are deactivated
-    let envVarsToSave = filter(envVarsConfig, (envVar) => {
+    let envVarsToSave = filter(envVarsToAdd, (envVar) => {
       return activeState.ids.includes(envVar.id)
     })
 
@@ -254,7 +259,8 @@ export const AddFromClipboardDialogClient = ({
     }
 
     await saveGitenvs(newGitenvs)
-    setEnvVarsConfig(undefined)
+    setEnvVarsToAdd(undefined)
+    await handleOnClose(undefined)
   }
 
   const allKeysAllStagesEncrypted = every(allIds, (id) =>
@@ -265,10 +271,11 @@ export const AddFromClipboardDialogClient = ({
 
   return (
     <Dialog
-      open={!!envVarsConfig}
-      onOpenChange={(open) => {
+      open={!!envVarsToAdd}
+      onOpenChange={async (open) => {
         if (!open) {
-          setEnvVarsConfig(undefined)
+          setEnvVarsToAdd(undefined)
+          await handleOnClose(undefined)
         }
       }}
     >
@@ -339,7 +346,7 @@ export const AddFromClipboardDialogClient = ({
             </TableRow>
           </TableHeader>
           <TableBody className="h-full w-full overflow-auto">
-            {map(envVarsConfig, (envVar) => {
+            {map(envVarsToAdd, (envVar) => {
               const isActive = activeState.ids.some((id) => id === envVar.id)
               const everyActiveStageEncrypted = every(
                 activeState.stages,
@@ -448,7 +455,10 @@ export const AddFromClipboardDialogClient = ({
         <DialogFooter>
           <Button
             variant={'outline'}
-            onClick={() => setEnvVarsConfig(undefined)}
+            onClick={async () => {
+              setEnvVarsToAdd(undefined)
+              await handleOnClose(undefined)
+            }}
           >
             Cancel
           </Button>

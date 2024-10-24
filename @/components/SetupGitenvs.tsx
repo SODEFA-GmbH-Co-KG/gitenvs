@@ -1,15 +1,16 @@
 'use client'
 
 import { type Passphrase } from '@/gitenvs/gitenvs.schema'
-import { useState } from 'react'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { CopyPassphrases } from './CopyPassphrases'
 import { CreateGitenvs } from './CreateGitenvs'
-import { DeployGitenvs } from './DeployGitenvs'
+
+export const passPhrasesAtom = atom<Passphrase[] | undefined>(undefined)
 
 export const SetupGitenvs = ({ onSetupDone }: { onSetupDone: () => void }) => {
-  const [passphrases, setPassphrases] = useState<Passphrase[] | null>(null)
+  const setPassphrases = useSetAtom(passPhrasesAtom)
 
-  const [copied, setCopied] = useState(false)
+  const passphrases = useAtomValue(passPhrasesAtom)
 
   if (!passphrases) {
     return (
@@ -19,16 +20,7 @@ export const SetupGitenvs = ({ onSetupDone }: { onSetupDone: () => void }) => {
     )
   }
 
-  if (!copied) {
-    return (
-      <CopyPassphrases
-        passphrases={passphrases}
-        onNext={() => setCopied(true)}
-      />
-    )
-  }
-
   return (
-    <DeployGitenvs passphrases={passphrases} onNext={() => onSetupDone()} />
+    <CopyPassphrases passphrases={passphrases} onNext={() => onSetupDone()} />
   )
 }

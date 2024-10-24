@@ -2,7 +2,7 @@
 import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { parse } from 'dotenv'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtom } from 'jotai'
 import { map } from 'lodash-es'
 import { useCallback, useEffect } from 'react'
 import { AddFromClipboardDialogClient } from './AddFromClipboardDialogClient'
@@ -16,9 +16,7 @@ export const PasteEnvVars = ({
   gitenvs: Gitenvs
   fileId: string
 }) => {
-  const setEnvs = useSetAtom(envVarsToAddAtom)
-
-  const envVarsInAtom = useAtomValue(envVarsToAddAtom)
+  const [envVarsInAtom, setEnvs] = useAtom(envVarsToAddAtom)
   const handlePaste = useCallback(
     async (event: ClipboardEvent) => {
       if (envVarsInAtom !== undefined) return
@@ -56,5 +54,11 @@ export const PasteEnvVars = ({
   }, [handlePaste])
 
   if (!envVarsInAtom) return null
-  return <AddFromClipboardDialogClient gitenvs={gitenvs} fileId={fileId} />
+  return (
+    <AddFromClipboardDialogClient
+      gitenvs={gitenvs}
+      fileId={fileId}
+      envVarsToAdd={envVarsInAtom}
+    />
+  )
 }
