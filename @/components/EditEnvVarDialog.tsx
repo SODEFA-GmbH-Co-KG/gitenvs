@@ -7,14 +7,15 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
-import { saveGitenvs } from '~/lib/gitenvs'
 import {
   type EnvStage,
   type EnvVar,
   type Gitenvs,
 } from '@/gitenvs/gitenvs.schema'
+import { cn } from '@/lib/utils'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useState } from 'react'
+import { saveGitenvs } from '~/lib/gitenvs'
 import { KeyShortcut } from './KeyShortcut'
 
 export const EditEnvVarDialog = NiceModal.create(
@@ -28,7 +29,13 @@ export const EditEnvVarDialog = NiceModal.create(
     gitenvs: Gitenvs
   }) => {
     const modal = useModal()
-    const [plaintext, setPlaintext] = useState('')
+    const envVarInStage = envVar.values[envStage.name]
+    const showValue =
+      !!envVarInStage?.value && envVarInStage.encrypted === false
+
+    const [plaintext, setPlaintext] = useState(
+      showValue ? envVarInStage?.value ?? '' : 'nope',
+    )
 
     const done = () => {
       modal.resolve()
@@ -95,7 +102,7 @@ export const EditEnvVarDialog = NiceModal.create(
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <Input
-              className="text-security-disc col-span-3"
+              className={cn(!showValue && 'text-security-disc', 'col-span-3')}
               type="text"
               autoComplete="off"
               value={plaintext}
