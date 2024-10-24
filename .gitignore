@@ -42,4 +42,3 @@ yarn-error.log*
 *.tsbuildinfo
 
 dist/
-playground/

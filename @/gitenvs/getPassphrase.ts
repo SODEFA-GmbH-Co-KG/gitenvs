@@ -6,7 +6,7 @@ import { getPassphraseEnvName, GITENVS_DIR_ENV_NAME } from './env'
 export const getPassphrase = async ({
   stage,
   passphrase,
-  passphrasePath = `${process.env[GITENVS_DIR_ENV_NAME] || process.cwd()}/${stage}.gitenvs.passphrase`,
+  passphrasePath = `${process.env[GITENVS_DIR_ENV_NAME] ?? process.cwd()}/${stage}.gitenvs.passphrase`,
 }: {
   stage: string
   passphrase?: string
