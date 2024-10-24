@@ -41,7 +41,7 @@ export const PasteEnvVars = ({
         }),
       )
     },
-    [fileId, gitenvs.envStages, setEnvs],
+    [fileId, gitenvs.envStages, setEnvs, envVarsInAtom],
   )
 
   useEffect(() => {
