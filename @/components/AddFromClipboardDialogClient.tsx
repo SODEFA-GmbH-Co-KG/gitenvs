@@ -5,7 +5,16 @@ import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
 import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { every, filter, find, intersection, keys, map } from 'lodash-es'
+import {
+  each,
+  every,
+  filter,
+  find,
+  flatMap,
+  intersection,
+  keys,
+  map,
+} from 'lodash-es'
 import { AlertCircle, Lock, Unlock } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { z } from 'zod'
@@ -105,13 +114,13 @@ export const AddFromClipboardDialogClient = ({
 
   const toggleEncryptionState = ({
     id,
-    stage,
+    stages,
   }: {
     id?: string
-    stage?: string
+    stages?: string[]
   }) => {
     //toggle encryption for all stages for one env id
-    if (id && !stage) {
+    if (id && !stages) {
       setEncryptionState((prev) => {
         const allStagesForIdEncrypted = allStages.every((stage) =>
           prev.find((state) => state.id === id && state.stage === stage),
@@ -123,26 +132,37 @@ export const AddFromClipboardDialogClient = ({
     }
 
     //toggle encryption for all ids in one stage
-    if (stage && !id) {
+    if (stages && !id) {
       setEncryptionState((prev) => {
-        const allIdsInStageEncrypted = allIds.every((id) =>
-          prev.find((state) => state.id === id && state.stage === stage),
+        const allIdsInStagesEncrypted = every(allIds, (id) =>
+          every(stages, (stage) => {
+            return encryptionState.some(
+              (es) => es.id === id && es.stage === stage,
+            )
+          }),
         )
-        return allIdsInStageEncrypted
-          ? prev.filter((state) => state.stage !== stage)
-          : [...prev, ...map(allIds, (i) => ({ id: i, stage }))]
+        return allIdsInStagesEncrypted
+          ? prev.filter((state) => !stages.includes(state.stage))
+          : [
+              ...prev,
+              ...flatMap(allIds, (i) =>
+                map(stages, (stage) => ({ id: i, stage })),
+              ),
+            ]
       })
     }
 
     //toggle encryption for one env id in one stage
-    if (!!id && !!stage) {
+    if (!!id && !!stages) {
       setEncryptionState((prev) => {
         const exists = prev.find(
-          (state) => state.id === id && state.stage === stage,
+          (state) => state.id === id && stages.includes(state.stage),
         )
         return exists
-          ? prev.filter((state) => state.id !== id || state.stage !== stage)
-          : [...prev, { id, stage }]
+          ? prev.filter(
+              (state) => state.id !== id || !stages.includes(state.stage),
+            )
+          : [...prev, ...map(stages, (stage) => ({ id, stage }))]
       })
     }
   }
@@ -236,6 +256,12 @@ export const AddFromClipboardDialogClient = ({
     setEnvVarsConfig(undefined)
   }
 
+  const allKeysAllStagesEncrypted = every(allIds, (id) =>
+    every(allStages, (stage) => {
+      return encryptionState.some((es) => es.id === id && es.stage === stage)
+    }),
+  )
+
   return (
     <Dialog
       open={!!envVarsConfig}
@@ -245,194 +271,200 @@ export const AddFromClipboardDialogClient = ({
         }
       }}
     >
-      <DialogContent className="max-w-[90vw]">
+      <DialogContent className="flex max-h-[90vh] max-w-[90vw] flex-col">
         <DialogHeader>
           <DialogTitle>Add new Env vars</DialogTitle>
         </DialogHeader>
-        <div className="h-full max-h-screen w-full overflow-hidden p-1 md:max-h-[80vh]">
-          <Table className="table-fixed">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-32 truncate">Key</TableHead>
-                {map(allStages, (stage) => {
-                  const stageInactive = !activeState.stages.includes(stage)
-                  const everyKeyInStageEncrypted = every(
-                    activeState.ids,
-                    (id) => {
-                      return encryptionState.some(
-                        (es) => es.id === id && es.stage === stage,
-                      )
-                    },
-                  )
-                  return (
-                    <TableHead
-                      key={stage}
-                      className={cn(
-                        'w-32 truncate',
-                        stageInactive && 'opacity-50',
-                      )}
+        <Table className="table-fixed">
+          <TableHeader className="sticky top-0 z-10 bg-background">
+            <TableRow>
+              <TableHead className="w-32 truncate">
+                <div className="relative flex items-center">
+                  Key
+                  <div className="absolute -right-4">
+                    <Button
+                      size={'sm'}
+                      variant={allKeysAllStagesEncrypted ? 'ghost' : 'default'}
+                      onClick={() => {
+                        each(allStages, (stage) => {
+                          toggleEncryptionState({ stages: allStages })
+                        })
+                      }}
                     >
-                      <div className="group relative flex items-center gap-2">
-                        <Checkbox
-                          checked={activeState.stages.some((s) => s === stage)}
-                          onCheckedChange={() => {
-                            toggleActiveState({ stage: stage })
-                          }}
-                        />
-                        {stage}
-                        {!stageInactive && (
-                          <div className="absolute right-0 hidden group-hover:block">
-                            <Button
-                              size={'icon'}
-                              variant={
-                                everyKeyInStageEncrypted ? 'ghost' : 'default'
-                              }
-                              onClick={() => {
-                                toggleEncryptionState({ stage: stage })
-                              }}
-                            >
-                              {everyKeyInStageEncrypted ? (
-                                <Unlock className="h-4 w-4" />
-                              ) : (
-                                <Lock className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            </TableHeader>
-            <TableBody className="w-full truncate">
-              {map(envVarsConfig, (envVar) => {
-                const isActive = activeState.ids.some((id) => id === envVar.id)
-                const everyActiveStageEncrypted = every(
-                  activeState.stages,
-                  (stage) => {
-                    return encryptionState.some(
-                      (es) => es.id === envVar.id && es.stage === stage,
-                    )
-                  },
-                )
-
-                const existingKey = gitenvs.envVars.find(
-                  (existingEnvVar) =>
-                    existingEnvVar.key === envVar.key &&
-                    existingEnvVar.fileId === fileId,
-                )
-
-                const stagesWithKey =
-                  isActive && !!existingKey
-                    ? intersection(keys(existingKey.values), activeState.stages)
-                    : null
+                      {allKeysAllStagesEncrypted ? (
+                        <Unlock className="h-4 w-4" />
+                      ) : (
+                        <Lock className="h-4 w-4" />
+                      )}
+                      &nbsp;All
+                    </Button>
+                  </div>
+                </div>
+              </TableHead>
+              {map(allStages, (stage) => {
+                const stageInactive = !activeState.stages.includes(stage)
+                // const everyKeyInStageEncrypted = every(
+                //   activeState.ids,
+                //   (id) => {
+                //     return encryptionState.some(
+                //       (es) => es.id === id && es.stage === stage,
+                //     )
+                //   },
+                // )
                 return (
-                  <TableRow
-                    key={envVar.id}
-                    className={cn('w-full', !isActive && 'opacity-50')}
+                  <TableHead
+                    key={stage}
+                    className={cn(
+                      'w-32 truncate',
+                      stageInactive && 'opacity-50',
+                    )}
                   >
-                    <TableCell className="w-32" title={envVar.key}>
-                      <div className="group relative flex items-center gap-2 pr-10">
-                        <Checkbox
-                          checked={isActive}
-                          onCheckedChange={() => {
-                            toggleActiveState({ id: envVar.id })
-                          }}
-                        />
-                        <div className="truncate">{envVar.key}</div>
-                        {isActive && (
-                          <div className="absolute right-0 hidden group-hover:block">
-                            <Button
-                              size={'icon'}
-                              variant={
-                                everyActiveStageEncrypted ? 'ghost' : 'default'
-                              }
-                              onClick={() => {
-                                toggleEncryptionState({ id: envVar.id })
-                              }}
-                            >
-                              {everyActiveStageEncrypted ? (
-                                <Unlock className="h-4 w-4" />
-                              ) : (
-                                <Lock className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    {map(allStages, (stage) => {
-                      const envVarInCell = envVar.values[stage]
-                      if (!envVarInCell) {
-                        console.error(
-                          `envVarInCell not found for ${stage} in ${envVar.key}`,
-                        )
-                        return null
-                      }
-                      const stageInactive = !activeState.stages.includes(stage)
-                      const isActive =
-                        activeState.ids.includes(envVar.id) &&
-                        activeState.stages.includes(stage)
-                      const isEncrypted = !!encryptionState.find(
-                        (es) => es.id === envVar.id && es.stage === stage,
-                      )
-
-                      const hasConflicts =
-                        !!stagesWithKey?.length &&
-                        stagesWithKey.includes(stage) &&
-                        !!existingKey?.values[stage]?.value &&
-                        existingKey?.values[stage]?.value !== envVarInCell.value
-                      return (
-                        <TableCell
-                          key={`${stage}${envVar.id}`}
-                          className={cn('w-32', stageInactive && 'opacity-50')}
-                          title={envVarInCell?.value ?? 'Empty'}
-                        >
-                          <div className="group relative flex items-center gap-2 pr-10">
-                            {hasConflicts && (
-                              <div title="Conflict with existing">
-                                <AlertCircle className="h-4 w-4 text-yellow-500" />
-                              </div>
-                            )}
-                            <div className="flex-1 truncate">
-                              <TableEnvVarTag
-                                envVarValue={{
-                                  value: isActive ? envVarInCell.value : '',
-                                  encrypted: isEncrypted,
-                                }}
-                              />
-                            </div>
-                            {isActive && (
-                              <div className="absolute right-0 hidden group-hover:block">
-                                <Button
-                                  size={'icon'}
-                                  variant={isEncrypted ? 'ghost' : 'default'}
-                                  onClick={() => {
-                                    toggleEncryptionState({
-                                      id: envVar.id,
-                                      stage: stage,
-                                    })
-                                  }}
-                                >
-                                  {isEncrypted ? (
-                                    <Unlock className="h-4 w-4" />
-                                  ) : (
-                                    <Lock className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                      )
-                    })}
-                  </TableRow>
+                    <div className="relative flex items-center gap-2">
+                      <Checkbox
+                        checked={activeState.stages.some((s) => s === stage)}
+                        onCheckedChange={() => {
+                          toggleActiveState({ stage: stage })
+                        }}
+                      />
+                      {stage}
+                    </div>
+                  </TableHead>
                 )
               })}
-            </TableBody>
-          </Table>
-        </div>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="h-full w-full overflow-auto">
+            {map(envVarsConfig, (envVar) => {
+              const isActive = activeState.ids.some((id) => id === envVar.id)
+              const everyActiveStageEncrypted = every(
+                activeState.stages,
+                (stage) => {
+                  return encryptionState.some(
+                    (es) => es.id === envVar.id && es.stage === stage,
+                  )
+                },
+              )
+
+              const existingKey = gitenvs.envVars.find(
+                (existingEnvVar) =>
+                  existingEnvVar.key === envVar.key &&
+                  existingEnvVar.fileId === fileId,
+              )
+
+              const stagesWithKey =
+                isActive && !!existingKey
+                  ? intersection(keys(existingKey.values), activeState.stages)
+                  : null
+              return (
+                <TableRow
+                  key={envVar.id}
+                  className={cn('w-full', !isActive && 'opacity-50')}
+                >
+                  <TableCell className="w-32" title={envVar.key}>
+                    <div className="relative flex items-center gap-2 pr-10">
+                      <Checkbox
+                        checked={isActive}
+                        onCheckedChange={() => {
+                          toggleActiveState({ id: envVar.id })
+                        }}
+                      />
+                      <div className="truncate">{envVar.key}</div>
+                      {isActive && (
+                        <div className="absolute right-0">
+                          <Button
+                            size={'icon'}
+                            variant={
+                              !everyActiveStageEncrypted ? 'ghost' : 'default'
+                            }
+                            onClick={() => {
+                              toggleEncryptionState({ id: envVar.id })
+                            }}
+                          >
+                            {!everyActiveStageEncrypted ? (
+                              <Unlock className="h-4 w-4" />
+                            ) : (
+                              <Lock className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  {map(allStages, (stage) => {
+                    const envVarInCell = envVar.values[stage]
+                    if (!envVarInCell) {
+                      console.error(
+                        `envVarInCell not found for ${stage} in ${envVar.key}`,
+                      )
+                      return null
+                    }
+                    const stageInactive = !activeState.stages.includes(stage)
+                    const isActive =
+                      activeState.ids.includes(envVar.id) &&
+                      activeState.stages.includes(stage)
+                    const isEncrypted = !!encryptionState.find(
+                      (es) => es.id === envVar.id && es.stage === stage,
+                    )
+
+                    const hasConflicts =
+                      !!stagesWithKey?.length &&
+                      stagesWithKey.includes(stage) &&
+                      !!existingKey?.values[stage]?.value &&
+                      existingKey?.values[stage]?.value !== envVarInCell.value
+                    return (
+                      <TableCell
+                        key={`${stage}${envVar.id}`}
+                        className={cn('w-32', stageInactive && 'opacity-50')}
+                        title={envVarInCell?.value ?? 'Empty'}
+                      >
+                        <div className="group relative flex items-center gap-2 pr-10">
+                          {hasConflicts && (
+                            <div title="Conflict with existing">
+                              <AlertCircle className="h-4 w-4 text-yellow-500" />
+                            </div>
+                          )}
+                          <div className="flex-1 truncate">
+                            <TableEnvVarTag
+                              envVarValue={{
+                                value: isActive ? envVarInCell.value : '',
+                                encrypted: isEncrypted,
+                              }}
+                            />
+                          </div>
+                          {isActive && (
+                            <div
+                              className={cn(
+                                'absolute right-0',
+                                !isEncrypted && 'hidden group-hover:block',
+                              )}
+                            >
+                              <Button
+                                size={'icon'}
+                                variant={!isEncrypted ? 'ghost' : 'default'}
+                                onClick={() => {
+                                  toggleEncryptionState({
+                                    id: envVar.id,
+                                    stages: [stage],
+                                  })
+                                }}
+                              >
+                                {!isEncrypted ? (
+                                  <Unlock className="h-4 w-4" />
+                                ) : (
+                                  <Lock className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
         <DialogFooter>
           <Button
             variant={'outline'}
