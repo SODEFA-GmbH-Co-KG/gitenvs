@@ -2,6 +2,7 @@ import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { getCwd } from './getCwd'
 import { Gitenvs } from './gitenvs.schema'
+import { updateGitIgnore } from './updateGitIgnore'
 
 export const getGitenvs = async () => {
   const gitenvsContent = await readFile(join(getCwd(), 'gitenvs.json'), 'utf-8')
@@ -10,8 +11,9 @@ export const getGitenvs = async () => {
 }
 
 export const saveGitenvs = async (gitenvs: Gitenvs) => {
-  await writeFile(
-    join(getCwd(), 'gitenvs.json'),
-    JSON.stringify(gitenvs, null, 2),
-  )
+  const path = join(getCwd(), 'gitenvs.json')
+  console.log({ path })
+
+  await writeFile(path, JSON.stringify(gitenvs, null, 2))
+  await updateGitIgnore()
 }
