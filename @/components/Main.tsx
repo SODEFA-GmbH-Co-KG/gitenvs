@@ -6,7 +6,7 @@ export const Main = async () => {
   const isGitenvsExisting = await getIsGitenvsExisting()
 
   if (!isGitenvsExisting) {
-    return redirect('/setup')
+    return redirect('/setup/init')
   }
 
   const gitenvs = await getGitenvs()
