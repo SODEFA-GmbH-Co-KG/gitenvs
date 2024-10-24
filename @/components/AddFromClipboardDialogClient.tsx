@@ -290,6 +290,15 @@ export const AddFromClipboardDialogClient = ({
                     )
                   },
                 )
+
+                const existingKey = gitenvs.envVars.find(
+                  (existingEnvVar) => existingEnvVar.key === envVar.key,
+                )
+
+                const stagesWithKey =
+                  isActive && !!existingKey
+                    ? intersection(keys(existingKey.values), activeState.stages)
+                    : null
                 return (
                   <TableRow
                     key={envVar.id}
@@ -341,19 +350,11 @@ export const AddFromClipboardDialogClient = ({
                         (es) => es.id === envVar.id && es.stage === stage,
                       )
 
-                      const keyExists = gitenvs.envVars.find(
-                        (existingEnvVar) => existingEnvVar.key === envVar.key,
-                      )
-
-                      const stagesWithKey =
-                        isActive && !!keyExists
-                          ? intersection(
-                              keys(keyExists.values),
-                              activeState.stages,
-                            )
-                          : null
                       const hasConflicts =
-                        !!stagesWithKey && !!stagesWithKey.length
+                        !!stagesWithKey?.length &&
+                        stagesWithKey.includes(stage) &&
+                        !!existingKey?.values[stage]?.value &&
+                        existingKey?.values[stage]?.value !== envVarInCell.value
                       return (
                         <TableCell
                           key={`${stage}${envVar.id}`}
