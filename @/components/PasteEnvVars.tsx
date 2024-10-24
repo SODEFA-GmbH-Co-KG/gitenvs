@@ -5,11 +5,7 @@ import { parse } from 'dotenv'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { map } from 'lodash-es'
 import { useCallback, useEffect } from 'react'
-import { type SuperActionWithInput } from '~/super-action/action/createSuperAction'
-import {
-  AddFromClipboardDialogClient,
-  type AddFromClipboardSchema,
-} from './AddFromClipboardDialogClient'
+import { AddFromClipboardDialogClient } from './AddFromClipboardDialogClient'
 
 export const envVarsToAddAtom = atom<EnvVar[] | undefined>(undefined)
 
@@ -60,7 +56,5 @@ export const PasteEnvVars = ({
   }, [handlePaste])
 
   if (!envVarsInAtom) return null
-  return (
-    <AddFromClipboardDialogClient gitenvs={gitenvs} />
-  )
+  return <AddFromClipboardDialogClient gitenvs={gitenvs} />
 }
