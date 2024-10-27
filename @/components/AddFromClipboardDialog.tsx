@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
 import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useAtom } from 'jotai'
 import {
   each,
   every,
@@ -52,8 +52,7 @@ export const AddFromClipboardDialog = ({
   gitenvs: Gitenvs
   fileId: string
 }) => {
-  const setEnvVarsConfig = useSetAtom(envVarsToAddAtom)
-  const envVarsConfig = useAtomValue(envVarsToAddAtom)
+  const [envVarsConfig, setEnvVarsConfig] = useAtom(envVarsToAddAtom)
 
   const allStages = useMemo(
     () => gitenvs.envStages.map((stage) => stage.name),
