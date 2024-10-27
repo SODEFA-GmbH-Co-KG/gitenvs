@@ -282,8 +282,8 @@ export const AddFromClipboardDialog = ({
             style={{ boxShadow: 'inset 0 -2px 0 0 var(--tw-shadow-color)' }}
           >
             <TableRow className="">
-              <TableHead className="w-32 truncate  ">
-                <div className="relative flex items-center ">
+              <TableHead className="w-32 truncate">
+                <div className="relative flex items-center">
                   Key
                   <div className="absolute -right-3">
                     <Button
