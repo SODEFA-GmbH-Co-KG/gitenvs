@@ -5,7 +5,7 @@ import { parse } from 'dotenv'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { map } from 'lodash-es'
 import { useCallback, useEffect } from 'react'
-import { AddFromClipboardDialogClient } from './AddFromClipboardDialogClient'
+import { AddFromClipboardDialog } from './AddFromClipboardDialog'
 
 export const envVarsToAddAtom = atom<EnvVar[] | undefined>(undefined)
 
@@ -56,5 +56,5 @@ export const PasteEnvVars = ({
   }, [handlePaste])
 
   if (!envVarsInAtom) return null
-  return <AddFromClipboardDialogClient gitenvs={gitenvs} fileId={fileId} />
+  return <AddFromClipboardDialog gitenvs={gitenvs} fileId={fileId} />
 }
