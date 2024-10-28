@@ -1,14 +1,14 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { z } from 'zod'
-import { getCwd } from './getCwd'
+import { getProjectRoot } from './getProjectRoot'
 
-const getGitIgnorePath = () => join(getCwd(), '.gitignore')
+const getGitIgnorePath = async () => join(await getProjectRoot(), '.gitignore')
 
 const GITENVS_IGNORE_PATTERN = '*.gitenvs.passphrase'
 
 export const updateGitIgnore = async () => {
-  const currentIgnore = await readFile(getGitIgnorePath(), 'utf-8').catch(
+  const currentIgnore = await readFile(await getGitIgnorePath(), 'utf-8').catch(
     (error: unknown) => {
       const errorObject = z.object({ code: z.string() }).parse(error)
       if (errorObject.code === 'ENOENT') {
@@ -23,14 +23,14 @@ export const updateGitIgnore = async () => {
   }
 
   await writeFile(
-    getGitIgnorePath(),
+    await getGitIgnorePath(),
     `${currentIgnore ? `${currentIgnore}\n\n` : ''}# gitenvs\n${GITENVS_IGNORE_PATTERN}`,
   )
 }
 
 export const getIsGitignoreExisting = async () => {
   try {
-    await readFile(getGitIgnorePath(), 'utf-8')
+    await readFile(await getGitIgnorePath(), 'utf-8')
     return true
   } catch (error) {
     return false
@@ -41,6 +41,6 @@ export const getIsGitenvsInGitIgnore = async () => {
   if (!(await getIsGitignoreExisting())) {
     return false
   }
-  const gitignore = await readFile(getGitIgnorePath(), 'utf-8')
+  const gitignore = await readFile(await getGitIgnorePath(), 'utf-8')
   return gitignore.includes(GITENVS_IGNORE_PATTERN)
 }
