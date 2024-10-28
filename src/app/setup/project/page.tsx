@@ -17,6 +17,8 @@ export default async function Page() {
       getIsGitenvsInstalled(),
     ])
 
+  const allDone = isGitignoreExisting && isGitenvsInstalled
+
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-center text-2xl">Setup your project</h1>
@@ -66,7 +68,7 @@ export default async function Page() {
             'use server'
             redirect('/')
           }}
-          variant={isGitenvsInGitIgnore ? 'default' : 'outline'}
+          variant={allDone ? 'default' : 'outline'}
           className="self-end"
         >
           Next
