@@ -1,14 +1,12 @@
 'use client'
 
 import { createKeys } from '@/gitenvs/createKeys'
-import {
-  EnvFile,
-  EnvFileType,
-  EnvStage,
-  type Passphrase,
-} from '@/gitenvs/gitenvs.schema'
+import { EnvFile, EnvFileType, EnvStage } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvFileId } from '@/gitenvs/idsGenerator'
+import { passphrasesAtom } from '@/passphrasesAtom'
+import { useAtom } from 'jotai'
 import { Loader2, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
@@ -32,12 +30,10 @@ import {
   SelectValue,
 } from './ui/select'
 
-export const CreateGitenvs = ({
-  onPassphrases,
-}: {
-  onPassphrases: (passphrases: Passphrase[]) => void
-}) => {
+export const CreateGitenvs = () => {
   const [isGenerating, setIsGenerating] = useState(false)
+  const [passphrases, setPassphrases] = useAtom(passphrasesAtom)
+  const router = useRouter()
 
   const isLoading = isGenerating
 
@@ -101,7 +97,8 @@ export const CreateGitenvs = ({
               passphrase: stage.passphrase,
             }))
 
-            onPassphrases(passphrases)
+            setPassphrases(passphrases)
+            router.push('/setup/save')
           } finally {
             setIsGenerating(false)
           }

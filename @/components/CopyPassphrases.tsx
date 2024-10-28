@@ -1,9 +1,13 @@
-import { type Passphrase } from '@/gitenvs/gitenvs.schema'
+'use client'
+
+import { passphrasesAtom } from '@/passphrasesAtom'
+import { useAtom } from 'jotai'
 import { Save } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { savePassphraseToFolder } from '~/lib/gitenvs'
+import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
 import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
-import { getEncryptionKeyOnClient } from '~/utils/getEncryptionKeyOnClient'
 import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -15,13 +19,11 @@ import {
   TooltipTrigger,
 } from './ui/tooltip'
 
-export const CopyPassphrases = ({
-  passphrases,
-  onNext,
-}: {
-  passphrases: Passphrase[]
-  onNext: () => void
-}) => {
+export const CopyPassphrases = () => {
+  const [passphrases] = useAtom(passphrasesAtom)
+  const router = useRouter()
+  const getEncryptionKeyOnClient = useEncryptionKeyOnClient()
+
   return (
     <div className="flex max-w-lg flex-col gap-8">
       <h1 className="text-center text-2xl">Your secret Passphrases</h1>
@@ -122,7 +124,7 @@ export const CopyPassphrases = ({
           <Save className="h-4 w-4" />
           &nbsp; Save all to current folder
         </Button>
-        <Button type="button" onClick={async () => onNext()}>
+        <Button type="button" onClick={() => router.push('/setup/deploy')}>
           All done - next, please!
         </Button>
       </div>
