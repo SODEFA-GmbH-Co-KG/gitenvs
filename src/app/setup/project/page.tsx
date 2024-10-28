@@ -1,8 +1,19 @@
-import { updateGitIgnore } from '@/gitenvs/gitignore'
+import {
+  getIsGitenvsInGitIgnore,
+  getIsGitignoreExisting,
+  updateGitIgnore,
+} from '@/gitenvs/gitignore'
+import { cn } from '@/lib/utils'
+import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import { redirect } from 'next/navigation'
 import { ActionButton } from '~/super-action/button/ActionButton'
 
-export default function Page() {
+export default async function Page() {
+  const [isGitignoreExisting, isGitenvsInGitIgnore] = await Promise.all([
+    getIsGitignoreExisting(),
+    getIsGitenvsInGitIgnore(),
+  ])
+
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-center text-2xl">Setup your project</h1>
@@ -12,7 +23,7 @@ export default function Page() {
       </p>
 
       <div className="grid grid-cols-[3fr_1fr] items-center gap-8">
-        <p>
+        <p className={cn(isGitenvsInGitIgnore && 'text-gray-500 line-through')}>
           To protect your passphrases add <code>*.gitenvs.passphrase</code> to
           your <code>.gitignore</code> file.
         </p>
@@ -21,21 +32,26 @@ export default function Page() {
           action={async () => {
             'use server'
             await updateGitIgnore()
+            revalidatePath('/')
           }}
+          disabled={isGitenvsInGitIgnore}
+          className={cn(isGitenvsInGitIgnore && 'line-through')}
         >
-          Edit .gitignore
+          {isGitignoreExisting ? 'Edit .gitignore' : 'Create .gitignore'}
         </ActionButton>
       </div>
 
-      <ActionButton
-        action={async () => {
-          'use server'
-          redirect('/')
-        }}
-        className="self-end"
-      >
-        Done
-      </ActionButton>
+      <div className="flex justify-end">
+        <ActionButton
+          action={async () => {
+            'use server'
+            redirect('/')
+          }}
+          className="self-end"
+        >
+          Next
+        </ActionButton>
+      </div>
     </div>
   )
 }
