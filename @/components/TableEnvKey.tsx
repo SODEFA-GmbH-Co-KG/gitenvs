@@ -20,6 +20,7 @@ export const TableEnvKey = ({
   return (
     <ActionButton
       variant="ghost"
+      autoFocus={envVar.key === ''}
       action={async () => {
         'use server'
 

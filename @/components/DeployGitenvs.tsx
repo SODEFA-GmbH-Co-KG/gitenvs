@@ -1,5 +1,9 @@
+'use client'
+
 import { getPassphraseEnvName, GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
-import { type Passphrase } from '@/gitenvs/gitenvs.schema'
+import { passphrasesAtom } from '@/passphrasesAtom'
+import { useAtom } from 'jotai'
+import { useRouter } from 'next/navigation'
 import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import {
@@ -9,13 +13,10 @@ import {
 } from './ui/collapsible'
 import { Input } from './ui/input'
 
-export const DeployGitenvs = ({
-  passphrases,
-  onNext,
-}: {
-  passphrases: Passphrase[]
-  onNext: () => void
-}) => {
+export const DeployGitenvs = () => {
+  const [passphrases] = useAtom(passphrasesAtom)
+  const router = useRouter()
+
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-center text-2xl">Setup your hosting provider</h1>
@@ -104,7 +105,7 @@ export const DeployGitenvs = ({
         </Collapsible>
       </div>
 
-      <Button onClick={async () => onNext()}>Done</Button>
+      <Button onClick={() => router.push('/')}>Done</Button>
     </div>
   )
 }
