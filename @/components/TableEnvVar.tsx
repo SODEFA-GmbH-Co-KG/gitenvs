@@ -30,7 +30,7 @@ export const TableEnvVar = ({
           gitenvs,
         })
       }}
-      className="flex cursor-pointer items-center justify-start p-1"
+      className="flex w-full cursor-pointer items-center justify-start p-1"
     >
       <TableEnvVarTag envVarValue={envVar.values[envStage.name]} />
     </Button>
