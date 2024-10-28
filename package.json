@@ -18,6 +18,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
+    "@antfu/install-pkg": "^0.4.1",
     "arrowtab": "^0.0.5",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
