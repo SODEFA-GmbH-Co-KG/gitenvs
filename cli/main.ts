@@ -1,17 +1,18 @@
 import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
-import { GITENVS_DIR_ENV_NAME, GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
+import { GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
+import { getCwd } from '@/gitenvs/getCwd'
 import { getPassphrase } from '@/gitenvs/getPassphrase'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import { execSync } from 'child_process'
 import { Command } from 'commander'
 import { randomBytes } from 'crypto'
 import { writeFile } from 'fs/promises'
-import { dirname } from 'path'
+import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
 const getGitenvsUiEnvVars = () => ({
   ...process.env,
-  GITENVS_DIR: process.env[GITENVS_DIR_ENV_NAME] || process.cwd(),
+  GITENVS_DIR: getCwd(),
   GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
   PORT: '1337',
 })
@@ -94,7 +95,9 @@ program
           .map((dotenvVar) => `${dotenvVar.key}=${dotenvVar.value}`)
           .join('\n')
 
-        promises.push(writeFile(envFile.filePath, dotenvContent, 'utf-8'))
+        promises.push(
+          writeFile(join(getCwd(), envFile.filePath), dotenvContent, 'utf-8'),
+        )
       }
 
       await Promise.allSettled(promises)
