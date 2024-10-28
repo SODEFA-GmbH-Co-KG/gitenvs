@@ -5,6 +5,8 @@ import { getCwd } from './getCwd'
 
 const getGitIgnorePath = () => join(getCwd(), '.gitignore')
 
+const GITENVS_IGNORE_PATTERN = '*.gitenvs.passphrase'
+
 export const updateGitIgnore = async () => {
   const currentIgnore = await readFile(getGitIgnorePath(), 'utf-8').catch(
     (error: unknown) => {
@@ -16,13 +18,13 @@ export const updateGitIgnore = async () => {
     },
   )
 
-  if (currentIgnore.includes('*.gitenvs.passphrase')) {
+  if (currentIgnore.includes(GITENVS_IGNORE_PATTERN)) {
     return
   }
 
   await writeFile(
     getGitIgnorePath(),
-    `${currentIgnore ? `${currentIgnore}\n\n` : ''}# gitenvs\n*.gitenvs.passphrase`,
+    `${currentIgnore ? `${currentIgnore}\n\n` : ''}# gitenvs\n${GITENVS_IGNORE_PATTERN}`,
   )
 }
 
@@ -33,4 +35,12 @@ export const getIsGitignoreExisting = async () => {
   } catch (error) {
     return false
   }
+}
+
+export const getIsGitenvsInGitIgnore = async () => {
+  if (!(await getIsGitignoreExisting())) {
+    return false
+  }
+  const gitignore = await readFile(getGitIgnorePath(), 'utf-8')
+  return gitignore.includes(GITENVS_IGNORE_PATTERN)
 }
