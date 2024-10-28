@@ -1,20 +1,21 @@
-import { getCwd } from '@/gitenvs/getCwd'
 import {
   getIsGitenvsInGitIgnore,
   getIsGitignoreExisting,
   updateGitIgnore,
 } from '@/gitenvs/gitignore'
+import { getIsGitenvsInstalled, installGitenvs } from '@/gitenvs/installGitenvs'
 import { cn } from '@/lib/utils'
-import { installPackage } from '@antfu/install-pkg'
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import { redirect } from 'next/navigation'
 import { ActionButton } from '~/super-action/button/ActionButton'
 
 export default async function Page() {
-  const [isGitignoreExisting, isGitenvsInGitIgnore] = await Promise.all([
-    getIsGitignoreExisting(),
-    getIsGitenvsInGitIgnore(),
-  ])
+  const [isGitignoreExisting, isGitenvsInGitIgnore, isGitenvsInstalled] =
+    await Promise.all([
+      getIsGitignoreExisting(),
+      getIsGitenvsInGitIgnore(),
+      getIsGitenvsInstalled(),
+    ])
 
   return (
     <div className="flex flex-col gap-8">
@@ -42,21 +43,18 @@ export default async function Page() {
           {isGitignoreExisting ? 'Edit .gitignore' : 'Create .gitignore'}
         </ActionButton>
 
-        <p className={cn(isGitenvsInGitIgnore && 'text-gray-500 line-through')}>
+        <p className={cn(isGitenvsInstalled && 'text-gray-500 line-through')}>
           Install gitenvs as a dev dependency.
         </p>
         <ActionButton
           hideIcon={false}
           action={async () => {
             'use server'
-            await installPackage('gitenvs', {
-              dev: true,
-              cwd: getCwd(),
-            })
+            await installGitenvs()
             revalidatePath('/')
           }}
-          // disabled={isGitenvsInGitIgnore} TODO: check if installed
-          className={cn(isGitenvsInGitIgnore && 'line-through')}
+          disabled={isGitenvsInstalled}
+          className={cn(isGitenvsInstalled && 'line-through')}
         >
           Install Gitenvs
         </ActionButton>
