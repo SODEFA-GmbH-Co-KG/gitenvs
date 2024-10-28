@@ -47,6 +47,7 @@ export default async function Page() {
             'use server'
             redirect('/')
           }}
+          variant={isGitenvsInGitIgnore ? 'default' : 'outline'}
           className="self-end"
         >
           Next
