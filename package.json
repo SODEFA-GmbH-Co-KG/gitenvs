@@ -14,7 +14,6 @@
     "lint": "next lint",
     "start": "next start",
     "dev-cli": "mkdir -p playground && GITENVS_DIR=playground npx tsx ./cli/main.ts",
-    "dev-cli2": "npx tsx ./cli/main.ts",
     "dev-next": "next dev",
     "prepublishOnly": "pnpm build"
   },
