@@ -9,7 +9,7 @@ import { ActionButton } from '~/super-action/button/ActionButton'
 import { TableEnvKey } from './TableEnvKey'
 import { TableEnvVar } from './TableEnvVar'
 
-export const Table = ({
+export const EnvVarsTable = ({
   fileId,
   gitenvs,
 }: {
@@ -20,13 +20,13 @@ export const Table = ({
 
   return (
     <Fragment>
-      <div className="flex flex-col gap-2 rounded-md border p-4">
+      <div className="flex max-w-full flex-col gap-2 overflow-hidden rounded-md border p-4">
         {!!gitenvs?.envVars.length ? (
           <div
-            className="grid gap-2"
+            className="grid w-full gap-2"
             id="supergrid"
             style={{
-              gridTemplateColumns: `repeat(${columns}, 1fr)`,
+              gridTemplateColumns: `minmax(200px, 1fr) repeat(${columns - 1}, minmax(300px, 1fr))`,
             }}
           >
             <div></div>
@@ -40,33 +40,42 @@ export const Table = ({
               <Input
                 key={stage.name}
                 className="flex flex-col gap-2"
-                autoComplete="new-password"
+                autoComplete="off"
                 type="password"
               ></Input>
             ))}
-            <div className="p-1">Key</div>
+            <div className="col-span-4 my-4">
+              <hr />
+            </div>
+            {/* <div className="p-1">Key</div>
             {gitenvs?.envStages.map((stage) => (
               <div key={stage.name} className="flex flex-col gap-2">
                 {stage.name}
               </div>
-            ))}
+            ))} */}
             {gitenvs?.envVars.map((envVar, index) => {
               if (envVar.fileId !== fileId) return null
 
               return (
                 <Fragment key={index}>
                   <TableEnvKey gitenvs={gitenvs} envVar={envVar}>
-                    <div>{envVar.key}</div>
+                    <div className="truncate" title={envVar.key}>
+                      {envVar.key}
+                    </div>
                   </TableEnvKey>
 
                   {gitenvs?.envStages.map((stage) => {
                     return (
-                      <TableEnvVar
+                      <div
                         key={`${envVar.key}-${stage.name}`}
-                        gitenvs={gitenvs}
-                        envVar={envVar}
-                        envStage={stage}
-                      />
+                        className="min-w-0"
+                      >
+                        <TableEnvVar
+                          gitenvs={gitenvs}
+                          envVar={envVar}
+                          envStage={stage}
+                        />
+                      </div>
                     )
                   })}
                 </Fragment>
