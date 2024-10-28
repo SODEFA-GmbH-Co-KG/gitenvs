@@ -5,7 +5,7 @@ import {
   uint8ArrayToString,
 } from 'uint8array-extras'
 
-export const decryptWithEncryptionToken = async ({
+export const decryptWithEncryptionKey = async ({
   encryptedValue,
   iv,
   key,
@@ -25,7 +25,11 @@ export const decryptWithEncryptionToken = async ({
   return uint8ArrayToString(new Uint8Array(decrypted))
 }
 
-export const encryptWithEncryptionToken = async ({
+export type EncryptedValue = Awaited<
+  ReturnType<typeof encryptWithEncryptionKey>
+>
+
+export const encryptWithEncryptionKey = async ({
   plaintext,
   key,
 }: {

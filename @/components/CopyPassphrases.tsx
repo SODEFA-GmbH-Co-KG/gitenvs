@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { savePassphraseToFolder } from '~/lib/gitenvs'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
-import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
+import { encryptWithEncryptionKey } from '~/utils/encryptionToken'
 import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -63,7 +63,7 @@ export const CopyPassphrases = () => {
                       onClick={async () => {
                         const save = async () => {
                           const encryptedPassphrase =
-                            await encryptWithEncryptionToken({
+                            await encryptWithEncryptionKey({
                               plaintext: passphrase.passphrase,
                               key: await getEncryptionKeyOnClient(),
                             })
@@ -102,7 +102,7 @@ export const CopyPassphrases = () => {
           onClick={async () => {
             const promise = Promise.all(
               passphrases.map(async (passphrase) => {
-                const encryptedPassphrase = await encryptWithEncryptionToken({
+                const encryptedPassphrase = await encryptWithEncryptionKey({
                   plaintext: passphrase.passphrase,
                   key: await getEncryptionKeyOnClient(),
                 })

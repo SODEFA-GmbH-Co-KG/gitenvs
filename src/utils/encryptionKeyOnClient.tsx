@@ -24,7 +24,7 @@ export const EncryptionTokenSideEffect = () => {
     onHashChange()
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
-  }, [])
+  }, [setEncryptionToken])
 
   return null
 }

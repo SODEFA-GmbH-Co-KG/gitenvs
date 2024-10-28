@@ -1,6 +1,6 @@
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
-import { decryptWithEncryptionToken } from '~/utils/encryptionToken'
+import { decryptWithEncryptionKey } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 import { getCwd } from './getCwd'
 
@@ -14,7 +14,7 @@ export const savePassphraseToFolder = async ({
   }
   stageName: string
 }) => {
-  const passphrase = await decryptWithEncryptionToken({
+  const passphrase = await decryptWithEncryptionKey({
     ...encryptedPassphrase,
     key: await getEncryptionKeyOnServer(),
   })
