@@ -4,6 +4,10 @@ import {
   updateGitIgnore,
 } from '@/gitenvs/gitignore'
 import { getIsGitenvsInstalled, installGitenvs } from '@/gitenvs/installGitenvs'
+import {
+  getIsPostInstallScriptExisting,
+  updatePostInstall,
+} from '@/gitenvs/postinstall'
 import { cn } from '@/lib/utils'
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import { redirect } from 'next/navigation'
@@ -12,14 +16,20 @@ import { streamRevalidatePath } from '~/super-action/action/streamRevalidatePath
 import { ActionButton } from '~/super-action/button/ActionButton'
 
 export default async function Page() {
-  const [isGitignoreExisting, isGitenvsInGitIgnore, isGitenvsInstalled] =
-    await Promise.all([
-      getIsGitignoreExisting(),
-      getIsGitenvsInGitIgnore(),
-      getIsGitenvsInstalled(),
-    ])
+  const [
+    isGitignoreExisting,
+    isGitenvsInGitIgnore,
+    isGitenvsInstalled,
+    isPostInstallScriptExisting,
+  ] = await Promise.all([
+    getIsGitignoreExisting(),
+    getIsGitenvsInGitIgnore(),
+    getIsGitenvsInstalled(),
+    getIsPostInstallScriptExisting(),
+  ])
 
-  const allDone = isGitignoreExisting && isGitenvsInstalled
+  const allDone =
+    isGitignoreExisting && isGitenvsInstalled && isPostInstallScriptExisting
 
   return (
     <div className="flex flex-col gap-8">
@@ -40,7 +50,7 @@ export default async function Page() {
             'use server'
             return superAction(async () => {
               await updateGitIgnore()
-              revalidatePath('/')
+              revalidatePath('/setup/project')
             })
           }}
           disabled={isGitenvsInGitIgnore}
@@ -59,7 +69,7 @@ export default async function Page() {
             'use server'
             return superAction(async () => {
               await installGitenvs()
-              revalidatePath('/')
+              revalidatePath('/setup/project')
             })
           }}
           disabled={isGitenvsInstalled}
@@ -67,6 +77,30 @@ export default async function Page() {
           className={cn(isGitenvsInstalled && 'line-through')}
         >
           Install Gitenvs
+        </ActionButton>
+
+        <p
+          className={cn(
+            isPostInstallScriptExisting && 'text-gray-500 line-through',
+          )}
+        >
+          Add a postinstall script to your <code>package.json</code> file to
+          create your env files.
+        </p>
+        <ActionButton
+          hideIcon={false}
+          action={async () => {
+            'use server'
+            return superAction(async () => {
+              await updatePostInstall()
+              revalidatePath('/setup/project')
+            })
+          }}
+          disabled={isPostInstallScriptExisting}
+          variant="outline"
+          className={cn(isPostInstallScriptExisting && 'line-through')}
+        >
+          Add postinstall
         </ActionButton>
 
         <p className={cn(allDone && 'text-gray-500 line-through')}>
@@ -77,17 +111,12 @@ export default async function Page() {
           action={async () => {
             'use server'
             return superAction(async () => {
-              const results = await Promise.allSettled([
-                updateGitIgnore(),
-                installGitenvs(),
-              ])
-              const errored = results.filter((r) => r.status === 'rejected')
-              if (errored.length > 0) {
-                throw new Error(
-                  `Failed to run all steps: ${errored.map((r) => r.reason).join('\n')}`,
-                )
-              }
-              streamRevalidatePath('/')
+              await updateGitIgnore()
+              streamRevalidatePath('/setup/project')
+              await installGitenvs() // installGitenvs & updatePostInstall both change package.json. So one needs to be run first. FIXME: We run install first because adding the postinstall script breaks the GITENVS_DIR stuff.
+              streamRevalidatePath('/setup/project')
+              await updatePostInstall()
+              streamRevalidatePath('/setup/project')
             })
           }}
           disabled={allDone}
