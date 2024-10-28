@@ -10,8 +10,6 @@ export const getGitenvs = async () => {
 }
 
 export const saveGitenvs = async (gitenvs: Gitenvs) => {
-  await writeFile(
-    join(getCwd(), 'gitenvs.json'),
-    JSON.stringify(gitenvs, null, 2),
-  )
+  const path = join(getCwd(), 'gitenvs.json')
+  await writeFile(path, JSON.stringify(gitenvs, null, 2))
 }

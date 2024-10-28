@@ -13,7 +13,7 @@
     "dev": "pnpm dev-cli dev-ui",
     "lint": "next lint",
     "start": "next start",
-    "dev-cli": "mkdir -p playground && GITENVS_DIR=./playground npx tsx ./cli/main.ts",
+    "dev-cli": "tsx ./cli/main.ts init-playground && GITENVS_DIR=playground tsx ./cli/main.ts",
     "dev-next": "next dev",
     "prepublishOnly": "pnpm build"
   },
@@ -75,6 +75,7 @@
     "tailwind-merge": "^1.14.0",
     "tailwindcss": "^3.3.3",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.2",
     "typescript": "^5.1.6"
   },
   "ct3aMetadata": {

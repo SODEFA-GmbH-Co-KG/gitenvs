@@ -105,7 +105,7 @@ export const DeployGitenvs = () => {
         </Collapsible>
       </div>
 
-      <Button onClick={() => router.push('/')}>Done</Button>
+      <Button onClick={() => router.push('/setup/project')}>Done</Button>
     </div>
   )
 }

@@ -1,12 +1,14 @@
 import { createReadStream } from 'fs'
+import { join } from 'path'
 import { createInterface } from 'readline'
 import { z } from 'zod'
-import { getPassphraseEnvName, GITENVS_DIR_ENV_NAME } from './env'
+import { getPassphraseEnvName } from './env'
+import { getCwd } from './getCwd'
 
 export const getPassphrase = async ({
   stage,
   passphrase,
-  passphrasePath = `${process.env[GITENVS_DIR_ENV_NAME] || process.cwd()}/${stage}.gitenvs.passphrase`,
+  passphrasePath = join(getCwd(), `${stage}.gitenvs.passphrase`),
 }: {
   stage: string
   passphrase?: string
