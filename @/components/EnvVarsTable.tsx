@@ -26,7 +26,7 @@ export const EnvVarsTable = ({
             className="grid w-full gap-2"
             id="supergrid"
             style={{
-              gridTemplateColumns: `repeat(${columns}, 1fr)`,
+              gridTemplateColumns: `minmax(200px, 1fr) repeat(${columns - 1}, minmax(300px, 1fr))`,
             }}
           >
             <div></div>
@@ -59,7 +59,7 @@ export const EnvVarsTable = ({
               return (
                 <Fragment key={index}>
                   <TableEnvKey gitenvs={gitenvs} envVar={envVar}>
-                    <div>{envVar.key}</div>
+                    <div className="truncate">{envVar.key}</div>
                   </TableEnvKey>
 
                   {gitenvs?.envStages.map((stage) => {
