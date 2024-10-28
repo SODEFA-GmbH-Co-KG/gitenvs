@@ -3,16 +3,33 @@ import {
   getIsGitignoreExisting,
   updateGitIgnore,
 } from '@/gitenvs/gitignore'
+import { getIsGitenvsInstalled, installGitenvs } from '@/gitenvs/installGitenvs'
+import {
+  getIsPostInstallScriptExisting,
+  updatePostInstall,
+} from '@/gitenvs/postinstall'
 import { cn } from '@/lib/utils'
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import { redirect } from 'next/navigation'
+import { superAction } from '~/super-action/action/createSuperAction'
+import { streamRevalidatePath } from '~/super-action/action/streamRevalidatePath'
 import { ActionButton } from '~/super-action/button/ActionButton'
 
 export default async function Page() {
-  const [isGitignoreExisting, isGitenvsInGitIgnore] = await Promise.all([
+  const [
+    isGitignoreExisting,
+    isGitenvsInGitIgnore,
+    isGitenvsInstalled,
+    isPostInstallScriptExisting,
+  ] = await Promise.all([
     getIsGitignoreExisting(),
     getIsGitenvsInGitIgnore(),
+    getIsGitenvsInstalled(),
+    getIsPostInstallScriptExisting(),
   ])
+
+  const allDone =
+    isGitignoreExisting && isGitenvsInstalled && isPostInstallScriptExisting
 
   return (
     <div className="flex flex-col gap-8">
@@ -31,13 +48,82 @@ export default async function Page() {
           hideIcon={false}
           action={async () => {
             'use server'
-            await updateGitIgnore()
-            revalidatePath('/')
+            return superAction(async () => {
+              await updateGitIgnore()
+              revalidatePath('/setup/project')
+            })
           }}
           disabled={isGitenvsInGitIgnore}
+          variant="outline"
           className={cn(isGitenvsInGitIgnore && 'line-through')}
         >
           {isGitignoreExisting ? 'Edit .gitignore' : 'Create .gitignore'}
+        </ActionButton>
+
+        <p className={cn(isGitenvsInstalled && 'text-gray-500 line-through')}>
+          Install gitenvs as a dev dependency.
+        </p>
+        <ActionButton
+          hideIcon={false}
+          action={async () => {
+            'use server'
+            return superAction(async () => {
+              await installGitenvs()
+              revalidatePath('/setup/project')
+            })
+          }}
+          disabled={isGitenvsInstalled}
+          variant="outline"
+          className={cn(isGitenvsInstalled && 'line-through')}
+        >
+          Install Gitenvs
+        </ActionButton>
+
+        <p
+          className={cn(
+            isPostInstallScriptExisting && 'text-gray-500 line-through',
+          )}
+        >
+          Add a postinstall script to your <code>package.json</code> file to
+          create your env files.
+        </p>
+        <ActionButton
+          hideIcon={false}
+          action={async () => {
+            'use server'
+            return superAction(async () => {
+              await updatePostInstall()
+              revalidatePath('/setup/project')
+            })
+          }}
+          disabled={isPostInstallScriptExisting}
+          variant="outline"
+          className={cn(isPostInstallScriptExisting && 'line-through')}
+        >
+          Add postinstall
+        </ActionButton>
+
+        <p className={cn(allDone && 'text-gray-500 line-through')}>
+          Push all the buttons
+        </p>
+        <ActionButton
+          hideIcon={false}
+          action={async () => {
+            'use server'
+            return superAction(async () => {
+              await updateGitIgnore()
+              streamRevalidatePath('/setup/project')
+              await installGitenvs() // installGitenvs & updatePostInstall both change package.json. So one needs to be run first. FIXME: We run install first because adding the postinstall script breaks the GITENVS_DIR stuff.
+              streamRevalidatePath('/setup/project')
+              await updatePostInstall()
+              streamRevalidatePath('/setup/project')
+            })
+          }}
+          disabled={allDone}
+          variant={allDone ? 'outline' : 'default'}
+          className={cn(allDone && 'line-through')}
+        >
+          Run everything
         </ActionButton>
       </div>
 
@@ -47,7 +133,7 @@ export default async function Page() {
             'use server'
             redirect('/')
           }}
-          variant={isGitenvsInGitIgnore ? 'default' : 'outline'}
+          variant={allDone ? 'default' : 'outline'}
           className="self-end"
         >
           Next
