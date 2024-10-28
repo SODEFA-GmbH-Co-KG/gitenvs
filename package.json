@@ -6,6 +6,9 @@
     "gitenvs": "dist/main.mjs"
   },
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "pnpm build-cli && pnpm build-ui",
     "build-cli": "pkgroll --src cli --clean-dist --tsconfig=tsconfig.cli.json",
