@@ -1,9 +1,11 @@
+import { getCwd } from '@/gitenvs/getCwd'
 import {
   getIsGitenvsInGitIgnore,
   getIsGitignoreExisting,
   updateGitIgnore,
 } from '@/gitenvs/gitignore'
 import { cn } from '@/lib/utils'
+import { installPackage } from '@antfu/install-pkg'
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import { redirect } from 'next/navigation'
 import { ActionButton } from '~/super-action/button/ActionButton'
@@ -38,6 +40,25 @@ export default async function Page() {
           className={cn(isGitenvsInGitIgnore && 'line-through')}
         >
           {isGitignoreExisting ? 'Edit .gitignore' : 'Create .gitignore'}
+        </ActionButton>
+
+        <p className={cn(isGitenvsInGitIgnore && 'text-gray-500 line-through')}>
+          Install gitenvs as a dev dependency.
+        </p>
+        <ActionButton
+          hideIcon={false}
+          action={async () => {
+            'use server'
+            await installPackage('gitenvs', {
+              dev: true,
+              cwd: getCwd(),
+            })
+            revalidatePath('/')
+          }}
+          // disabled={isGitenvsInGitIgnore} TODO: check if installed
+          className={cn(isGitenvsInGitIgnore && 'line-through')}
+        >
+          Install Gitenvs
         </ActionButton>
       </div>
 
