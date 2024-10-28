@@ -6,7 +6,7 @@ import { getGitenvs } from '@/gitenvs/gitenvs'
 import { execSync } from 'child_process'
 import { Command } from 'commander'
 import { randomBytes } from 'crypto'
-import { writeFile } from 'fs/promises'
+import { mkdir, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -114,6 +114,27 @@ program
       stdio: 'inherit',
       env: getGitenvsUiEnvVars(),
     })
+  })
+
+// TODO: Should only be visible in dev mode
+program
+  .command('init-playground')
+  .description('Initializes the playground')
+  .action(async () => {
+    await mkdir('playground', { recursive: true })
+    await writeFile(
+      'playground/package.json',
+      JSON.stringify(
+        {
+          name: 'playground',
+          version: '1.0.0',
+          private: true,
+        },
+        null,
+        2,
+      ),
+      'utf-8',
+    )
   })
 
 program
