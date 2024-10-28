@@ -22,7 +22,7 @@ export const updateGitIgnore = async () => {
 
   await writeFile(
     getGitIgnorePath(),
-    `${currentIgnore ? `${currentIgnore}\n\n` : ''}#gitenvs\n*.gitenvs.passphrase`,
+    `${currentIgnore ? `${currentIgnore}\n\n` : ''}# gitenvs\n*.gitenvs.passphrase`,
   )
 }
 

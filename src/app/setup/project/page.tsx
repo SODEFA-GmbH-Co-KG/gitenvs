@@ -1,3 +1,4 @@
+import { updateGitIgnore } from '@/gitenvs/gitignore'
 import { redirect } from 'next/navigation'
 import { ActionButton } from '~/super-action/button/ActionButton'
 
@@ -19,7 +20,7 @@ export default function Page() {
           hideIcon={false}
           action={async () => {
             'use server'
-            console.log('clicked')
+            await updateGitIgnore()
           }}
         >
           Edit .gitignore
