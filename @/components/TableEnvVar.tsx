@@ -54,5 +54,9 @@ const Content = ({ envVarValue }: { envVarValue?: EnvVarValue }) => {
     )
   }
 
-  return <div className="truncate">{envVarValue.value}</div>
+  return (
+    <div className="truncate" title={envVarValue.value}>
+      {envVarValue.value}
+    </div>
+  )
 }

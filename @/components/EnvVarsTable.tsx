@@ -59,7 +59,9 @@ export const EnvVarsTable = ({
               return (
                 <Fragment key={index}>
                   <TableEnvKey gitenvs={gitenvs} envVar={envVar}>
-                    <div className="truncate">{envVar.key}</div>
+                    <div className="truncate" title={envVar.key}>
+                      {envVar.key}
+                    </div>
                   </TableEnvKey>
 
                   {gitenvs?.envStages.map((stage) => {
