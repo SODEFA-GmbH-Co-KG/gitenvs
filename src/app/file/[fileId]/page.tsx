@@ -1,12 +1,10 @@
 import { EnvFileSwitcher } from '@/components/EnvFileSwitcher'
 import { EnvVarsTable } from '@/components/EnvVarsTable'
 import { PasteEnvVars } from '@/components/PasteEnvVars'
-import { getCwd } from '@/gitenvs/getCwd'
+import { getPassphrase } from '@/gitenvs/getPassphrase'
 import { getGitenvs } from '@/gitenvs/gitenvs'
-import { readFile } from 'fs/promises'
 import dynamic from 'next/dynamic'
 import { redirect } from 'next/navigation'
-import { join } from 'path'
 import { encryptWithEncryptionKey } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 
@@ -29,11 +27,7 @@ export default async function Page({ params }: { params: { fileId: string } }) {
 
   const passphraseContents = await Promise.all(
     gitenvs?.envStages.map(async (stage) => {
-      const passphrase = await readFile(
-        join(getCwd(), `${stage.name}.gitenvs.passphrase`),
-        'utf-8',
-      ).catch(() => null)
-
+      const passphrase = await getPassphrase({ stage: stage.name })
       return {
         stageName: stage.name,
         encryptedPassphrase: passphrase
