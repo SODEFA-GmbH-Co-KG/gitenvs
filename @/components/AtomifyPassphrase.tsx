@@ -39,8 +39,6 @@ export const AtomifyPassphrase = ({
         throw new Error('No encryption key found')
       }
 
-      console.log('redoooo')
-
       const passphraseResults = await Promise.all(
         map(passphraseContents, async (pc) => {
           const decrypted = pc.fileContent
