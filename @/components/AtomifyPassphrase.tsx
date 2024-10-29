@@ -24,16 +24,22 @@ export const AtomifyPassphrase = ({
 }: {
   passphraseContents: { stageName: string; fileContent?: EncryptedValue }[]
 }) => {
-  const [_, setStageEncryptionState] = useAtom(stageEncryptionStateAtom)
+  const [stageEncryptionState, setStageEncryptionState] = useAtom(
+    stageEncryptionStateAtom,
+  )
 
   const getEncryptionKey = useEncryptionKeyOnClient()
 
   useEffect(() => {
+    if (stageEncryptionState) return
+
     const decrypt = async () => {
       const encryptionKey = await getEncryptionKey()
       if (!encryptionKey) {
         throw new Error('No encryption key found')
       }
+
+      console.log('redoooo')
 
       const passphraseResults = await Promise.all(
         map(passphraseContents, async (pc) => {
