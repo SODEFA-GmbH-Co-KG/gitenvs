@@ -11,7 +11,7 @@ import Link from 'next/link'
 export default function Page({
   searchParams,
 }: {
-  searchParams: { teamId?: string }
+  searchParams: { teamId?: string; projectId?: string }
 }) {
   return (
     <div className="flex flex-col gap-8">
@@ -32,7 +32,10 @@ export default function Page({
             </CollapsibleTrigger>
           </div>
           <CollapsibleContent className="mt-4">
-            <DeployVercel teamId={searchParams.teamId} />
+            <DeployVercel
+              teamId={searchParams.teamId}
+              projectId={searchParams.projectId}
+            />
           </CollapsibleContent>
         </Collapsible>
       </div>

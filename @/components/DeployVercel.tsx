@@ -3,7 +3,7 @@ import {
   GlobalConfig,
   setGlobalConfig,
 } from '@/gitenvs/globalConfig'
-import { MoreVertical } from 'lucide-react'
+import { MoreVertical, Rocket } from 'lucide-react'
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import Link from 'next/link'
 import { z } from 'zod'
@@ -24,7 +24,13 @@ import {
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 
-export const DeployVercel = async ({ teamId }: { teamId?: string }) => {
+export const DeployVercel = async ({
+  teamId,
+  projectId,
+}: {
+  teamId?: string
+  projectId?: string
+}) => {
   const config = await getGlobalConfig()
 
   if (!config.vercelToken) {
@@ -33,7 +39,7 @@ export const DeployVercel = async ({ teamId }: { teamId?: string }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Deployer config={config} teamId={teamId} />
+      <Deployer config={config} teamId={teamId} projectId={projectId} />
     </div>
   )
 }
@@ -41,9 +47,11 @@ export const DeployVercel = async ({ teamId }: { teamId?: string }) => {
 const Deployer = async ({
   config,
   teamId,
+  projectId,
 }: {
   config: GlobalConfig
   teamId?: string
+  projectId?: string
 }) => {
   const teams = await fetch('https://api.vercel.com/v2/teams?limit=1000', {
     headers: {
@@ -93,6 +101,9 @@ const Deployer = async ({
             .parse(data),
         )
         .then((data) => data.projects)
+
+  const team = teams.find((team) => team.id === teamId)
+  const project = projects.find((project) => project.id === projectId)
 
   return (
     <>
@@ -145,6 +156,33 @@ const Deployer = async ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      {!!teamId && !!projectId && (
+        <ActionButton
+          askForConfirmation={{
+            title: 'Deploy to Vercel',
+            content: (
+              <p>
+                Are you sure you want to deploy to{' '}
+                <span className="font-bold">
+                  {team?.name}/{project?.name}
+                </span>
+                ?
+              </p>
+            ),
+          }}
+          action={async () => {
+            'use server'
+            return superAction(async () => {
+              streamDialog(null)
+            })
+          }}
+        >
+          <div className="flex flex-row items-center gap-2">
+            <Rocket className="size-4" />
+            Deploy
+          </div>
+        </ActionButton>
+      )}
     </>
   )
 }
