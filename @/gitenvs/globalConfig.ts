@@ -25,8 +25,10 @@ export const getGlobalConfig = async () => {
   return GlobalConfig.parse(config)
 }
 
-export const setGlobalConfig = async (config: GlobalConfig) => {
+export const setGlobalConfig = async (config: Partial<GlobalConfig>) => {
   await mkdir(dataDir, { recursive: true })
-  const configString = JSON.stringify(config, null, 2)
+  const currentConfig = await getGlobalConfig()
+  const newConfig = { ...currentConfig, ...config }
+  const configString = JSON.stringify(newConfig, null, 2)
   await writeFile(configPath, configString, 'utf-8')
 }
