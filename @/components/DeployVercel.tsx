@@ -5,7 +5,7 @@ import {
   setGlobalConfig,
 } from '@/gitenvs/globalConfig'
 import { readFile } from 'fs/promises'
-import { MoreVertical, Rocket } from 'lucide-react'
+import { MoreVertical } from 'lucide-react'
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -17,6 +17,7 @@ import {
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { ActionForm } from '~/super-action/form/ActionForm'
+import { DeployToServiceButton } from './DeployToServiceButton'
 import { SimpleParamSelect } from './simple/SimpleParamSelect'
 import { Button } from './ui/button'
 import {
@@ -187,7 +188,7 @@ const Deployer = async ({
         </DropdownMenu>
       </div>
       {!!teamId && !!projectId && (
-        <ActionButton
+        <DeployToServiceButton
           askForConfirmation={{
             title: 'Deploy to Vercel',
             content: (
@@ -200,18 +201,14 @@ const Deployer = async ({
               </p>
             ),
           }}
-          action={async () => {
+          action={async (data) => {
             'use server'
             return superAction(async () => {
+              console.log(data)
               streamDialog(null)
             })
           }}
-        >
-          <div className="flex flex-row items-center gap-2">
-            <Rocket className="size-4" />
-            Deploy
-          </div>
-        </ActionButton>
+        />
       )}
     </>
   )
