@@ -2,12 +2,12 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
-import { saveGitenvs } from '~/lib/gitenvs'
 import {
   type EnvStage,
   type EnvVar,
@@ -15,6 +15,7 @@ import {
 } from '@/gitenvs/gitenvs.schema'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useState } from 'react'
+import { saveGitenvs } from '~/lib/gitenvs'
 import { KeyShortcut } from './KeyShortcut'
 
 export const EditEnvVarDialog = NiceModal.create(
@@ -89,9 +90,7 @@ export const EditEnvVarDialog = NiceModal.create(
         <DialogContent className="sm:max-w-[300px]">
           <DialogHeader>
             <DialogTitle>Edit Env Var</DialogTitle>
-            {/* <DialogDescription>
-            Make changes to your profile here.
-          </DialogDescription> */}
+            <DialogDescription />
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <Input

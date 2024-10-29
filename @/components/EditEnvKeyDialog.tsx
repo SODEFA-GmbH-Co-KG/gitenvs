@@ -1,5 +1,10 @@
 import { Button } from '@/components/ui/button'
-import { DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { map } from 'lodash-es'
@@ -49,6 +54,7 @@ export const EditEnvKeyDialog = ({
     >
       <DialogHeader>
         <DialogTitle>Edit Env Key</DialogTitle>
+        <DialogDescription />
       </DialogHeader>
       <div className="grid gap-4 py-4">
         <Input
