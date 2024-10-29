@@ -1,11 +1,11 @@
 import { DeployCustom } from '@/components/DeployCustom'
-import { DeployVercel } from '@/components/DeployVercel'
 import { Button } from '@/components/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
+import { DeployVercel } from '@/components/vercel/DeployVercel'
 import Link from 'next/link'
 
 export default function Page({

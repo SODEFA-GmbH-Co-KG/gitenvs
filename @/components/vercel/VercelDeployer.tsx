@@ -1,92 +1,29 @@
 import { getPassphraseEnvName } from '@/gitenvs/env'
-import { getProjectRoot } from '@/gitenvs/getProjectRoot'
-import {
-  getGlobalConfig,
-  GlobalConfig,
-  setGlobalConfig,
-} from '@/gitenvs/globalConfig'
-import { readFile } from 'fs/promises'
+import { GlobalConfig } from '@/gitenvs/globalConfig'
 import { MoreVertical } from 'lucide-react'
-import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { join } from 'path'
-import { z } from 'zod'
 import {
   streamDialog,
   superAction,
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
-import { ActionForm } from '~/super-action/form/ActionForm'
 import { decryptWithEncryptionToken } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
-import { DeployToServiceButton } from './DeployToServiceButton'
-import { SimpleParamSelect } from './simple/SimpleParamSelect'
-import { SimpleParamSwitch } from './simple/SimpleParamSwitch'
-import { Button } from './ui/button'
+import { DeployToServiceButton } from '../DeployToServiceButton'
+import { SimpleParamSelect } from '../simple/SimpleParamSelect'
+import { SimpleParamSwitch } from '../simple/SimpleParamSwitch'
+import { Button } from '../ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
+} from '../ui/dropdown-menu'
+import { Label } from '../ui/label'
+import { TokenInput } from './VercelTokenInput'
+import { getVercelProjects } from './getVercelProjects'
+import { getVercelTeams } from './getVercelTeams'
 
-const getVercelProject = async () => {
-  try {
-    const root = await getProjectRoot()
-    const vercelProjectJson = join(root, '.vercel', 'project.json')
-    const vercelProject = JSON.parse(await readFile(vercelProjectJson, 'utf-8'))
-    const parsed = z
-      .object({
-        projectId: z.string(),
-        orgId: z.string(),
-      })
-      .parse(vercelProject)
-    return parsed
-  } catch (error) {
-    return null
-  }
-}
-
-export const DeployVercel = async ({
-  teamId,
-  projectId,
-  upsert,
-}: {
-  teamId?: string
-  projectId?: string
-  upsert?: boolean
-}) => {
-  const config = await getGlobalConfig()
-
-  if (!config.vercelToken) {
-    return <TokenInput />
-  }
-
-  if (!teamId && !projectId) {
-    const vercelProject = await getVercelProject()
-    if (vercelProject) {
-      redirect(
-        `/setup/deploy?teamId=${vercelProject.orgId}&projectId=${vercelProject.projectId}`,
-      )
-    }
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      <Deployer
-        config={config}
-        teamId={teamId}
-        projectId={projectId}
-        upsert={upsert}
-      />
-    </div>
-  )
-}
-
-const Deployer = async ({
+export const VercelDeployer = async ({
   config,
   teamId,
   projectId,
@@ -97,54 +34,10 @@ const Deployer = async ({
   projectId?: string
   upsert?: boolean
 }) => {
-  const teams = await fetch('https://api.vercel.com/v2/teams?limit=1000', {
-    headers: {
-      Authorization: `Bearer ${config.vercelToken}`,
-    },
-    method: 'get',
-  })
-    .then((res) => res.json())
-    .then((data) =>
-      z
-        .object({
-          teams: z.array(
-            z.object({
-              id: z.string(),
-              name: z.string(),
-            }),
-          ),
-        })
-
-        .parse(data),
-    )
-    .then((data) => data.teams)
-
-  const projects = !teamId
-    ? []
-    : await fetch(
-        `https://api.vercel.com/v9/projects?teamId=${teamId}&limit=1000`,
-        {
-          headers: {
-            Authorization: `Bearer ${config.vercelToken}`,
-          },
-          method: 'get',
-        },
-      )
-        .then((res) => res.json())
-        .then((data) =>
-          z
-            .object({
-              projects: z.array(
-                z.object({
-                  id: z.string(),
-                  name: z.string(),
-                }),
-              ),
-            })
-
-            .parse(data),
-        )
-        .then((data) => data.projects)
+  const [teams, projects] = await Promise.all([
+    getVercelTeams({ config }),
+    teamId ? getVercelProjects({ config, teamId }) : Promise.resolve([]),
+  ])
 
   const team = teams.find((team) => team.id === teamId)
   const project = projects.find((project) => project.id === projectId)
@@ -286,51 +179,5 @@ const Deployer = async ({
         </div>
       )}
     </>
-  )
-}
-
-const TokenInput = ({ closeDialog }: { closeDialog?: boolean }) => {
-  return (
-    <div className="flex flex-col gap-4">
-      <p>
-        To deploy to Vercel, you need to set a Vercel token. You can get one
-        here:{' '}
-        <Link
-          className="underline hover:no-underline"
-          href="https://vercel.com/account/tokens"
-          target="_blank"
-          rel="noreferrer"
-        >
-          https://vercel.com/account/tokens
-        </Link>
-        .
-      </p>
-      <ActionForm
-        action={async (formData) => {
-          'use server'
-          return superAction(async () => {
-            const vercelToken = formData.get('vercelToken')
-            if (typeof vercelToken !== 'string') {
-              throw new Error('Vercel token is required')
-            }
-            await setGlobalConfig({ vercelToken })
-            revalidatePath('/setup/deploy')
-            if (closeDialog) {
-              streamDialog(null)
-            }
-          })
-        }}
-      >
-        <div className="flex flex-col gap-4">
-          <Label>Vercel token</Label>
-          <div className="flex flex-row gap-4">
-            <Input type="password" name="vercelToken" />
-            <Button type="submit" className="self-end">
-              Save
-            </Button>
-          </div>
-        </div>
-      </ActionForm>
-    </div>
   )
 }
