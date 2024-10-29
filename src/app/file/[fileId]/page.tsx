@@ -50,7 +50,7 @@ export default async function Page({ params }: { params: { fileId: string } }) {
     <div className="container flex flex-col gap-2">
       <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
       <EnvVarsTable fileId={params.fileId} gitenvs={gitenvs} />
-      <AtomifyPassphrase passphraseContents={passphraseContents} />
+      <AtomifyPassphrase encryptedPassphrases={passphraseContents} />
 
       <PasteEnvVars gitenvs={gitenvs} fileId={params.fileId} />
     </div>
