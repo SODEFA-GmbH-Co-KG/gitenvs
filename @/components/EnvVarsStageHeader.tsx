@@ -2,9 +2,11 @@
 
 import { type EnvStage } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
+import NiceModal from '@ebay/nice-modal-react'
 import { useAtom } from 'jotai'
 import { map } from 'lodash-es'
 import { Eye, EyeClosed, ShieldEllipsis } from 'lucide-react'
+import { AddPassphraseDialog } from './AddPassphraseDialog'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { Button } from './ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
@@ -24,7 +26,7 @@ export const EnvVarsStageHeader = ({ stage }: { stage: EnvStage }) => {
         variant={'ghost'}
         key={stage.name}
         className={cn('flex flex-1 items-center gap-x-2')}
-        onClick={() => {
+        onClick={async () => {
           if (!!stageEncryptionState?.decryptionKey) {
             setStageEncryptionState((prev) => {
               const newState = map(prev, (s) => {
@@ -39,18 +41,8 @@ export const EnvVarsStageHeader = ({ stage }: { stage: EnvStage }) => {
               return newState
             })
           } else {
-            const passphrase = prompt('Enter passphrase')
-            setStageEncryptionState((prev) => {
-              const newState = map(prev, (s) => {
-                if (s.stageName === stage.name) {
-                  return {
-                    ...s,
-                    decryptionKey: passphrase,
-                  }
-                }
-                return s
-              })
-              return newState
+            await NiceModal.show(AddPassphraseDialog, {
+              stage,
             })
           }
         }}
