@@ -21,7 +21,7 @@ export const TableEnvVarTag = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <span className="truncate rounded-sm bg-primary p-1 text-xs text-black">
-            {showValue ? envVarValue.value : 'Encrypted'}
+            {showValue ? envVarValue.value : 'ENCRYPTED'}
           </span>
         </TooltipTrigger>
         {showValue ? (
