@@ -17,6 +17,15 @@ const AtomifyPassphrase = dynamic(
     ssr: false,
   },
 )
+const HandlePastePassphrase = dynamic(
+  () =>
+    import('@/components/HandlePastePassphrase').then(
+      (mod) => mod.HandlePastePassphrase,
+    ),
+  {
+    ssr: false,
+  },
+)
 
 export default async function Page({ params }: { params: { fileId: string } }) {
   const gitenvs = await getGitenvs()
@@ -47,6 +56,7 @@ export default async function Page({ params }: { params: { fileId: string } }) {
       <AtomifyPassphrase encryptedPassphrases={passphraseContents} />
 
       <PasteEnvVars gitenvs={gitenvs} fileId={params.fileId} />
+      <HandlePastePassphrase />
     </div>
   )
 }
