@@ -1,3 +1,4 @@
+import { PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
 import {
   getIsGitenvsInGitIgnore,
   getIsGitignoreExisting,
@@ -41,7 +42,7 @@ export default async function Page() {
 
       <div className="grid grid-cols-[3fr_1fr] items-center gap-8">
         <p className={cn(isGitenvsInGitIgnore && 'text-gray-500 line-through')}>
-          To protect your passphrases add <code>*.gitenvs.passphrase</code> to
+          To protect your passphrases add <code>{PASSPHRASE_FILE_NAME}</code> to
           your <code>.gitignore</code> file.
         </p>
         <ActionButton

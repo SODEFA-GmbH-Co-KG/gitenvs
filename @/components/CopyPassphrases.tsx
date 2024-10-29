@@ -5,7 +5,7 @@ import { useAtom } from 'jotai'
 import { Save } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { savePassphraseToFolder } from '~/lib/gitenvs'
+import { savePassphrasesToFolder } from '~/lib/gitenvs'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
 import { encryptWithEncryptionKey } from '~/utils/encryptionToken'
 import { CopyButton } from './CopyButton'
@@ -61,19 +61,28 @@ export const CopyPassphrases = () => {
                       type="button"
                       variant="outline"
                       onClick={async () => {
-                        const save = async () => {
-                          const encryptedPassphrase =
-                            await encryptWithEncryptionKey({
-                              plaintext: passphrase.passphrase,
-                              key: await getEncryptionKeyOnClient(),
-                            })
-                          await savePassphraseToFolder({
-                            encryptedPassphrase,
-                            stageName: passphrase.stageName,
-                          })
+                        const encryptedPassphrase = {
+                          passphrase: await encryptWithEncryptionKey({
+                            plaintext: passphrase.passphrase,
+                            key: await getEncryptionKeyOnClient(),
+                          }),
+                          stageName: passphrase.stageName,
                         }
 
-                        toast.promise(save(), {
+                        const savePromise = savePassphrasesToFolder({
+                          encryptedPassphrases: [encryptedPassphrase],
+                        })
+                        // const encryptedPassphrase =
+                        //   await encryptWithEncryptionToken({
+                        //     plaintext: passphrase.passphrase,
+                        //     key: await getEncryptionKeyOnClient(),
+                        //   })
+                        // await savePassphraseToFolder({
+                        //   encryptedPassphrase,
+                        //   stageName: passphrase.stageName,
+                        // })
+
+                        toast.promise(savePromise, {
                           success: 'Saved passphrase to current folder',
                           error: 'Could not save passphrase to current folder',
                         })
@@ -100,21 +109,22 @@ export const CopyPassphrases = () => {
         <Button
           type="button"
           onClick={async () => {
-            const promise = Promise.all(
+            const encryptedPassphrases = await Promise.all(
               passphrases.map(async (passphrase) => {
-                const encryptedPassphrase = await encryptWithEncryptionKey({
-                  plaintext: passphrase.passphrase,
-                  key: await getEncryptionKeyOnClient(),
-                })
-
-                return savePassphraseToFolder({
-                  encryptedPassphrase,
+                return {
+                  passphrase: await encryptWithEncryptionKey({
+                    plaintext: passphrase.passphrase,
+                    key: await getEncryptionKeyOnClient(),
+                  }),
                   stageName: passphrase.stageName,
-                })
+                }
               }),
             )
+            const savePromise = savePassphrasesToFolder({
+              encryptedPassphrases,
+            })
 
-            toast.promise(promise, {
+            toast.promise(savePromise, {
               success: 'Saved all passphrases to current folder',
               error: 'Could not save passphrases to current folder',
             })
