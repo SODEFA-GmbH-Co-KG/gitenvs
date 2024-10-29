@@ -32,8 +32,6 @@ export const TableEnvVar = ({
   )
   const showValues = stageEncryptionState?.showValues ?? false
 
-  console.log({ asdf: envVar.values[envStage.name] })
-
   const initialEnvVarValue = envVar.values[envStage.name]
 
   const [envVarValue, setEnvVarValue] = useState(envVar.values[envStage.name])
@@ -51,11 +49,6 @@ export const TableEnvVar = ({
             passphrase: stageEncryptionState.decryptionKey ?? '',
           })
         : initialEnvVarValue?.value
-      // console.log({
-      //   encryptedValue: envVarValue?.value,
-      //   decryptedValue,
-      //   stageEncryptionState: stageEncryptionState.decryptionKey,
-      // })
 
       setEnvVarValue({
         encrypted: initialEnvVarValue?.encrypted ?? false,

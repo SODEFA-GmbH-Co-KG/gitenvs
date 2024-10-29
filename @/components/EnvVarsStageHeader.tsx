@@ -18,8 +18,6 @@ export const EnvVarsStageHeader = ({ stage }: { stage: EnvStage }) => {
     (s) => s.stageName === stage.name,
   )
 
-  console.log({ stageEncryptionStates })
-
   return (
     <>
       <Button
