@@ -22,7 +22,10 @@ export const stageEncryptionStateAtom = atom<
 export const AtomifyPassphrase = ({
   passphraseContents,
 }: {
-  passphraseContents: { stageName: string; fileContent?: EncryptedValue }[]
+  passphraseContents: {
+    stageName: string
+    encryptedPassphrase?: EncryptedValue
+  }[]
 }) => {
   const [stageEncryptionState, setStageEncryptionState] = useAtom(
     stageEncryptionStateAtom,
@@ -41,9 +44,9 @@ export const AtomifyPassphrase = ({
 
       const passphraseResults = await Promise.all(
         map(passphraseContents, async (pc) => {
-          const decrypted = pc.fileContent
+          const decrypted = pc.encryptedPassphrase
             ? await decryptWithEncryptionKey({
-                ...pc.fileContent,
+                ...pc.encryptedPassphrase,
                 key: encryptionKey,
               })
             : null

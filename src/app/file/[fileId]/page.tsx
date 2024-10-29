@@ -29,16 +29,16 @@ export default async function Page({ params }: { params: { fileId: string } }) {
 
   const passphraseContents = await Promise.all(
     gitenvs?.envStages.map(async (stage) => {
-      const fileContent = await readFile(
+      const passphrase = await readFile(
         join(getCwd(), `${stage.name}.gitenvs.passphrase`),
         'utf-8',
       ).catch(() => null)
 
       return {
         stageName: stage.name,
-        fileContent: fileContent
+        encryptedPassphrase: passphrase
           ? await encryptWithEncryptionKey({
-              plaintext: fileContent,
+              plaintext: passphrase,
               key: await getEncryptionKeyOnServer(),
             })
           : undefined,
