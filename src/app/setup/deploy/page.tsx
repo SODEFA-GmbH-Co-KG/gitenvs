@@ -11,7 +11,7 @@ import Link from 'next/link'
 export default function Page({
   searchParams,
 }: {
-  searchParams: { teamId?: string; projectId?: string }
+  searchParams: { teamId?: string; projectId?: string; upsert?: string }
 }) {
   return (
     <div className="flex flex-col gap-8">
@@ -37,6 +37,7 @@ export default function Page({
             <DeployVercel
               teamId={searchParams.teamId}
               projectId={searchParams.projectId}
+              upsert={searchParams.upsert === 'true'}
             />
           </CollapsibleContent>
         </Collapsible>
