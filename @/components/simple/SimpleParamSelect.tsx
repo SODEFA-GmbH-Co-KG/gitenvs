@@ -116,12 +116,12 @@ export const SimpleParamSelect = (
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <ScrollArea
-            className="flex flex-col max-h-[40vh]"
+            className="flex max-h-[40vh] flex-col"
             onKeyDown={handleKeyDown}
           >
             {options.map((option, idx) => (
               <Fragment key={idx}>
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Button
                     type="button"
                     variant="vanilla"
@@ -149,7 +149,7 @@ export const SimpleParamSelect = (
             select(value)
           }}
         >
-          <TabsList className="flex-wrap h-auto">
+          <TabsList className="h-auto flex-wrap">
             {options.map((option, idx) => (
               <Fragment key={idx}>
                 <TabsTrigger value={option.value ?? ''}>

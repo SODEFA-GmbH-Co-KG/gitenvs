@@ -8,7 +8,11 @@ import {
 } from '@/components/ui/collapsible'
 import Link from 'next/link'
 
-export default function Page() {
+export default function Page({
+  searchParams,
+}: {
+  searchParams: { teamId?: string }
+}) {
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-center text-2xl">Setup your hosting provider</h1>
@@ -27,8 +31,8 @@ export default function Page() {
               </Button>
             </CollapsibleTrigger>
           </div>
-          <CollapsibleContent>
-            <DeployVercel />
+          <CollapsibleContent className="mt-4">
+            <DeployVercel teamId={searchParams.teamId} />
           </CollapsibleContent>
         </Collapsible>
       </div>
