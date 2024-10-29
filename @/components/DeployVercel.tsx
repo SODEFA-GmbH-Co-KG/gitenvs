@@ -1,11 +1,15 @@
+import { getProjectRoot } from '@/gitenvs/getProjectRoot'
 import {
   getGlobalConfig,
   GlobalConfig,
   setGlobalConfig,
 } from '@/gitenvs/globalConfig'
+import { readFile } from 'fs/promises'
 import { MoreVertical, Rocket } from 'lucide-react'
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { join } from 'path'
 import { z } from 'zod'
 import {
   streamDialog,
@@ -24,6 +28,23 @@ import {
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 
+const getVercelProject = async () => {
+  try {
+    const root = await getProjectRoot()
+    const vercelProjectJson = join(root, '.vercel', 'project.json')
+    const vercelProject = JSON.parse(await readFile(vercelProjectJson, 'utf-8'))
+    const parsed = z
+      .object({
+        projectId: z.string(),
+        orgId: z.string(),
+      })
+      .parse(vercelProject)
+    return parsed
+  } catch (error) {
+    return null
+  }
+}
+
 export const DeployVercel = async ({
   teamId,
   projectId,
@@ -35,6 +56,15 @@ export const DeployVercel = async ({
 
   if (!config.vercelToken) {
     return <TokenInput />
+  }
+
+  if (!teamId && !projectId) {
+    const vercelProject = await getVercelProject()
+    if (vercelProject) {
+      redirect(
+        `/setup/deploy?teamId=${vercelProject.orgId}&projectId=${vercelProject.projectId}`,
+      )
+    }
   }
 
   return (

@@ -23,7 +23,9 @@ export default function Page({
           We can deploy the environment variables to these providers
           automatically.
         </p>
-        <Collapsible>
+        <Collapsible
+          defaultOpen={!!searchParams.teamId && !!searchParams.projectId}
+        >
           <div className="flex flex-col items-center justify-center">
             <CollapsibleTrigger asChild>
               <Button variant="outline" className="self-center">
