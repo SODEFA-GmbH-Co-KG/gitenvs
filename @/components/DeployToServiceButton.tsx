@@ -3,13 +3,10 @@
 import { passphrasesAtom } from '@/passphrasesAtom'
 import { useAtomValue } from 'jotai'
 import { Rocket } from 'lucide-react'
-import {
-  useSuperAction,
-  UseSuperActionOptions,
-} from '~/super-action/action/useSuperAction'
+import { UseSuperActionOptions } from '~/super-action/action/useSuperAction'
+import { ActionButton } from '~/super-action/button/ActionButton'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
 import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
-import { Button } from './ui/button'
 
 export const DeployToServiceButton = (
   options: UseSuperActionOptions<
@@ -24,15 +21,13 @@ export const DeployToServiceButton = (
   >,
 ) => {
   const passphrases = useAtomValue(passphrasesAtom)
-  const { trigger, isLoading } = useSuperAction({
-    catchToast: true,
-    ...options,
-  })
   const getEncryptionKeyOnClient = useEncryptionKeyOnClient()
 
   return (
-    <Button
-      onClick={async () => {
+    <ActionButton
+      {...options}
+      hideIcon={false}
+      action={async () => {
         const key = await getEncryptionKeyOnClient()
         const encryptedPassphrases = await Promise.all(
           passphrases.map(async (passphrase) => {
@@ -46,14 +41,11 @@ export const DeployToServiceButton = (
             }
           }),
         )
-        trigger(encryptedPassphrases)
+        return options.action(encryptedPassphrases)
       }}
-      disabled={isLoading}
+      icon={<Rocket />}
     >
-      <div className="flex flex-row items-center gap-2">
-        <Rocket className="size-4" />
-        Deploy
-      </div>
-    </Button>
+      Deploy
+    </ActionButton>
   )
 }
