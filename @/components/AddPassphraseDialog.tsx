@@ -21,6 +21,11 @@ export const AddPassphraseDialog = NiceModal.create(
     const [passphrase, setPassphrase] = useState('')
     const setStageEncryptionState = useSetAtom(stageEncryptionStateAtom)
 
+    const closeModal = () => {
+      modal.resolve()
+      modal.remove()
+    }
+
     const done = () => {
       setStageEncryptionState((prev) => {
         const newState = map(prev, (s) => {
@@ -34,8 +39,7 @@ export const AddPassphraseDialog = NiceModal.create(
         })
         return newState
       })
-      modal.resolve()
-      modal.remove()
+      closeModal()
     }
 
     return (
@@ -43,7 +47,7 @@ export const AddPassphraseDialog = NiceModal.create(
         open={modal.visible}
         onOpenChange={async (show) => {
           if (!show) {
-            done()
+            closeModal()
           }
         }}
       >
@@ -52,32 +56,23 @@ export const AddPassphraseDialog = NiceModal.create(
             <DialogTitle>Add your {stage.name} Passphrase</DialogTitle>
             <DialogDescription />
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <Input
-              className="text-security-disc col-span-3"
-              type="text"
-              autoComplete="off"
-              value={passphrase}
-              onChange={(event) => setPassphrase(event.target.value)}
-              onKeyDown={async (event) => {
-                if (event.key === 'Enter') {
-                  return done()
-                }
-              }}
-            />
-          </div>
-          <div className="flex flex-col gap-4">
-            <Button
-              type="button"
-              onClick={async () => {
-                done()
-              }}
-              className="flex flex-row gap-2"
-            >
-              <span>Add</span>
-              <KeyShortcut>Enter</KeyShortcut>
-            </Button>
-          </div>
+          <form onSubmit={done}>
+            <div className="grid gap-4 py-4">
+              <Input
+                className="text-security-disc col-span-3"
+                type="text"
+                autoComplete="off"
+                value={passphrase}
+                onChange={(event) => setPassphrase(event.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-4">
+              <Button type="submit" className="flex flex-row gap-2">
+                <span>Add</span>
+                <KeyShortcut>Enter</KeyShortcut>
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     )
