@@ -433,6 +433,7 @@ export const AddFromClipboardDialog = ({
                                 value: isActive ? envVarInCell.value : '',
                                 encrypted: isEncrypted,
                               }}
+                              showValue={false}
                             />
                           </div>
                         </div>
