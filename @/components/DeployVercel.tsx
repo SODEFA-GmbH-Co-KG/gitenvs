@@ -246,7 +246,7 @@ const Deployer = async ({
               )
 
               const response = await fetch(
-                `https://api.vercel.com/v10/projects/${projectId}/env?teamId=${teamId}&upsert=true`,
+                `https://api.vercel.com/v10/projects/${projectId}/env?teamId=${teamId}&upsert=false`,
                 {
                   body: JSON.stringify(envs),
                   headers: {
@@ -256,9 +256,13 @@ const Deployer = async ({
                 },
               )
 
-              const data = await response.json()
-
-              // TODO: Handle errors
+              if (!response.ok) {
+                const data = await response.json()
+                console.dir(data, { depth: Infinity, colors: true })
+                throw new Error(
+                  'Failed to deploy to Vercel. See server console for details.',
+                )
+              }
             })
           }}
         />

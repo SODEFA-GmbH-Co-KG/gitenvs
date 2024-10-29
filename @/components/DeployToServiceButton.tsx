@@ -24,7 +24,10 @@ export const DeployToServiceButton = (
   >,
 ) => {
   const passphrases = useAtomValue(passphrasesAtom)
-  const { trigger, isLoading } = useSuperAction(options)
+  const { trigger, isLoading } = useSuperAction({
+    catchToast: true,
+    ...options,
+  })
   const getEncryptionKeyOnClient = useEncryptionKeyOnClient()
 
   return (
