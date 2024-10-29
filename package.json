@@ -17,6 +17,7 @@
     "lint": "next lint",
     "start": "next start",
     "dev-cli": "tsx ./cli/main.ts init-playground && GITENVS_DIR=playground tsx ./cli/main.ts",
+    "dev-create": "GITENVS_DIR=playground tsx ./cli/main.ts create",
     "dev-next": "next dev",
     "prepublishOnly": "pnpm build"
   },
