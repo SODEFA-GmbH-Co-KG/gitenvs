@@ -1,14 +1,16 @@
-import { createReadStream } from 'fs'
+import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { createInterface } from 'readline'
 import { z } from 'zod'
 import { getPassphraseEnvName } from './env'
 import { getCwd } from './getCwd'
+import { type Passphrase } from './gitenvs.schema'
+
+export const PASSPHRASE_FILE_NAME = 'gitenvs.passphrases.json'
 
 export const getPassphrase = async ({
   stage,
   passphrase,
-  passphrasePath = join(getCwd(), `${stage}.gitenvs.passphrase`),
+  passphrasePath = join(getCwd(), PASSPHRASE_FILE_NAME),
 }: {
   stage: string
   passphrase?: string
@@ -23,9 +25,16 @@ export const getPassphrase = async ({
     if (!passphrasePath) return undefined
 
     try {
-      return await readFirstLine(passphrasePath)
+      const currentFileContent = await readFile(
+        join(getCwd(), PASSPHRASE_FILE_NAME),
+        'utf-8',
+      )
+        .then((res) => JSON.parse(res) as Passphrase[])
+        .catch(() => [])
+      return currentFileContent.find((p) => p.stageName === stage)?.passphrase
     } catch (error) {
       const parsedError = z.object({ code: z.string() }).safeParse(error)
+      // TODO: ist das wichtig, dass der error geschmissen wird wenns das file nicht gibt?
       if (parsedError.success && parsedError.data.code !== 'ENOENT') {
         throw error
       }
@@ -34,17 +43,4 @@ export const getPassphrase = async ({
   }
 
   return passphrase ?? getFromEnvVars() ?? (await getFromFile()) ?? ''
-}
-
-const readFirstLine = async (pathToFile: string): Promise<string> => {
-  const readable = createReadStream(pathToFile, { encoding: 'utf8' })
-  const reader = createInterface({ input: readable })
-  const line = await new Promise<string>((resolve) => {
-    reader.on('line', (line) => {
-      reader.close()
-      resolve(line)
-    })
-  })
-  readable.close()
-  return line
 }
