@@ -17,6 +17,8 @@ export const SimpleParamSwitch = forwardRef<
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
+  const valueFromSearchParams = searchParams.get(paramKey)
+
   const change = useCallback(
     (checked: boolean) => {
       const newSearchParams = new URLSearchParams(searchParams.toString())
@@ -30,5 +32,12 @@ export const SimpleParamSwitch = forwardRef<
     [router, pathname, searchParams, paramKey, mode],
   )
 
-  return <Switch ref={ref} {...props} onCheckedChange={change} />
+  return (
+    <Switch
+      ref={ref}
+      {...props}
+      onCheckedChange={change}
+      defaultChecked={valueFromSearchParams === 'true'}
+    />
+  )
 })
