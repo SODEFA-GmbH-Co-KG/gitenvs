@@ -1,3 +1,4 @@
+import { getPassphraseEnvName } from '@/gitenvs/env'
 import { getProjectRoot } from '@/gitenvs/getProjectRoot'
 import {
   getGlobalConfig,
@@ -17,6 +18,8 @@ import {
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { ActionForm } from '~/super-action/form/ActionForm'
+import { decryptWithEncryptionToken } from '~/utils/encryptionToken'
+import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 import { DeployToServiceButton } from './DeployToServiceButton'
 import { SimpleParamSelect } from './simple/SimpleParamSelect'
 import { Button } from './ui/button'
@@ -201,11 +204,61 @@ const Deployer = async ({
               </p>
             ),
           }}
-          action={async (data) => {
+          action={async (encryptedPassphrases) => {
             'use server'
             return superAction(async () => {
-              console.log(data)
-              streamDialog(null)
+              const decryptedPassphrases = await Promise.all(
+                encryptedPassphrases.map(async (encryptedPassphrase) => {
+                  const passphrase = await decryptWithEncryptionToken({
+                    ...encryptedPassphrase.encryptedPassphrase,
+                    key: await getEncryptionKeyOnServer(),
+                  })
+                  return {
+                    passphrase,
+                    stageName: encryptedPassphrase.stageName,
+                  }
+                }),
+              )
+
+              const envs = decryptedPassphrases.flatMap(
+                ({ passphrase, stageName }) => {
+                  const target = [
+                    stageName === 'staging' ? 'preview' : stageName, // FIXME: This should not be hardcoded!
+                  ]
+                  return [
+                    {
+                      key: getPassphraseEnvName({
+                        stage: stageName,
+                      }),
+                      value: passphrase,
+                      type:
+                        stageName === 'development' ? 'encrypted' : 'sensitive', // FIXME: This should not be hardcoded!
+                      target,
+                    },
+                    {
+                      key: 'GITENVS_STAGE_ENV_NAME',
+                      value: stageName,
+                      type: 'plain',
+                      target,
+                    },
+                  ]
+                },
+              )
+
+              const response = await fetch(
+                `https://api.vercel.com/v10/projects/${projectId}/env?teamId=${teamId}&upsert=true`,
+                {
+                  body: JSON.stringify(envs),
+                  headers: {
+                    Authorization: `Bearer ${config.vercelToken}`,
+                  },
+                  method: 'post',
+                },
+              )
+
+              const data = await response.json()
+
+              // TODO: Handle errors
             })
           }}
         />
