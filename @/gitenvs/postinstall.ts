@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
+import { z } from 'zod'
 import { getProjectRoot } from './getProjectRoot'
 
 const POSTINSTALL_SCRIPT = 'gitenvs create'
@@ -11,7 +12,13 @@ const getPackageJsonPath = async () => {
 
 const getPackageJson = async () => {
   const packageJson = await readFile(await getPackageJsonPath(), 'utf-8')
-  return JSON.parse(packageJson)
+  const json = JSON.parse(packageJson)
+  const parsed = z
+    .object({
+      scripts: z.record(z.string()).optional(),
+    })
+    .parse(json)
+  return parsed
 }
 
 export const updatePostInstall = async () => {
