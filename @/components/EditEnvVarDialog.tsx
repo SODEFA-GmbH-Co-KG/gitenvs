@@ -53,7 +53,9 @@ export const EditEnvVarDialog = NiceModal.create(
           stageEncryptionState?.passphrase
 
         if (!shouldDecrypt) {
-          setPlaintext(initialEnvVarValue?.value ?? '')
+          if (!initialEnvVarValue?.encrypted) {
+            setPlaintext(initialEnvVarValue?.value ?? '')
+          }
           return
         }
 
