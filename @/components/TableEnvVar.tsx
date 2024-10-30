@@ -41,12 +41,12 @@ export const TableEnvVar = ({
       const shouldDecrypt =
         initialEnvVarValue?.encrypted &&
         initialEnvVarValue?.value &&
-        stageEncryptionState?.decryptionKey
+        stageEncryptionState?.passphrase
       const decryptedValue = shouldDecrypt
         ? await decryptEnvVar({
             encrypted: initialEnvVarValue.value,
             encryptedPrivateKey: envStage.encryptedPrivateKey,
-            passphrase: stageEncryptionState.decryptionKey ?? '',
+            passphrase: stageEncryptionState.passphrase ?? '',
           })
         : initialEnvVarValue?.value
 
@@ -60,7 +60,7 @@ export const TableEnvVar = ({
     envStage.encryptedPrivateKey,
     initialEnvVarValue?.encrypted,
     initialEnvVarValue?.value,
-    stageEncryptionState?.decryptionKey,
+    stageEncryptionState?.passphrase,
   ])
 
   return (

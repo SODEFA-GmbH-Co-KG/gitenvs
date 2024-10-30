@@ -31,7 +31,7 @@ export const CopyPassphrases = () => {
     (passphrase) =>
       ({
         stageName: passphrase.stageName,
-        passphrase: passphrase.decryptionKey ?? '',
+        passphrase: passphrase.passphrase ?? '',
       }) satisfies Passphrase,
   )
 

@@ -27,7 +27,7 @@ export const EnvVarsStageHeader = ({ stage }: { stage: EnvStage }) => {
         key={stage.name}
         className={cn('flex flex-1 items-center gap-x-2')}
         onClick={async () => {
-          if (!!stageEncryptionState?.decryptionKey) {
+          if (!!stageEncryptionState?.passphrase) {
             setStageEncryptionState((prev) => {
               const newState = map(prev, (s) => {
                 if (s.stageName === stage.name) {
@@ -48,7 +48,7 @@ export const EnvVarsStageHeader = ({ stage }: { stage: EnvStage }) => {
         }}
       >
         <div className="flex items-center">
-          {!!stageEncryptionState?.decryptionKey ? (
+          {!!stageEncryptionState?.passphrase ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <ShieldEllipsis className="h-4 w-4 text-green-500" />
@@ -69,7 +69,7 @@ export const EnvVarsStageHeader = ({ stage }: { stage: EnvStage }) => {
           )}
         </div>
         <div className="flex flex-1">{stage.name}</div>
-        {!!stageEncryptionState?.decryptionKey && (
+        {!!stageEncryptionState?.passphrase && (
           <div>
             {stageEncryptionState?.showValues ? (
               <Eye className="h-4 w-4" />

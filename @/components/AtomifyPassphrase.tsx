@@ -11,7 +11,7 @@ import {
 
 export type StageEncryptionState = {
   showValues: boolean
-  decryptionKey: string | null
+  passphrase: string | null
   stageName: string
 }
 
@@ -44,7 +44,7 @@ export const AtomifyPassphrase = ({
 
       const passphraseResults = await Promise.all(
         map(encryptedPassphrases, async (pc) => {
-          const decrypted = pc.encryptedPassphrase
+          const passphrase = pc.encryptedPassphrase
             ? await decryptWithEncryptionKey({
                 ...pc.encryptedPassphrase,
                 key: encryptionKey,
@@ -53,7 +53,7 @@ export const AtomifyPassphrase = ({
 
           return {
             showValues: false,
-            decryptionKey: decrypted,
+            passphrase,
             stageName: pc.stageName,
           }
         }),
