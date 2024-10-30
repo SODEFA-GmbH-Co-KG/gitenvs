@@ -127,7 +127,7 @@ export const CopyPassphrases = ({ projectName }: { projectName?: string }) => {
         {projectName && (
           <CopyButton
             icon={<WholeWord className="size-4" />}
-            textToCopy={`${suggestedNamePrefix} ${projectName} All`}
+            textToCopy={`${suggestedNamePrefix} ${projectName} all`}
             tooltip="Copy suggested name for password manager"
           />
         )}
