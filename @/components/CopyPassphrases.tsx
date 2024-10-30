@@ -64,7 +64,7 @@ export const CopyPassphrases = () => {
                 type="password"
                 readOnly
               />
-              <CopyButton textToCopy={passphrase.passphrase} />
+              <CopyButton textToCopy={JSON.stringify([passphrase], null, 2)} />
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
