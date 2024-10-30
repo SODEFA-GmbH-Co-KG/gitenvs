@@ -83,16 +83,18 @@ const useSimpleParamSelect = ({
   return { options: allOptions, selected, select }
 }
 
-type SimpleParamsStyleOptions =
+type SimpleParamsStyleOptions = (
   | {
       component: 'dropdown'
       label: string
-      className?: string
     }
   | {
       component: 'tabs'
-      className?: string
     }
+) & {
+  className?: string
+  disabled?: boolean
+}
 
 export const SimpleParamSelect = (
   props: SimpleParamsStyleOptions & SimpleParamSelectOptions,
@@ -102,7 +104,7 @@ export const SimpleParamSelect = (
   if (props.component === 'dropdown') {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild disabled={props.disabled}>
           <Button
             variant="outline"
             className={cn('text-nowrap', props.className)}

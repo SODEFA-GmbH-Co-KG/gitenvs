@@ -54,19 +54,17 @@ export const VercelDeployer = async ({
             label: team.name,
           }))}
         />
-        {projects.length > 0 ? (
-          <SimpleParamSelect
-            label="Projects"
-            component="dropdown"
-            paramKey="projectId"
-            options={projects.map((team) => ({
-              value: team.id,
-              label: team.name,
-            }))}
-          />
-        ) : (
-          <div></div>
-        )}
+        <SimpleParamSelect
+          label="Projects"
+          disabled={!projects.length}
+          component="dropdown"
+          paramKey="projectId"
+          options={projects.map((team) => ({
+            value: team.id,
+            label: team.name,
+          }))}
+        />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
