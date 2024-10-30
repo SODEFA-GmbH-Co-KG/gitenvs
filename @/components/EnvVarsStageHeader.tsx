@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import NiceModal from '@ebay/nice-modal-react'
 import { useAtom } from 'jotai'
 import { map } from 'lodash-es'
-import { Eye, EyeClosed, ShieldEllipsis } from 'lucide-react'
+import { Eye, EyeOff, ShieldEllipsis } from 'lucide-react'
 import { AddPassphraseDialog } from './AddPassphraseDialog'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { Button } from './ui/button'
@@ -74,7 +74,7 @@ export const EnvVarsStageHeader = ({ stage }: { stage: EnvStage }) => {
             {stageEncryptionState?.showValues ? (
               <Eye className="h-4 w-4" />
             ) : (
-              <EyeClosed className="h-4 w-4" />
+              <EyeOff className="h-4 w-4" />
             )}
           </div>
         )}
