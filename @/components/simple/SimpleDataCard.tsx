@@ -3,7 +3,7 @@ import { every, isEmpty } from 'lodash-es'
 import { Fragment } from 'react'
 
 export type SimpleDataCardProps = {
-  data: any
+  data: unknown
   depth?: number
   className?: string
   classNameCell?: string
@@ -42,7 +42,7 @@ export const SimpleDataCard = (props: SimpleDataCardProps) => {
       <div
         className={cn(
           'rounded-lg border text-card-foreground shadow-sm',
-          'font-mono rounded-md bg-border/50 text-xs',
+          'rounded-md bg-border/50 font-mono text-xs',
           className,
         )}
       >
@@ -105,7 +105,7 @@ export const SimpleDataCard = (props: SimpleDataCardProps) => {
 
   return (
     <>
-      <div className={classNameCellDefault}>{data.toString()}</div>
+      <div className={classNameCellDefault}>{JSON.stringify(data)}</div>
     </>
   )
 }
