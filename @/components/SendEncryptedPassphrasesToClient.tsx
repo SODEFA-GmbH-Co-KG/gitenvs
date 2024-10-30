@@ -1,9 +1,7 @@
 import { AtomifyPassphrase } from './AtomifyPassphrase'
 
-import { getCwd } from '@/gitenvs/getCwd'
+import { getPassphrase } from '@/gitenvs/getPassphrase'
 import { getGitenvs } from '@/gitenvs/gitenvs'
-import { readFile } from 'fs/promises'
-import { join } from 'path'
 import 'server-only'
 import { encryptWithEncryptionKey } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
@@ -13,10 +11,7 @@ export const SendEncryptedPassphrasesToClient = async () => {
 
   const encryptedPassphrases = await Promise.all(
     gitenvs?.envStages.map(async (stage) => {
-      const passphrase = await readFile(
-        join(getCwd(), `${stage.name}.gitenvs.passphrase`),
-        'utf-8',
-      ).catch(() => null)
+      const passphrase = await getPassphrase({ stage: stage.name })
 
       return {
         stageName: stage.name,

@@ -1,14 +1,15 @@
-import { createReadStream } from 'fs'
+import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { createInterface } from 'readline'
-import { z } from 'zod'
 import { getPassphraseEnvName } from './env'
 import { getCwd } from './getCwd'
+import { type Passphrase } from './gitenvs.schema'
+
+export const PASSPHRASE_FILE_NAME = 'gitenvs.passphrases.json'
 
 export const getPassphrase = async ({
   stage,
   passphrase,
-  passphrasePath = join(getCwd(), `${stage}.gitenvs.passphrase`),
+  passphrasePath = join(getCwd(), PASSPHRASE_FILE_NAME),
 }: {
   stage: string
   passphrase?: string
@@ -20,31 +21,16 @@ export const getPassphrase = async ({
   }
 
   const getFromFile = async () => {
-    if (!passphrasePath) return undefined
+    const currentFileContent = await readFile(passphrasePath, 'utf-8')
+      .then((res) => JSON.parse(res) as Passphrase[])
+      .catch(() => [])
 
-    try {
-      return await readFirstLine(passphrasePath)
-    } catch (error) {
-      const parsedError = z.object({ code: z.string() }).safeParse(error)
-      if (parsedError.success && parsedError.data.code !== 'ENOENT') {
-        throw error
-      }
-      return undefined
-    }
+    const requestedPassphrase = currentFileContent.find(
+      (p) => p.stageName === stage,
+    )?.passphrase
+
+    return requestedPassphrase
   }
 
-  return passphrase ?? getFromEnvVars() ?? (await getFromFile()) ?? ''
-}
-
-const readFirstLine = async (pathToFile: string): Promise<string> => {
-  const readable = createReadStream(pathToFile, { encoding: 'utf8' })
-  const reader = createInterface({ input: readable })
-  const line = await new Promise<string>((resolve) => {
-    reader.on('line', (line) => {
-      reader.close()
-      resolve(line)
-    })
-  })
-  readable.close()
-  return line
+  return passphrase ?? getFromEnvVars() ?? (await getFromFile())
 }

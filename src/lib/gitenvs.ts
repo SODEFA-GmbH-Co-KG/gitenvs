@@ -1,7 +1,7 @@
 'use server'
 
 import { saveGitenvs as saveGitenvsRaw } from '@/gitenvs/gitenvs'
-import { savePassphraseToFolder as savePassphraseToFolderRaw } from '@/gitenvs/savePassphraseToFolder'
+import { savePassphrasesToFolder as savePassphrasesToFolderRaw } from '@/gitenvs/savePassphraseToFolder'
 import { revalidatePath } from 'next/cache'
 
 export const saveGitenvs = async (
@@ -12,10 +12,10 @@ export const saveGitenvs = async (
   return result
 }
 
-export const savePassphraseToFolder = async (
-  options: Parameters<typeof savePassphraseToFolderRaw>[0],
+export const savePassphrasesToFolder = async (
+  options: Parameters<typeof savePassphrasesToFolderRaw>[0],
 ) => {
-  const result = await savePassphraseToFolderRaw(options)
+  const result = await savePassphrasesToFolderRaw(options)
   revalidatePath('/', 'layout')
   return result
 }
