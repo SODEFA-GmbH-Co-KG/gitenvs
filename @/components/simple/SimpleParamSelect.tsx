@@ -14,10 +14,10 @@ import { ChevronDown } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   Fragment,
-  ReactNode,
   useCallback,
   useMemo,
   type KeyboardEvent,
+  type ReactNode,
 } from 'react'
 
 const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -63,10 +63,7 @@ const useSimpleParamSelect = ({
   }, [options, nullLabel])
 
   const selected = useMemo(
-    () =>
-      allOptions.find(
-        (option) => option.value === valueFromSearchParams ?? null,
-      ),
+    () => allOptions.find((option) => option.value === valueFromSearchParams),
     [allOptions, valueFromSearchParams],
   )
 
@@ -145,7 +142,7 @@ export const SimpleParamSelect = (
         <Tabs
           value={selected?.value ?? ''}
           className={props.className}
-          onValueChange={(value) => {
+          onValueChange={(value: string) => {
             select(value)
           }}
         >
@@ -161,7 +158,5 @@ export const SimpleParamSelect = (
         </Tabs>
       </>
     )
-  } else {
-    const _exhaustiveCheck: never = props
   }
 }
