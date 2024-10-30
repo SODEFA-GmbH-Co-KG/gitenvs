@@ -1,4 +1,5 @@
 import { DeployCustom } from '@/components/DeployCustom'
+import { Hr } from '@/components/Hr'
 import { Button } from '@/components/ui/button'
 import {
   Collapsible,
@@ -51,11 +52,9 @@ export default function Page({
         </Collapsible>
       </div>
 
-      <div className="flex flex-row items-center gap-4">
-        <div className="h-[1px] w-full bg-white"></div>
-        <span>or</span>
-        <div className="h-[1px] w-full bg-white"></div>
-      </div>
+      <Hr outerClassName="col-span-full" thin>
+        or
+      </Hr>
 
       <div className="flex flex-col gap-4">
         <h2 className="text-2xl">Custom hosting provider</h2>

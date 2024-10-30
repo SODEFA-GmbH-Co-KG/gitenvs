@@ -1,3 +1,4 @@
+import { Hr } from '@/components/Hr'
 import { PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
 import {
   getIsGitenvsInGitIgnore,
@@ -103,6 +104,10 @@ export default async function Page() {
         >
           Add postinstall
         </ActionButton>
+
+        <Hr outerClassName="col-span-full" thin marginX>
+          or
+        </Hr>
 
         <p className={cn(allDone && 'text-gray-500 line-through')}>
           Push all the buttons
