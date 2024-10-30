@@ -29,9 +29,7 @@ export const EnvVarsTable = async ({
               gridTemplateColumns: `minmax(200px, 1fr) repeat(${columns - 1}, minmax(300px, 1fr))`,
             }}
           >
-            <div className="flex items-center justify-start p-1">
-              Passphrase
-            </div>
+            <div className="flex items-center justify-start p-1"></div>
             {gitenvs?.envStages.map((stage) => {
               return (
                 <div className="flex items-center gap-2" key={stage.name}>
