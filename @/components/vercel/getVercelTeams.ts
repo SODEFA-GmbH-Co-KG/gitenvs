@@ -1,4 +1,4 @@
-import { GlobalConfig } from '@/gitenvs/globalConfig'
+import { type GlobalConfig } from '@/gitenvs/globalConfig'
 import { z } from 'zod'
 
 export const getVercelTeams = async ({ config }: { config: GlobalConfig }) => {

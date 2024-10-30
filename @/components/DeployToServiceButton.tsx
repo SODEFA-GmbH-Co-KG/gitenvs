@@ -3,7 +3,7 @@
 import { passphrasesAtom } from '@/passphrasesAtom'
 import { useAtomValue } from 'jotai'
 import { Rocket } from 'lucide-react'
-import { UseSuperActionOptions } from '~/super-action/action/useSuperAction'
+import { type UseSuperActionOptions } from '~/super-action/action/useSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
 import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
