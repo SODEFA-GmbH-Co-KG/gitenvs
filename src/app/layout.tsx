@@ -1,4 +1,5 @@
 import { ArrowTab } from '@/components/ArrowTab'
+import { SendEncryptedPassphrasesToClient } from '@/components/SendEncryptedPassphrasesToClient'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as ToasterSonner } from 'sonner'
 import '~/styles/globals.css'
@@ -27,6 +28,7 @@ export default async function RootLayout({
           <Toaster />
           <ToasterSonner />
           <EncryptionTokenSideEffect />
+          <SendEncryptedPassphrasesToClient />
         </Providers>
       </body>
     </html>
