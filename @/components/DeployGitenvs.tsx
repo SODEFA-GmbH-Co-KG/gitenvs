@@ -61,7 +61,7 @@ export const DeployGitenvs = () => {
               {stageEncryptionState?.map((passphrase) => {
                 const dotenvFormat = `${GITENVS_STAGE_ENV_NAME}=${passphrase.stageName}
               ${getPassphraseEnvName({ stage: passphrase.stageName })}=${
-                passphrase.decryptionKey
+                passphrase.passphrase
               }`
                 return (
                   <div
@@ -87,7 +87,7 @@ export const DeployGitenvs = () => {
                       </div>
                       <div>
                         <InputWithCopyButton
-                          content={passphrase.decryptionKey ?? ''}
+                          content={passphrase.passphrase ?? ''}
                           isPassword
                         />
                       </div>

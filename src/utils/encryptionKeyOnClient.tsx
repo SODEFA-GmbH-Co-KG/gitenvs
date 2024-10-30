@@ -32,9 +32,7 @@ export const EncryptionTokenSideEffect = () => {
 export const useEncryptionKeyOnClient = () => {
   const encryptionToken = useAtomValue(encryptionTokenAtom)
   return useCallback(() => {
-    if (!encryptionToken) {
-      throw new Error('No encryption token found')
-    }
+    if (!encryptionToken) return null
 
     return globalThis.crypto.subtle.importKey(
       'raw',

@@ -32,7 +32,7 @@ export const AddPassphraseDialog = NiceModal.create(
           if (s.stageName === stage.name) {
             return {
               ...s,
-              decryptionKey: passphrase,
+              passphrase: passphrase,
             }
           }
           return s

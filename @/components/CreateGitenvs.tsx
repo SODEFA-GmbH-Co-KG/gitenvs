@@ -94,7 +94,7 @@ export const CreateGitenvs = () => {
 
             const passphrases = stages.map((stage) => ({
               showValues: false,
-              decryptionKey: stage.passphrase,
+              passphrase: stage.passphrase,
               stageName: stage.name,
             }))
 

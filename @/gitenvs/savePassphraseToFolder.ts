@@ -1,7 +1,10 @@
 import { readFile, writeFile } from 'fs/promises'
 import { map, uniqBy } from 'lodash-es'
 import { join } from 'path'
-import { decryptWithEncryptionKey } from '~/utils/encryptionToken'
+import {
+  decryptWithEncryptionKey,
+  type EncryptedValue,
+} from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 import { getCwd } from './getCwd'
 import { PASSPHRASE_FILE_NAME } from './getPassphrase'
@@ -11,10 +14,7 @@ export const savePassphrasesToFolder = async ({
   encryptedPassphrases,
 }: {
   encryptedPassphrases: {
-    passphrase: {
-      encryptedValue: string
-      iv: string
-    }
+    passphrase: EncryptedValue
     stageName: string
   }[]
 }) => {
@@ -39,7 +39,7 @@ export const savePassphrasesToFolder = async ({
 
   const uniquePassphrases = uniqBy(
     [...currentFileContent, ...passphrases],
-    'stageName',
+    (p) => p.stageName,
   )
 
   const path = join(getCwd(), PASSPHRASE_FILE_NAME)

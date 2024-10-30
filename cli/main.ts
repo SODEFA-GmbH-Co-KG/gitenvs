@@ -1,7 +1,7 @@
 import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
 import { GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { getCwd } from '@/gitenvs/getCwd'
-import { getPassphrase } from '@/gitenvs/getPassphrase'
+import { getPassphrase, PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import { execSync } from 'child_process'
 import { Command } from 'commander'
@@ -62,6 +62,13 @@ program
         passphrase: options.passphrase,
         passphrasePath: options.passphrasePath,
       })
+
+      if (!passphrase) {
+        console.error(
+          `Requested passphrase for stage ${stage} not found in ${options.passphrasePath ?? join(getCwd(), PASSPHRASE_FILE_NAME)}`,
+        )
+        process.exit(1)
+      }
 
       const promises = []
       for (const envFile of gitenvs.envFiles) {
