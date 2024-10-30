@@ -2,7 +2,9 @@ import { EnvFileSwitcher } from '@/components/EnvFileSwitcher'
 import { EnvVarsTable } from '@/components/EnvVarsTable'
 import { PasteEnvVars } from '@/components/PasteEnvVars'
 import { getGitenvs } from '@/gitenvs/gitenvs'
+import dynamic from 'next/dynamic'
 import { redirect } from 'next/navigation'
+
 const HandlePastePassphrase = dynamic(
   () =>
     import('@/components/HandlePastePassphrase').then(

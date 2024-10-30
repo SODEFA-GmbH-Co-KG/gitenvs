@@ -34,13 +34,13 @@ export const HandlePastePassphrase = () => {
         if (!prev) return prev
 
         const newState = map(prev, (passphrase) => {
-          if (passphrase.decryptionKey) return passphrase
+          if (passphrase.passphrase) return passphrase
           const newPassphrase = pastedPassphrases.data.find(
             (pp) => pp.stageName === passphrase.stageName,
           )
           return {
             showValues: false,
-            decryptionKey: newPassphrase?.passphrase ?? null,
+            passphrase: newPassphrase?.passphrase ?? null,
             stageName: passphrase.stageName,
           } satisfies StageEncryptionState
         })
