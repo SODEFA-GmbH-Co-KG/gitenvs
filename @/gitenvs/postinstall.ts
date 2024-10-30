@@ -17,6 +17,7 @@ const getPackageJson = async () => {
     .object({
       scripts: z.record(z.string()).optional(),
     })
+    .passthrough()
     .parse(json)
   return parsed
 }
