@@ -40,7 +40,7 @@ program
       passphrasePath: string
     }) => {
       const gitenvs = await getGitenvs()
-      const stage = process.env[GITENVS_STAGE_ENV_NAME] || options.stage
+      const stage = process.env[GITENVS_STAGE_ENV_NAME] ?? options.stage
 
       if (!stage) {
         console.error(
@@ -111,6 +111,10 @@ program
                 wrapWith = '' // Hope for the best
               }
             }
+
+            console.log(
+              `🔒 Gitenvs: Writing "${dotenvVar.key}" to ${envFile.filePath}`,
+            )
 
             return `${dotenvVar.key}=${wrapWith}${dotenvVar.value}${wrapWith}`
           })
