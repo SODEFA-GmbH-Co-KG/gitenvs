@@ -21,12 +21,7 @@ export const getPassphrase = async ({
   }
 
   const getFromFile = async () => {
-    if (!passphrasePath) return undefined
-
-    const currentFileContent = await readFile(
-      join(getCwd(), PASSPHRASE_FILE_NAME),
-      'utf-8',
-    )
+    const currentFileContent = await readFile(passphrasePath, 'utf-8')
       .then((res) => JSON.parse(res) as Passphrase[])
       .catch(() => [])
 
