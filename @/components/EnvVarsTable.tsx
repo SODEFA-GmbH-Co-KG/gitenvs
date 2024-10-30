@@ -1,27 +1,13 @@
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { map } from 'lodash-es'
-import dynamic from 'next/dynamic'
 import { Fragment } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { superAction } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
+import { EnvVarsStageHeader } from './EnvVarsStageHeader'
 import { TableEnvKey } from './TableEnvKey'
 import { TableEnvVar } from './TableEnvVar'
-
-//dynamic import for passphraseInput component with next/dynamic
-// const PassphraseInput = dynamic(
-//   () => import('./PassphraseInput').then((mod) => mod.PassphraseInput),
-//   {
-//     ssr: false,
-//   },
-// )
-const EnvVarsStageHeader = dynamic(
-  () => import('./EnvVarsStageHeader').then((mod) => mod.EnvVarsStageHeader),
-  {
-    ssr: false,
-  },
-)
 
 export const EnvVarsTable = async ({
   fileId,
@@ -43,9 +29,7 @@ export const EnvVarsTable = async ({
               gridTemplateColumns: `minmax(200px, 1fr) repeat(${columns - 1}, minmax(300px, 1fr))`,
             }}
           >
-            <div className="flex items-center justify-start p-1">
-              Passphrase
-            </div>
+            <div className="flex items-center justify-start p-1"></div>
             {gitenvs?.envStages.map((stage) => {
               return (
                 <div className="flex items-center gap-2" key={stage.name}>

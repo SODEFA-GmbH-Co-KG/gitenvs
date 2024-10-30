@@ -31,7 +31,7 @@ export const CopyPassphrases = () => {
     (passphrase) =>
       ({
         stageName: passphrase.stageName,
-        passphrase: passphrase.decryptionKey ?? '',
+        passphrase: passphrase.passphrase ?? '',
       }) satisfies Passphrase,
   )
 
@@ -72,10 +72,13 @@ export const CopyPassphrases = () => {
                       type="button"
                       variant="outline"
                       onClick={async () => {
+                        const encryptionKey = await getEncryptionKeyOnClient()
+                        if (!encryptionKey) return
+
                         const encryptedPassphrase = {
                           passphrase: await encryptWithEncryptionKey({
                             plaintext: passphrase.passphrase,
-                            key: await getEncryptionKeyOnClient(),
+                            key: encryptionKey,
                           }),
                           stageName: passphrase.stageName,
                         }
@@ -120,12 +123,15 @@ export const CopyPassphrases = () => {
         <Button
           type="button"
           onClick={async () => {
+            const encryptionKey = await getEncryptionKeyOnClient()
+            if (!encryptionKey) return
+
             const encryptedPassphrases = await Promise.all(
               passphrases.map(async (passphrase) => {
                 return {
                   passphrase: await encryptWithEncryptionKey({
                     plaintext: passphrase.passphrase,
-                    key: await getEncryptionKeyOnClient(),
+                    key: encryptionKey,
                   }),
                   stageName: passphrase.stageName,
                 }

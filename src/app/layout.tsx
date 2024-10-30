@@ -1,4 +1,5 @@
 import { ArrowTab } from '@/components/ArrowTab'
+import { SendEncryptedPassphrasesToClient } from '@/components/SendEncryptedPassphrasesToClient'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as ToasterSonner } from 'sonner'
 import '~/styles/globals.css'
@@ -6,6 +7,8 @@ import { ActionCommandProvider } from '~/super-action/command/ActionCommandProvi
 import { DialogProvider } from '~/super-action/dialog/DialogProvider'
 import { EncryptionTokenSideEffect } from '~/utils/encryptionKeyOnClient'
 import { Providers } from './providers'
+
+export const revalidate = 0
 
 export default async function RootLayout({
   children,
@@ -27,6 +30,7 @@ export default async function RootLayout({
           <Toaster />
           <ToasterSonner />
           <EncryptionTokenSideEffect />
+          <SendEncryptedPassphrasesToClient />
         </Providers>
       </body>
     </html>
