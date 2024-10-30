@@ -1,5 +1,5 @@
 import { getPassphraseEnvName } from '@/gitenvs/env'
-import { GlobalConfig } from '@/gitenvs/globalConfig'
+import { type GlobalConfig } from '@/gitenvs/globalConfig'
 import { MoreVertical } from 'lucide-react'
 import {
   streamDialog,
