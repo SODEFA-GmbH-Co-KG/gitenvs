@@ -28,14 +28,9 @@ export const getPassphrase = async ({
     const requestedPassphrase = currentFileContent.find(
       (p) => p.stageName === stage,
     )?.passphrase
-    if (!requestedPassphrase) {
-      throw new Error(
-        `Requested passphrase for stage ${stage} not found in ${PASSPHRASE_FILE_NAME}`,
-      )
-    }
 
     return requestedPassphrase
   }
 
-  return passphrase ?? getFromEnvVars() ?? (await getFromFile()) ?? ''
+  return passphrase ?? getFromEnvVars() ?? (await getFromFile())
 }
