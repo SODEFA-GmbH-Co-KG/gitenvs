@@ -9,7 +9,7 @@ export default async function Page() {
   return <CopyPassphrases projectName={projectName} />
 }
 
-export const getProjectName = async () => {
+const getProjectName = async () => {
   const projectRoot = await getProjectRoot()
   const packageJson = await readFile(join(projectRoot, 'package.json'), 'utf-8')
   const packageJsonParsed = z
