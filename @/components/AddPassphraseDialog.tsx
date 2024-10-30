@@ -6,14 +6,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { type EnvStage } from '@/gitenvs/gitenvs.schema'
+import { Passphrase, type EnvStage } from '@/gitenvs/gitenvs.schema'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useSetAtom } from 'jotai'
 import { map } from 'lodash-es'
 import { useState } from 'react'
+import { z } from 'zod'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { KeyShortcut } from './KeyShortcut'
+import { Input } from './ui/input'
 
 export const AddPassphraseDialog = NiceModal.create(
   ({ stage }: { stage: EnvStage }) => {
@@ -63,7 +64,21 @@ export const AddPassphraseDialog = NiceModal.create(
                 type="text"
                 autoComplete="off"
                 value={passphrase}
-                onChange={(event) => setPassphrase(event.target.value)}
+                onChange={async (event) => {
+                  const value = event.target.value
+                  const passphrase = await new Promise<string>((res) => {
+                    const pastedPassphrases = z
+                      .array(Passphrase)
+                      .parse(JSON.parse(value))
+                    const passphrase = pastedPassphrases.find(
+                      (passphrase) => passphrase.stageName === stage.name,
+                    )?.passphrase
+
+                    res(passphrase ?? '')
+                  }).catch(() => value)
+
+                  setPassphrase(passphrase)
+                }}
               />
             </div>
             <div className="flex flex-col gap-4">
