@@ -1,3 +1,4 @@
+import { getIsGitenvsExisting } from '@/gitenvs/getIsGitenvsExisting'
 import { AtomifyPassphrase } from './AtomifyPassphrase'
 
 import { getPassphrase } from '@/gitenvs/getPassphrase'
@@ -7,6 +8,8 @@ import { encryptWithEncryptionKey } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 
 export const SendEncryptedPassphrasesToClient = async () => {
+  if (!(await getIsGitenvsExisting())) return
+
   const gitenvs = await getGitenvs()
 
   const encryptedPassphrases = await Promise.all(
