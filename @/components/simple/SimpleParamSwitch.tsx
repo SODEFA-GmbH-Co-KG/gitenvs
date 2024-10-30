@@ -41,3 +41,5 @@ export const SimpleParamSwitch = forwardRef<
     />
   )
 })
+
+SimpleParamSwitch.displayName = 'SimpleParamSwitch'
