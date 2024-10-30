@@ -3,31 +3,20 @@
 import { Passphrase } from '@/gitenvs/gitenvs.schema'
 import { useSetAtom } from 'jotai'
 import { map } from 'lodash-es'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { z } from 'zod'
 import {
   type StageEncryptionState,
   stageEncryptionStateAtom,
 } from './AtomifyPassphrase'
+import { usePasteHandler } from '@/hooks/usePasteHandler'
 
 export const HandlePastePassphrase = () => {
   const setStageEncryptionState = useSetAtom(stageEncryptionStateAtom)
 
-  const handlePaste = useCallback(
-    async (event: ClipboardEvent) => {
-      if (
-        event.target instanceof HTMLElement &&
-        event.target.tagName === 'INPUT'
-      )
-        return
-
-      const text = event.clipboardData?.getData('text')
-
-      if (!text) return
-
+  const handlePastedText = useCallback(
+    (text: string) => {
       const pastedPassphrases = z.array(Passphrase).safeParse(JSON.parse(text))
-      console.log({ pastedPassphrases })
-
       if (!pastedPassphrases.success) return
 
       setStageEncryptionState((prev) => {
@@ -50,16 +39,9 @@ export const HandlePastePassphrase = () => {
     [setStageEncryptionState],
   )
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('paste', handlePaste)
-    }
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('paste', handlePaste)
-      }
-    }
-  }, [handlePaste])
+  usePasteHandler({
+    onPaste: handlePastedText,
+  })
 
   return null
 }
