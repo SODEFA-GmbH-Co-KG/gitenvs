@@ -6,7 +6,7 @@ import {
   superAction,
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
-import { decryptWithEncryptionToken } from '~/utils/encryptionToken'
+import { decryptWithEncryptionKey } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 import { DeployToServiceButton } from '../DeployToServiceButton'
 import { SimpleParamSelect } from '../simple/SimpleParamSelect'
@@ -115,7 +115,7 @@ export const VercelDeployer = async ({
               return superAction(async () => {
                 const decryptedPassphrases = await Promise.all(
                   encryptedPassphrases.map(async (encryptedPassphrase) => {
-                    const passphrase = await decryptWithEncryptionToken({
+                    const passphrase = await decryptWithEncryptionKey({
                       ...encryptedPassphrase.encryptedPassphrase,
                       key: await getEncryptionKeyOnServer(),
                     })

@@ -17,10 +17,14 @@ export const PasteEnvVars = ({
   fileId: string
 }) => {
   const setEnvs = useSetAtom(envVarsToAddAtom)
-
   const envVarsInAtom = useAtomValue(envVarsToAddAtom)
   const handlePaste = useCallback(
     async (event: ClipboardEvent) => {
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.tagName === 'INPUT'
+      )
+        return
       if (envVarsInAtom !== undefined) return
       const text = event.clipboardData?.getData('text')
 

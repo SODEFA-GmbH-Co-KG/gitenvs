@@ -1,25 +1,48 @@
-import { writeFile } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
+import { map, uniqBy } from 'lodash-es'
 import { join } from 'path'
-import { decryptWithEncryptionToken } from '~/utils/encryptionToken'
+import {
+  decryptWithEncryptionKey,
+  type EncryptedValue,
+} from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 import { getCwd } from './getCwd'
+import { PASSPHRASE_FILE_NAME } from './getPassphrase'
+import { type Passphrase } from './gitenvs.schema'
 
-export const savePassphraseToFolder = async ({
-  encryptedPassphrase,
-  stageName,
+export const savePassphrasesToFolder = async ({
+  encryptedPassphrases,
 }: {
-  encryptedPassphrase: {
-    encryptedValue: string
-    iv: string
-  }
-  stageName: string
+  encryptedPassphrases: {
+    passphrase: EncryptedValue
+    stageName: string
+  }[]
 }) => {
-  const passphrase = await decryptWithEncryptionToken({
-    ...encryptedPassphrase,
-    key: await getEncryptionKeyOnServer(),
-  })
+  const passphrases = await Promise.all(
+    map(encryptedPassphrases, async (passphrase) => {
+      return {
+        passphrase: await decryptWithEncryptionKey({
+          ...passphrase.passphrase,
+          key: await getEncryptionKeyOnServer(),
+        }),
+        stageName: passphrase.stageName,
+      } satisfies Passphrase
+    }),
+  )
 
-  const path = join(getCwd(), `${stageName}.gitenvs.passphrase`)
+  const currentFileContent = await readFile(
+    join(getCwd(), PASSPHRASE_FILE_NAME),
+    'utf-8',
+  )
+    .then((res) => JSON.parse(res) as Passphrase[])
+    .catch(() => [])
 
-  await writeFile(path, passphrase)
+  const uniquePassphrases = uniqBy(
+    [...currentFileContent, ...passphrases],
+    (p) => p.stageName,
+  )
+
+  const path = join(getCwd(), PASSPHRASE_FILE_NAME)
+
+  await writeFile(path, JSON.stringify(uniquePassphrases, null, 2))
 }

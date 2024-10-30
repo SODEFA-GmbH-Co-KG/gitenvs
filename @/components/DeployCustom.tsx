@@ -1,17 +1,18 @@
 'use client'
 
 import { getPassphraseEnvName, GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
-import { passphrasesAtom } from '@/passphrasesAtom'
-import { useAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
+import { map } from 'lodash-es'
+import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { CopyButton } from './CopyButton'
 import { Input } from './ui/input'
 
 export const DeployCustom = () => {
-  const [passphrases] = useAtom(passphrasesAtom)
+  const stageEncryptionState = useAtomValue(stageEncryptionStateAtom)
 
   return (
     <div className="flex flex-col gap-4">
-      {passphrases.map((passphrase) => {
+      {map(stageEncryptionState, (passphrase) => {
         const dotenvFormat = `${GITENVS_STAGE_ENV_NAME}=${passphrase.stageName}
               ${getPassphraseEnvName({ stage: passphrase.stageName })}=${
                 passphrase.passphrase
@@ -37,7 +38,7 @@ export const DeployCustom = () => {
               </div>
               <div>
                 <InputWithCopyButton
-                  content={passphrase.passphrase}
+                  content={passphrase.passphrase ?? ''}
                   isPassword
                 />
               </div>

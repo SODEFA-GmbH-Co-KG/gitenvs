@@ -1,12 +1,13 @@
 'use client'
 
-import { passphrasesAtom } from '@/passphrasesAtom'
 import { useAtomValue } from 'jotai'
+import { filter, map } from 'lodash-es'
 import { Rocket } from 'lucide-react'
 import { type UseSuperActionOptions } from '~/super-action/action/useSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
-import { encryptWithEncryptionToken } from '~/utils/encryptionToken'
+import { encryptWithEncryptionKey } from '~/utils/encryptionToken'
+import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 
 export const DeployToServiceButton = (
   options: UseSuperActionOptions<
@@ -20,7 +21,7 @@ export const DeployToServiceButton = (
     }[]
   >,
 ) => {
-  const passphrases = useAtomValue(passphrasesAtom)
+  const stageEncryptionState = useAtomValue(stageEncryptionStateAtom)
   const getEncryptionKeyOnClient = useEncryptionKeyOnClient()
 
   return (
@@ -29,17 +30,21 @@ export const DeployToServiceButton = (
       hideIcon={false}
       action={async () => {
         const key = await getEncryptionKeyOnClient()
+        if (!key) throw new Error('No encryption key found')
         const encryptedPassphrases = await Promise.all(
-          passphrases.map(async (passphrase) => {
-            const encryptedPassphrase = await encryptWithEncryptionToken({
-              plaintext: passphrase.passphrase,
-              key,
-            })
-            return {
-              stageName: passphrase.stageName,
-              encryptedPassphrase,
-            }
-          }),
+          map(
+            filter(stageEncryptionState, (s) => s.passphrase !== null),
+            async (passphrase) => {
+              const encryptedPassphrase = await encryptWithEncryptionKey({
+                plaintext: passphrase.passphrase!,
+                key,
+              })
+              return {
+                stageName: passphrase.stageName,
+                encryptedPassphrase,
+              }
+            },
+          ),
         )
         return options.action(encryptedPassphrases)
       }}

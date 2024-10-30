@@ -3,8 +3,7 @@
 import { createKeys } from '@/gitenvs/createKeys'
 import { EnvFile, EnvFileType, EnvStage } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvFileId } from '@/gitenvs/idsGenerator'
-import { passphrasesAtom } from '@/passphrasesAtom'
-import { useAtom } from 'jotai'
+import { useSetAtom } from 'jotai'
 import { Loader2, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -12,6 +11,7 @@ import { useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { useZodForm } from '~/utils/useZodForm'
+import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { Button } from './ui/button'
 import {
   Form,
@@ -32,7 +32,7 @@ import {
 
 export const CreateGitenvs = () => {
   const [isGenerating, setIsGenerating] = useState(false)
-  const [passphrases, setPassphrases] = useAtom(passphrasesAtom)
+  const setStageEncryptionState = useSetAtom(stageEncryptionStateAtom)
   const router = useRouter()
 
   const isLoading = isGenerating
@@ -93,11 +93,12 @@ export const CreateGitenvs = () => {
             })
 
             const passphrases = stages.map((stage) => ({
-              stageName: stage.name,
+              showValues: false,
               passphrase: stage.passphrase,
+              stageName: stage.name,
             }))
 
-            setPassphrases(passphrases)
+            setStageEncryptionState(passphrases)
             router.push('/setup/save')
           } finally {
             setIsGenerating(false)

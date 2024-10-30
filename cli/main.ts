@@ -1,7 +1,7 @@
 import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
 import { GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { getCwd } from '@/gitenvs/getCwd'
-import { getPassphrase } from '@/gitenvs/getPassphrase'
+import { getPassphrase, PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import { execSync } from 'child_process'
 import { Command } from 'commander'
@@ -63,6 +63,13 @@ program
         passphrasePath: options.passphrasePath,
       })
 
+      if (!passphrase) {
+        console.error(
+          `Requested passphrase for stage ${stage} not found in ${options.passphrasePath ?? join(getCwd(), PASSPHRASE_FILE_NAME)}`,
+        )
+        process.exit(1)
+      }
+
       const promises = []
       for (const envFile of gitenvs.envFiles) {
         const envVars = gitenvs.envVars.filter(
@@ -92,7 +99,21 @@ program
         )
 
         const dotenvContent = dotenvVars
-          .map((dotenvVar) => `${dotenvVar.key}=${dotenvVar.value}`)
+          .map((dotenvVar) => {
+            const includesDoubleQuote = dotenvVar.value?.includes('"') ?? false
+            const includesBacktick = dotenvVar.value?.includes('`') ?? false
+
+            let wrapWith = '`'
+            if (includesBacktick) {
+              if (!includesDoubleQuote) {
+                wrapWith = '"'
+              } else {
+                wrapWith = '' // Hope for the best
+              }
+            }
+
+            return `${dotenvVar.key}=${wrapWith}${dotenvVar.value}${wrapWith}`
+          })
           .join('\n')
 
         promises.push(
