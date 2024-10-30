@@ -1,6 +1,6 @@
 {
   "name": "gitenvs",
-  "version": "0.1.3",
+  "version": "1.0.0",
   "private": false,
   "bin": {
     "gitenvs": "dist/main.mjs"
