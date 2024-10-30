@@ -1,13 +1,15 @@
 'use client'
 
-import { passphrasesAtom } from '@/passphrasesAtom'
-import { useAtom } from 'jotai'
+import { type Passphrase } from '@/gitenvs/gitenvs.schema'
+import { useAtomValue } from 'jotai'
+import { map } from 'lodash-es'
 import { Save } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { savePassphraseToFolder } from '~/lib/gitenvs'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
 import { encryptWithEncryptionKey } from '~/utils/encryptionToken'
+import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -20,9 +22,18 @@ import {
 } from './ui/tooltip'
 
 export const CopyPassphrases = () => {
-  const [passphrases] = useAtom(passphrasesAtom)
+  const stageEncryptionState = useAtomValue(stageEncryptionStateAtom)
   const router = useRouter()
   const getEncryptionKeyOnClient = useEncryptionKeyOnClient()
+
+  const passphrases = map(
+    stageEncryptionState,
+    (passphrase) =>
+      ({
+        stageName: passphrase.stageName,
+        passphrase: passphrase.decryptionKey ?? '',
+      }) satisfies Passphrase,
+  )
 
   return (
     <div className="flex max-w-lg flex-col gap-8">
