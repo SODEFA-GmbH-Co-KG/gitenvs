@@ -12,7 +12,7 @@ type SimpleParamSelectOptions = {
 export const SimpleParamSwitch = forwardRef<
   React.ElementRef<typeof Switch>,
   React.ComponentPropsWithoutRef<typeof Switch> & SimpleParamSelectOptions
->(({ className, paramKey, mode = 'push', ...props }, ref) => {
+>(({ paramKey, mode = 'push', ...props }, ref) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
