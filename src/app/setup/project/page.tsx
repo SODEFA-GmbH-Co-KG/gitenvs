@@ -6,6 +6,7 @@ import {
   updateGitIgnore,
 } from '@/gitenvs/gitignore'
 import { getIsGitenvsInstalled, installGitenvs } from '@/gitenvs/installGitenvs'
+import { addToScripts, getIsAddedToScripts } from '@/gitenvs/packageJsonScripts'
 import {
   getIsPostInstallScriptExisting,
   updatePostInstall,
@@ -23,11 +24,13 @@ export default async function Page() {
     isGitenvsInGitIgnore,
     isGitenvsInstalled,
     isPostInstallScriptExisting,
+    isAddedToScripts,
   ] = await Promise.all([
     getIsGitignoreExisting(),
     getIsGitenvsInGitIgnore(),
     getIsGitenvsInstalled(),
     getIsPostInstallScriptExisting(),
+    getIsAddedToScripts(),
   ])
 
   const allDone =
@@ -105,6 +108,25 @@ export default async function Page() {
           Add postinstall
         </ActionButton>
 
+        <p className={cn(isAddedToScripts && 'text-gray-500 line-through')}>
+          Add gitenvs to your <code>package.json</code> scripts.
+        </p>
+        <ActionButton
+          hideIcon={false}
+          action={async () => {
+            'use server'
+            return superAction(async () => {
+              await addToScripts()
+              revalidatePath('/setup/project')
+            })
+          }}
+          disabled={isAddedToScripts}
+          variant="outline"
+          className={cn(isAddedToScripts && 'line-through')}
+        >
+          Add to scripts
+        </ActionButton>
+
         <Hr outerClassName="col-span-full" thin marginX>
           or
         </Hr>
@@ -122,6 +144,8 @@ export default async function Page() {
               await installGitenvs() // installGitenvs & updatePostInstall both change package.json. So one needs to be run first. FIXME: We run install first because adding the postinstall script breaks the GITENVS_DIR stuff.
               streamRevalidatePath('/setup/project')
               await updatePostInstall()
+              streamRevalidatePath('/setup/project')
+              await addToScripts()
               streamRevalidatePath('/setup/project')
             })
           }}
