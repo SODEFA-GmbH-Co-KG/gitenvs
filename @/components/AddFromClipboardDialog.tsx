@@ -1,6 +1,15 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
 import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
@@ -18,15 +27,6 @@ import {
 import { AlertCircle, Lock, Unlock } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { z } from 'zod'
-import { Checkbox } from '~/components/ui/checkbox'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '~/components/ui/table'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { envVarsToAddAtom } from './PasteEnvVars'
 import { TableEnvVarTag } from './TableEnvVarTag'
@@ -433,6 +433,7 @@ export const AddFromClipboardDialog = ({
                                 value: isActive ? envVarInCell.value : '',
                                 encrypted: isEncrypted,
                               }}
+                              showValue={false}
                             />
                           </div>
                         </div>

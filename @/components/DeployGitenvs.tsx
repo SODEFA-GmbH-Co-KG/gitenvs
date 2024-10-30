@@ -1,9 +1,9 @@
 'use client'
 
 import { getPassphraseEnvName, GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
-import { passphrasesAtom } from '@/passphrasesAtom'
-import { useAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { useRouter } from 'next/navigation'
+import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { CopyButton } from './CopyButton'
 import { Button } from './ui/button'
 import {
@@ -14,7 +14,7 @@ import {
 import { Input } from './ui/input'
 
 export const DeployGitenvs = () => {
-  const [passphrases] = useAtom(passphrasesAtom)
+  const stageEncryptionState = useAtomValue(stageEncryptionStateAtom)
   const router = useRouter()
 
   return (
@@ -58,7 +58,7 @@ export const DeployGitenvs = () => {
           </div>
           <CollapsibleContent>
             <div className="flex flex-col gap-4">
-              {passphrases.map((passphrase) => {
+              {stageEncryptionState?.map((passphrase) => {
                 const dotenvFormat = `${GITENVS_STAGE_ENV_NAME}=${passphrase.stageName}
               ${getPassphraseEnvName({ stage: passphrase.stageName })}=${
                 passphrase.passphrase
@@ -87,7 +87,7 @@ export const DeployGitenvs = () => {
                       </div>
                       <div>
                         <InputWithCopyButton
-                          content={passphrase.passphrase}
+                          content={passphrase.passphrase ?? ''}
                           isPassword
                         />
                       </div>
