@@ -1,10 +1,12 @@
 'use client'
 
 import { type Passphrase } from '@/gitenvs/gitenvs.schema'
+import { cn } from '@/lib/utils'
 import { useAtomValue } from 'jotai'
 import { map } from 'lodash-es'
-import { Save } from 'lucide-react'
+import { Save, WholeWord } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Fragment } from 'react'
 import { toast } from 'sonner'
 import { savePassphrasesToFolder } from '~/lib/gitenvs'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
@@ -21,7 +23,9 @@ import {
   TooltipTrigger,
 } from './ui/tooltip'
 
-export const CopyPassphrases = () => {
+const suggestedNamePrefix = '[Gitenvs]'
+
+export const CopyPassphrases = ({ projectName }: { projectName?: string }) => {
   const stageEncryptionState = useAtomValue(stageEncryptionStateAtom)
   const router = useRouter()
   const getEncryptionKeyOnClient = useEncryptionKeyOnClient()
@@ -53,73 +57,81 @@ export const CopyPassphrases = () => {
           </span>
         </p>
       </div>
-      <div className="flex flex-col gap-4">
+      <div
+        className={cn('grid gap-x-2 gap-y-4', {
+          'grid-cols-[1fr_auto_auto_auto]': projectName,
+          'grid-cols-[1fr_auto_auto]': !projectName,
+        })}
+      >
         {passphrases.map((passphrase) => (
-          <div key={passphrase.stageName} className="flex flex-col gap-4">
-            <Label htmlFor={passphrase.stageName}>{passphrase.stageName}</Label>
-            <div className="flex flex-row gap-2">
-              <Input
-                id={passphrase.stageName}
-                defaultValue={passphrase.passphrase}
-                type="password"
-                readOnly
+          <Fragment key={passphrase.stageName}>
+            <Label htmlFor={passphrase.stageName} className="col-span-full">
+              {passphrase.stageName}
+            </Label>
+            <Input
+              id={passphrase.stageName}
+              defaultValue={passphrase.passphrase}
+              type="password"
+              readOnly
+            />
+            {projectName && (
+              <CopyButton
+                icon={<WholeWord className="size-4" />}
+                textToCopy={`${suggestedNamePrefix} ${projectName} ${passphrase.stageName}`}
+                tooltip="Copy suggested name for password manager"
               />
-              <CopyButton textToCopy={JSON.stringify([passphrase], null, 2)} />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={async () => {
-                        const encryptionKey = await getEncryptionKeyOnClient()
-                        if (!encryptionKey) return
+            )}
+            <CopyButton textToCopy={JSON.stringify([passphrase], null, 2)} />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={async () => {
+                      const encryptionKey = await getEncryptionKeyOnClient()
+                      if (!encryptionKey) return
 
-                        const encryptedPassphrase = {
-                          passphrase: await encryptWithEncryptionKey({
-                            plaintext: passphrase.passphrase,
-                            key: encryptionKey,
-                          }),
-                          stageName: passphrase.stageName,
-                        }
+                      const encryptedPassphrase = {
+                        passphrase: await encryptWithEncryptionKey({
+                          plaintext: passphrase.passphrase,
+                          key: encryptionKey,
+                        }),
+                        stageName: passphrase.stageName,
+                      }
 
-                        const savePromise = savePassphrasesToFolder({
-                          encryptedPassphrases: [encryptedPassphrase],
-                        })
-                        // const encryptedPassphrase =
-                        //   await encryptWithEncryptionToken({
-                        //     plaintext: passphrase.passphrase,
-                        //     key: await getEncryptionKeyOnClient(),
-                        //   })
-                        // await savePassphraseToFolder({
-                        //   encryptedPassphrase,
-                        //   stageName: passphrase.stageName,
-                        // })
+                      const savePromise = savePassphrasesToFolder({
+                        encryptedPassphrases: [encryptedPassphrase],
+                      })
 
-                        toast.promise(savePromise, {
-                          success: 'Saved passphrase to current folder',
-                          error: 'Could not save passphrase to current folder',
-                        })
-                      }}
-                    >
-                      <Save className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Save to current folder</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
+                      toast.promise(savePromise, {
+                        success: 'Saved passphrase to current folder',
+                        error: 'Could not save passphrase to current folder',
+                      })
+                    }}
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Save to current folder</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </Fragment>
         ))}
-      </div>
 
-      <div className="flex flex-col gap-4">
-        <CopyButton
-          textToCopy={JSON.stringify(passphrases, null, 2)}
-          additionalText="Copy all"
-        />
+        <hr className="col-span-full" />
+
+        <Label className="self-center">For all stages</Label>
+        {projectName && (
+          <CopyButton
+            icon={<WholeWord className="size-4" />}
+            textToCopy={`${suggestedNamePrefix} ${projectName} All`}
+            tooltip="Copy suggested name for password manager"
+          />
+        )}
+        <CopyButton textToCopy={JSON.stringify(passphrases, null, 2)} />
         <Button
           type="button"
           onClick={async () => {
@@ -149,12 +161,11 @@ export const CopyPassphrases = () => {
           variant="outline"
         >
           <Save className="h-4 w-4" />
-          &nbsp; Save all to current folder
-        </Button>
-        <Button type="button" onClick={() => router.push('/setup/deploy')}>
-          All done - next, please!
         </Button>
       </div>
+      <Button type="button" onClick={() => router.push('/setup/deploy')}>
+        All done - next, please!
+      </Button>
     </div>
   )
 }
