@@ -4,8 +4,9 @@ import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { parse } from 'dotenv'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { map } from 'lodash-es'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { AddFromClipboardDialog } from './AddFromClipboardDialog'
+import { usePasteHandler } from '@/hooks/usePasteHandler'
 
 export const envVarsToAddAtom = atom<EnvVar[] | undefined>(undefined)
 
@@ -18,21 +19,13 @@ export const PasteEnvVars = ({
 }) => {
   const setEnvs = useSetAtom(envVarsToAddAtom)
   const envVarsInAtom = useAtomValue(envVarsToAddAtom)
-  const handlePaste = useCallback(
-    async (event: ClipboardEvent) => {
-      if (
-        event.target instanceof HTMLElement &&
-        event.target.tagName === 'INPUT'
-      )
-        return
-      if (envVarsInAtom !== undefined) return
-      const text = event.clipboardData?.getData('text')
 
-      if (!text) return
+  const handlePastedText = useCallback(
+    (text: string) => {
       const result = parse(text)
       const hasResults = Object.keys(result).length > 0
       if (!hasResults) return
-      event.preventDefault()
+
       setEnvs(
         map(result, (value, key) => {
           const values = Object.fromEntries(
@@ -45,19 +38,13 @@ export const PasteEnvVars = ({
         }),
       )
     },
-    [fileId, gitenvs.envStages, setEnvs, envVarsInAtom],
+    [fileId, gitenvs.envStages, setEnvs],
   )
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('paste', handlePaste)
-    }
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('paste', handlePaste)
-      }
-    }
-  }, [handlePaste])
+  usePasteHandler({
+    onPaste: handlePastedText,
+    enabled: envVarsInAtom === undefined,
+  })
 
   if (!envVarsInAtom) return null
   return <AddFromClipboardDialog gitenvs={gitenvs} fileId={fileId} />

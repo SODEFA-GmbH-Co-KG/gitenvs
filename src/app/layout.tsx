@@ -7,6 +7,7 @@ import { ActionCommandProvider } from '~/super-action/command/ActionCommandProvi
 import { DialogProvider } from '~/super-action/dialog/DialogProvider'
 import { EncryptionTokenSideEffect } from '~/utils/encryptionKeyOnClient'
 import { Providers } from './providers'
+import { HandlePastePassphrase } from '@/components/HandlePastePassphrase'
 
 export const revalidate = 0
 
@@ -31,6 +32,7 @@ export default async function RootLayout({
           <ToasterSonner />
           <EncryptionTokenSideEffect />
           <SendEncryptedPassphrasesToClient />
+          <HandlePastePassphrase />
         </Providers>
       </body>
     </html>

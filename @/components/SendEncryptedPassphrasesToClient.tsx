@@ -8,7 +8,8 @@ import { encryptWithEncryptionKey } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 
 export const SendEncryptedPassphrasesToClient = async () => {
-  if (!(await getIsGitenvsExisting())) return null
+  if (!(await getIsGitenvsExisting())) return
+
   const gitenvs = await getGitenvs()
 
   const encryptedPassphrases = await Promise.all(
