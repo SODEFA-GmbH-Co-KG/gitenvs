@@ -7,7 +7,7 @@ import {
   type Gitenvs,
 } from '@/gitenvs/gitenvs.schema'
 import NiceModal from '@ebay/nice-modal-react'
-import { useAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { useEffect, useState } from 'react'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { EditEnvVarDialog } from './EditEnvVarDialog'
@@ -23,9 +23,7 @@ export const TableEnvVar = ({
   envVar: EnvVar
   envStage: EnvStage
 }) => {
-  const [stageEncryptionStates, setStageEncryptionState] = useAtom(
-    stageEncryptionStateAtom,
-  )
+  const stageEncryptionStates = useAtomValue(stageEncryptionStateAtom)
 
   const stageEncryptionState = stageEncryptionStates?.find(
     (s) => s.stageName === envStage.name,
