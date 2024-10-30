@@ -3,6 +3,7 @@ import { type GlobalConfig } from '@/gitenvs/globalConfig'
 import { MoreVertical } from 'lucide-react'
 import {
   streamDialog,
+  streamToast,
   superAction,
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
@@ -171,6 +172,11 @@ export const VercelDeployer = async ({
                     'Failed to deploy to Vercel. See server console for details.',
                   )
                 }
+
+                streamToast({
+                  title: 'Deployed to Vercel 🎉',
+                  description: 'Nicely done!',
+                })
               })
             }}
           />
