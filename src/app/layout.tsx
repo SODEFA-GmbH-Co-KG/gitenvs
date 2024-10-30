@@ -8,6 +8,8 @@ import { DialogProvider } from '~/super-action/dialog/DialogProvider'
 import { EncryptionTokenSideEffect } from '~/utils/encryptionKeyOnClient'
 import { Providers } from './providers'
 
+export const revalidate = 0
+
 export default async function RootLayout({
   children,
 }: {

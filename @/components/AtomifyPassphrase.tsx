@@ -38,9 +38,7 @@ export const AtomifyPassphrase = ({
 
     const decrypt = async () => {
       const encryptionKey = await getEncryptionKey()
-      if (!encryptionKey) {
-        throw new Error('No encryption key found')
-      }
+      if (!encryptionKey) return
 
       const passphraseResults = await Promise.all(
         map(encryptedPassphrases, async (pc) => {
@@ -63,7 +61,12 @@ export const AtomifyPassphrase = ({
     }
 
     void decrypt()
-  }, [getEncryptionKey, encryptedPassphrases, setStageEncryptionState])
+  }, [
+    getEncryptionKey,
+    encryptedPassphrases,
+    setStageEncryptionState,
+    stageEncryptionState,
+  ])
 
   return null
 }

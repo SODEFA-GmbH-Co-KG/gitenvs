@@ -72,11 +72,14 @@ export const CopyPassphrases = () => {
                       type="button"
                       variant="outline"
                       onClick={async () => {
+                        const encryptionKey = await getEncryptionKeyOnClient()
+                        if (!encryptionKey) return
+
                         const save = async () => {
                           const encryptedPassphrase =
                             await encryptWithEncryptionKey({
                               plaintext: passphrase.passphrase,
-                              key: await getEncryptionKeyOnClient(),
+                              key: encryptionKey,
                             })
                           await savePassphraseToFolder({
                             encryptedPassphrase,
@@ -111,11 +114,14 @@ export const CopyPassphrases = () => {
         <Button
           type="button"
           onClick={async () => {
+            const encryptionKey = await getEncryptionKeyOnClient()
+            if (!encryptionKey) return
+
             const promise = Promise.all(
               passphrases.map(async (passphrase) => {
                 const encryptedPassphrase = await encryptWithEncryptionKey({
                   plaintext: passphrase.passphrase,
-                  key: await getEncryptionKeyOnClient(),
+                  key: encryptionKey,
                 })
 
                 return savePassphraseToFolder({
