@@ -13,13 +13,14 @@ const getPackageJsonPath = async () => {
 const getPackageJson = async () => {
   const packageJson = await readFile(await getPackageJsonPath(), 'utf-8')
   const json = JSON.parse(packageJson)
-  const parsed = z
-    .object({
-      scripts: z.record(z.string()).optional(),
-    })
-    .passthrough()
-    .parse(json)
-  return parsed
+  const schema = z.object({
+    scripts: z.record(z.string()).optional(),
+  })
+  const result = schema.safeParse(json)
+  if (!result.success) {
+    throw new Error('Invalid package.json')
+  }
+  return json as z.infer<typeof schema> // This is a workaround to avoid passthrough() as it changes the shape of the object
 }
 
 export const updatePostInstall = async () => {
@@ -27,9 +28,6 @@ export const updatePostInstall = async () => {
   const existing = packageJson.scripts?.postinstall ?? ''
   if (packageJson.scripts?.postinstall) {
     return
-  }
-  if (!packageJson.scripts) {
-    packageJson.scripts = {}
   }
   packageJson.scripts = {
     ...(packageJson.scripts ?? {}),
