@@ -6,6 +6,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import { DeployVercel } from '@/components/vercel/DeployVercel'
+import Image from 'next/image'
 import Link from 'next/link'
 
 export default function Page({
@@ -28,8 +29,15 @@ export default function Page({
         >
           <div className="flex flex-col items-center justify-center">
             <CollapsibleTrigger asChild>
-              <Button variant="outline" className="self-center">
-                🚀 Deploy to Vercel
+              <Button variant="outline" className="gap-2 self-center">
+                <span>Deploy to Vercel</span>
+                <Image
+                  unoptimized
+                  alt="vercel-logo"
+                  src="https://vercel.com/favicon.ico"
+                  width={20}
+                  height={20}
+                />
               </Button>
             </CollapsibleTrigger>
           </div>
