@@ -1,4 +1,4 @@
-import { getPassphraseEnvName } from '@/gitenvs/env'
+import { getPassphraseEnvName, GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { type GlobalConfig } from '@/gitenvs/globalConfig'
 import { MoreVertical } from 'lucide-react'
 import {
@@ -145,7 +145,7 @@ export const VercelDeployer = async ({
                         target,
                       },
                       {
-                        key: 'GITENVS_STAGE_ENV_NAME',
+                        key: GITENVS_STAGE_ENV_NAME,
                         value: stageName,
                         type: 'plain',
                         target,
