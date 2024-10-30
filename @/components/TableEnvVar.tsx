@@ -55,7 +55,8 @@ export const TableEnvVar = ({
         value: decryptedValue ?? '',
       })
     }
-    void decryptValue()
+
+    decryptValue().catch(console.error)
   }, [
     envStage.encryptedPrivateKey,
     initialEnvVarValue?.encrypted,

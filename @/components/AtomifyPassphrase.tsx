@@ -60,7 +60,7 @@ export const AtomifyPassphrase = ({
       setStageEncryptionState(passphraseResults)
     }
 
-    void decrypt()
+    decrypt().catch(console.error)
   }, [
     getEncryptionKey,
     encryptedPassphrases,
