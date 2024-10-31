@@ -33,7 +33,10 @@ export const DeployToServiceButton = (
         if (!key) throw new Error('No encryption key found')
         const encryptedPassphrases = await Promise.all(
           map(
-            filter(stageEncryptionState, (s) => s.passphrase !== null),
+            filter(
+              stageEncryptionState,
+              (s) => s.passphrase !== null && s.stageName !== 'development', // FIXME: When we have stage mapping this should be an option
+            ),
             async (passphrase) => {
               const encryptedPassphrase = await encryptWithEncryptionKey({
                 plaintext: passphrase.passphrase!,
