@@ -78,11 +78,12 @@ export const ImportFromVercel = async ({
 
               const needDecryption = filter(
                 res.envs,
-                (env) => env.type === 'encrypted' && !env.decrypted,
+                (env) =>
+                  env.type === 'encrypted' && !env.decrypted && !env.gitBranch,
               )
               const alreadyDecrypted = filter(
                 res.envs,
-                (env) => env.type === 'plain',
+                (env) => env.type === 'plain' && !env.gitBranch,
               )
 
               const decryptedVars = await Promise.all(
