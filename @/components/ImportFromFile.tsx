@@ -11,8 +11,6 @@ import {
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { AddFromClipboardDialog } from './AddFromClipboardDialog'
-import { Hr } from './Hr'
-import { SimpleParamSelect } from './simple/SimpleParamSelect'
 
 export const ImportFromFile = async ({ fileId }: { fileId: string }) => {
   const gitenvs = await getGitenvs()
@@ -21,18 +19,6 @@ export const ImportFromFile = async ({ fileId }: { fileId: string }) => {
   )
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-center text-2xl">Import existing .env Files</h1>
-      Select your import target file:
-      <SimpleParamSelect
-        label="File"
-        component="dropdown"
-        paramKey="fileId"
-        options={gitenvs.envFiles.map((file) => ({
-          value: file.id,
-          label: file.name,
-        }))}
-      />
-      <Hr />
       Select the file to import:
       <div className="grid grid-cols-4 gap-2">
         {fileNames.map((fileName) => (
