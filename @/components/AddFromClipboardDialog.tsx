@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
-import { EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { useAtom } from 'jotai'
 import {
@@ -26,8 +26,9 @@ import {
 } from 'lodash-es'
 import { AlertCircle, Lock, Unlock } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { z } from 'zod'
 import { saveGitenvs } from '~/lib/gitenvs'
+import { type SuperAction } from '~/super-action/action/createSuperAction'
+import { useSuperAction } from '~/super-action/action/useSuperAction'
 import { envVarsToAddAtom } from './PasteEnvVars'
 import { TableEnvVarTag } from './TableEnvVarTag'
 import {
@@ -39,20 +40,24 @@ import {
 } from './ui/dialog'
 import { Label } from './ui/label'
 
-const AddFromClipboardSchema = z.object({
-  envVars: z.array(EnvVar),
-})
-
-export type AddFromClipboardSchema = z.infer<typeof AddFromClipboardSchema>
-
 export const AddFromClipboardDialog = ({
   gitenvs,
   fileId,
+  newEnvVars,
+  onClose,
 }: {
   gitenvs: Gitenvs
   fileId: string
+  newEnvVars?: EnvVar[]
+  onClose?: SuperAction<void, undefined>
 }) => {
-  const [envVarsConfig, setEnvVarsConfig] = useAtom(envVarsToAddAtom)
+  const [envVarsFromAtom, setEnvVarsConfig] = useAtom(envVarsToAddAtom)
+
+  const { trigger: triggerOnClose } = useSuperAction({
+    action: onClose ?? (async () => void 0),
+  })
+
+  const envVarsConfig = newEnvVars ?? envVarsFromAtom
 
   const allStages = useMemo(
     () => gitenvs.envStages.map((stage) => stage.name),
@@ -167,6 +172,11 @@ export const AddFromClipboardDialog = ({
     }
   }
 
+  const handleClose = async () => {
+    setEnvVarsConfig(undefined)
+    await triggerOnClose(undefined)
+  }
+
   const handleSubmit = async () => {
     if (!envVarsConfig) return
 
@@ -253,7 +263,7 @@ export const AddFromClipboardDialog = ({
     }
 
     await saveGitenvs(newGitenvs)
-    setEnvVarsConfig(undefined)
+    await handleClose()
   }
 
   const allKeysAllStagesEncrypted = every(allIds, (id) =>
@@ -265,9 +275,9 @@ export const AddFromClipboardDialog = ({
   return (
     <Dialog
       open={!!envVarsConfig}
-      onOpenChange={(open) => {
+      onOpenChange={async (open) => {
         if (!open) {
-          setEnvVarsConfig(undefined)
+          await handleClose()
         }
       }}
     >
@@ -446,10 +456,7 @@ export const AddFromClipboardDialog = ({
           </TableBody>
         </Table>
         <DialogFooter>
-          <Button
-            variant={'outline'}
-            onClick={() => setEnvVarsConfig(undefined)}
-          >
+          <Button variant={'outline'} onClick={async () => await handleClose()}>
             Cancel
           </Button>
           <Button type="submit" onClick={handleSubmit}>

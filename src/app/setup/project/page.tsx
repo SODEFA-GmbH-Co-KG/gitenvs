@@ -1,5 +1,6 @@
 import { Hr } from '@/components/Hr'
 import { PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
+import { getGitenvs } from '@/gitenvs/gitenvs'
 import {
   getIsGitenvsInGitIgnore,
   getIsGitignoreExisting,
@@ -25,13 +26,17 @@ export default async function Page() {
     isGitenvsInstalled,
     isPostInstallScriptExisting,
     isAddedToScripts,
+    gitenvs,
   ] = await Promise.all([
     getIsGitignoreExisting(),
     getIsGitenvsInGitIgnore(),
     getIsGitenvsInstalled(),
     getIsPostInstallScriptExisting(),
     getIsAddedToScripts(),
+    getGitenvs(),
   ])
+
+  const firstFileId = gitenvs.envFiles[0]!.id
 
   const allDone =
     isGitignoreExisting && isGitenvsInstalled && isPostInstallScriptExisting
@@ -161,7 +166,7 @@ export default async function Page() {
         <ActionButton
           action={async () => {
             'use server'
-            redirect('/')
+            redirect('/setup/import?fileId=' + firstFileId)
           }}
           variant={allDone ? 'default' : 'outline'}
           className="self-end"
