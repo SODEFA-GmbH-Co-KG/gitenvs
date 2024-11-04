@@ -1,15 +1,23 @@
 import { ArrowTab } from '@/components/ArrowTab'
+import { HandlePastePassphrase } from '@/components/HandlePastePassphrase'
 import { SendEncryptedPassphrasesToClient } from '@/components/SendEncryptedPassphrasesToClient'
 import { Toaster } from '@/components/ui/toaster'
+import { type Metadata } from 'next'
 import { Toaster as ToasterSonner } from 'sonner'
 import '~/styles/globals.css'
 import { ActionCommandProvider } from '~/super-action/command/ActionCommandProvider'
 import { DialogProvider } from '~/super-action/dialog/DialogProvider'
 import { EncryptionTokenSideEffect } from '~/utils/encryptionKeyOnClient'
 import { Providers } from './providers'
-import { HandlePastePassphrase } from '@/components/HandlePastePassphrase'
 
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Gitenvs',
+    template: '%s | Gitenvs',
+  },
+}
 
 export default async function RootLayout({
   children,
