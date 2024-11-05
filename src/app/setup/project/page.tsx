@@ -166,7 +166,9 @@ export default async function Page() {
         <ActionButton
           action={async () => {
             'use server'
-            redirect('/setup/import?fileId=' + firstFileId)
+            redirect(
+              `/setup/import?${new URLSearchParams({ fileId: firstFileId }).toString()}`,
+            )
           }}
           variant={allDone ? 'default' : 'outline'}
           className="self-end"
