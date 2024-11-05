@@ -76,7 +76,6 @@ export const ImportFromFile = async ({ fileId }: { fileId: string }) => {
           <div className="col-span-4 text-center">No files found</div>
         )}
       </div>
-      {/* <ActionButton action={onNext}>Next</ActionButton> */}
     </div>
   )
 }
