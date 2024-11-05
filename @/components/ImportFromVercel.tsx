@@ -3,6 +3,7 @@ import { getGlobalConfig } from '@/gitenvs/globalConfig'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { Vercel } from '@vercel/sdk'
 import { type Envs } from '@vercel/sdk/dist/commonjs/models/operations/filterprojectenvs'
+import { atom } from 'jotai'
 import { filter, groupBy, map } from 'lodash-es'
 import { Fragment } from 'react'
 import {
@@ -12,6 +13,8 @@ import {
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { AddFromClipboardDialog } from './AddFromClipboardDialog'
 import { VercelTeamProjectSelect } from './vercel/VercelTeamProjectSelect'
+
+const importedEnvs = atom<Envs[] | undefined>(undefined)
 
 export const ImportFromVercel = async ({
   fileId,
@@ -113,8 +116,6 @@ export const ImportFromVercel = async ({
                       onClose={async () => {
                         'use server'
                         return superAction(async () => {
-                          console.log('close')
-
                           streamDialog(null)
                         })
                       }}
