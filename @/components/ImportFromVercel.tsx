@@ -157,6 +157,9 @@ export const ImportFromVercel = async ({
                                       },
                                     )
                                     console.log({ toDelete })
+
+                                    //TODO: uncomment this if pr reviewed 😱
+
                                     // await Promise.all(
                                     //   toDelete.map(async (env) => {
                                     //     return fetch(
