@@ -1,28 +1,17 @@
 import { getPassphraseEnvName, GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { type GlobalConfig } from '@/gitenvs/globalConfig'
-import { MoreVertical } from 'lucide-react'
 import {
-  streamDialog,
   streamToast,
   superAction,
 } from '~/super-action/action/createSuperAction'
-import { ActionButton } from '~/super-action/button/ActionButton'
 import { decryptWithEncryptionKey } from '~/utils/encryptionToken'
 import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
 import { DeployToServiceButton } from '../DeployToServiceButton'
-import { SimpleParamSelect } from '../simple/SimpleParamSelect'
 import { SimpleParamSwitch } from '../simple/SimpleParamSwitch'
-import { Button } from '../ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
 import { Label } from '../ui/label'
-import { TokenInput } from './VercelTokenInput'
 import { getVercelProjects } from './getVercelProjects'
 import { getVercelTeams } from './getVercelTeams'
+import { VercelTeamProjectSelect } from './VercelTeamProjectSelect'
 
 export const VercelDeployer = async ({
   config,
@@ -45,53 +34,7 @@ export const VercelDeployer = async ({
 
   return (
     <>
-      <div className="grid grid-cols-[1fr_1fr_auto] gap-4">
-        <SimpleParamSelect
-          label="Team"
-          component="dropdown"
-          paramKey="teamId"
-          options={teams.map((team) => ({
-            value: team.id,
-            label: team.name,
-          }))}
-        />
-        <SimpleParamSelect
-          label="Projects"
-          disabled={!projects.length}
-          component="dropdown"
-          paramKey="projectId"
-          options={projects.map((team) => ({
-            value: team.id,
-            label: team.name,
-          }))}
-        />
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <MoreVertical className="h-3 w-3 opacity-60" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent forceMount>
-            <DropdownMenuItem asChild>
-              <ActionButton
-                variant="ghost"
-                action={async () => {
-                  'use server'
-                  return superAction(async () => {
-                    streamDialog({
-                      title: 'Update Vercel Token',
-                      content: <TokenInput closeDialog />,
-                    })
-                  })
-                }}
-              >
-                Update Vercel Token
-              </ActionButton>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <VercelTeamProjectSelect teamId={teamId} />
       {!!teamId && !!projectId && (
         <div className="flex flex-col gap-4">
           <div className="flex flex-row items-center justify-end gap-4">
