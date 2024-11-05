@@ -35,53 +35,6 @@ export const VercelDeployer = async ({
   return (
     <>
       <VercelTeamProjectSelect teamId={teamId} />
-      {/* <div className="grid grid-cols-[1fr_1fr_auto] gap-4">
-        <SimpleParamSelect
-          label="Team"
-          component="dropdown"
-          paramKey="teamId"
-          options={teams.map((team) => ({
-            value: team.id,
-            label: team.name,
-          }))}
-        />
-        <SimpleParamSelect
-          label="Projects"
-          disabled={!projects.length}
-          component="dropdown"
-          paramKey="projectId"
-          options={projects.map((team) => ({
-            value: team.id,
-            label: team.name,
-          }))}
-        />
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <MoreVertical className="h-3 w-3 opacity-60" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent forceMount>
-            <DropdownMenuItem asChild>
-              <ActionButton
-                variant="ghost"
-                action={async () => {
-                  'use server'
-                  return superAction(async () => {
-                    streamDialog({
-                      title: 'Update Vercel Token',
-                      content: <TokenInput closeDialog />,
-                    })
-                  })
-                }}
-              >
-                Update Vercel Token
-              </ActionButton>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div> */}
       {!!teamId && !!projectId && (
         <div className="flex flex-col gap-4">
           <div className="flex flex-row items-center justify-end gap-4">
