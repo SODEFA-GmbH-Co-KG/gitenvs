@@ -15,7 +15,7 @@ export default async function Page({
   const firstFileId = gitenvs.envFiles[0]!.id
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-center text-2xl">Import existing .env Files</h1>
+      <h1 className="text-center text-2xl">Import your env variables</h1>
       Select your import target file:
       <SimpleParamSelect
         label="File"
@@ -27,9 +27,12 @@ export default async function Page({
         }))}
       />
       <Hr />
+      <h1 className="text-center text-xl">Import from your files</h1>
       <div className="flex flex-col gap-4">
         <ImportFromFile fileId={searchParams.fileId ?? firstFileId} />
       </div>
+      <Hr />
+      <h1 className="text-center text-xl">Import from Vercel</h1>
       <div className="flex flex-col gap-4">
         <ImportFromVercel
           fileId={searchParams.fileId ?? firstFileId}
@@ -37,8 +40,9 @@ export default async function Page({
           projectId={searchParams.projectId}
         />
       </div>
-      <Button asChild>
-        <Link href="/">Done</Link>
+      <Hr />
+      <Button asChild variant={'default'}>
+        <Link href="/">Setup Done</Link>
       </Button>
     </div>
   )

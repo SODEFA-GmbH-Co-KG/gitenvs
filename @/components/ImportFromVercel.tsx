@@ -11,9 +11,7 @@ import {
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { AddFromClipboardDialog } from './AddFromClipboardDialog'
-import { SimpleParamSelect } from './simple/SimpleParamSelect'
-import { getVercelProjects } from './vercel/getVercelProjects'
-import { getVercelTeams } from './vercel/getVercelTeams'
+import { VercelTeamProjectSelect } from './vercel/VercelTeamProjectSelect'
 
 export const ImportFromVercel = async ({
   fileId,
@@ -24,34 +22,10 @@ export const ImportFromVercel = async ({
   projectId?: string
   teamId?: string
 }) => {
-  const config = await getGlobalConfig()
-  const [teams, projects] = await Promise.all([
-    getVercelTeams({ config }),
-    teamId ? getVercelProjects({ config, teamId }) : Promise.resolve([]),
-  ])
-
   return (
     <div className="flex flex-col gap-8">
-      Import from Vercel Project Select your vercel Project
-      <SimpleParamSelect
-        label="Team"
-        component="dropdown"
-        paramKey="teamId"
-        options={teams.map((team) => ({
-          value: team.id,
-          label: team.name,
-        }))}
-      />
-      <SimpleParamSelect
-        label="Projects"
-        disabled={!projects.length}
-        component="dropdown"
-        paramKey="projectId"
-        options={projects.map((team) => ({
-          value: team.id,
-          label: team.name,
-        }))}
-      />
+      Select your Vercel Project:
+      <VercelTeamProjectSelect teamId={teamId} />
       <div className="grid grid-cols-4 gap-2">
         <Fragment>
           <ActionButton
@@ -101,14 +75,11 @@ export const ImportFromVercel = async ({
                   return envDecrypted.json() as Envs
                 }),
               )
-              console.dir({ decryptedVars }, { depth: 10 })
 
               const grouped = groupBy(
                 [...alreadyDecrypted, ...decryptedVars],
                 'key',
               )
-
-              console.dir({ grouped }, { depth: 10 })
 
               const envVarsToAdd = map(grouped, (value, key) => {
                 const values = Object.fromEntries(
@@ -153,7 +124,7 @@ export const ImportFromVercel = async ({
               })
             }}
           >
-            Vercel Magic 🪄
+            Load from Vercel 🪄
           </ActionButton>
         </Fragment>
       </div>
