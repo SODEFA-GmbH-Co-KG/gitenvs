@@ -131,8 +131,7 @@ export const ImportFromVercel = async ({
                             .filter((env) => {
                               return some(
                                 currentEnvVarsInFile,
-                                (envVar) =>
-                                  envVar.key === env.key && envVar.values,
+                                (envVar) => envVar.key === env.key,
                               )
                             })
                             .map((env) => {
