@@ -81,12 +81,13 @@ export const ImportFromVercel = async ({
 
               const grouped = groupBy(
                 [...alreadyDecrypted, ...decryptedVars],
-                'key',
+                (env) => env.key,
               )
 
               const envVarsToAdd = map(grouped, (value, key) => {
                 const values = Object.fromEntries(
                   map(gitenvs.envStages, (stage) => {
+                    // TODO: Should use stage mapping
                     const envStageToVercelStage =
                       stage.name === 'development'
                         ? 'development'
@@ -99,7 +100,11 @@ export const ImportFromVercel = async ({
                       )?.value ?? ''
                     return [
                       stage.name,
-                      { value: valueInStage, encrypted: false, fileId },
+                      {
+                        value: valueInStage,
+                        encrypted: false,
+                        refileId,
+                      },
                     ]
                   }),
                 )
