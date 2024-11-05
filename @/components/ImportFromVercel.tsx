@@ -143,10 +143,15 @@ export const ImportFromVercel = async ({
                             })
                           streamDialog({
                             title: 'Delete imported Envs from Vercel',
-                            cancel: 'cancel',
                             content: (
                               <DeleteVercelEnvsDialog
                                 vercelEnvs={vercelEnvsToDelete}
+                                onCancel={async () => {
+                                  'use server'
+                                  return superAction(async () => {
+                                    streamDialog(null)
+                                  })
+                                }}
                                 onDelete={async (formdata) => {
                                   'use server'
                                   return superAction(async () => {
@@ -160,23 +165,22 @@ export const ImportFromVercel = async ({
                                         }
                                       },
                                     )
-                                    console.log({ toDelete })
 
-                                    //TODO: uncomment this if pr reviewed 😱
-
-                                    // await Promise.all(
-                                    //   toDelete.map(async (env) => {
-                                    //     return fetch(
-                                    //       `https://api.vercel.com/v9/projects/${projectId}/env/${env.id}?teamId=${teamId}`,
-                                    //       {
-                                    //         headers: {
-                                    //           Authorization: `Bearer ${config.vercelToken}`,
-                                    //         },
-                                    //         method: 'delete',
-                                    //       },
-                                    //     )
-                                    //   }),
-                                    // )
+                                    await Promise.all(
+                                      toDelete.map(async (env) => {
+                                        if (!env.id || !projectId || !teamId)
+                                          throw new Error('Missing data')
+                                        return fetch(
+                                          `https://api.vercel.com/v9/projects/${projectId}/env/${env.id}?teamId=${teamId}`,
+                                          {
+                                            headers: {
+                                              Authorization: `Bearer ${config.vercelToken}`,
+                                            },
+                                            method: 'delete',
+                                          },
+                                        )
+                                      }),
+                                    )
 
                                     streamDialog(null)
                                   })
