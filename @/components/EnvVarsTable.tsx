@@ -20,7 +20,7 @@ export const EnvVarsTable = async ({
 
   return (
     <Fragment>
-      <div className="flex max-w-full flex-col gap-2 overflow-hidden rounded-md border p-4">
+      <div className="flex max-w-full flex-col gap-2 overflow-auto rounded-md border p-4">
         {!!gitenvs?.envVars.length ? (
           <div
             className="grid w-full gap-2"
@@ -72,37 +72,37 @@ export const EnvVarsTable = async ({
         ) : (
           <p>No env vars so far. Add a new one</p>
         )}
-        <ActionButton
-          command={{
-            shortcut: {
-              key: 'a',
-            },
-            label: 'Add new env var',
-          }}
-          action={async () => {
-            'use server'
-
-            return superAction(async () => {
-              const values = Object.fromEntries(
-                map(gitenvs.envStages, (stage) => [
-                  stage.name,
-                  { value: '', encrypted: false },
-                ]),
-              )
-              const newGitenvs = {
-                ...gitenvs,
-                envVars: [
-                  ...gitenvs.envVars,
-                  { id: getNewEnvVarId(), fileId, key: '', values },
-                ],
-              }
-              await saveGitenvs(newGitenvs)
-            })
-          }}
-        >
-          Add
-        </ActionButton>
       </div>
+      <ActionButton
+        command={{
+          shortcut: {
+            key: 'a',
+          },
+          label: 'Add new env var',
+        }}
+        action={async () => {
+          'use server'
+
+          return superAction(async () => {
+            const values = Object.fromEntries(
+              map(gitenvs.envStages, (stage) => [
+                stage.name,
+                { value: '', encrypted: false },
+              ]),
+            )
+            const newGitenvs = {
+              ...gitenvs,
+              envVars: [
+                ...gitenvs.envVars,
+                { id: getNewEnvVarId(), fileId, key: '', values },
+              ],
+            }
+            await saveGitenvs(newGitenvs)
+          })
+        }}
+      >
+        Add new env var
+      </ActionButton>
     </Fragment>
   )
 }

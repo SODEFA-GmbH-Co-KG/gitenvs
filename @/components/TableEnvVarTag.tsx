@@ -31,5 +31,12 @@ export const TableEnvVarTag = ({
     )
   }
 
-  return envVarValue.value
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="truncate text-xs">{envVarValue.value}</span>
+      </TooltipTrigger>
+      <TooltipContent>{envVarValue.value}</TooltipContent>
+    </Tooltip>
+  )
 }
