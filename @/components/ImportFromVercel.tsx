@@ -103,7 +103,7 @@ export const ImportFromVercel = async ({
                       {
                         value: valueInStage,
                         encrypted: false,
-                        refileId,
+                        fileId,
                       },
                     ]
                   }),
