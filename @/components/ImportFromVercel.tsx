@@ -131,11 +131,16 @@ export const ImportFromVercel = async ({
                             .filter((env) => {
                               return some(
                                 currentEnvVarsInFile,
-                                (envVar) => envVar.key === env.key,
+                                (envVar) =>
+                                  envVar.key === env.key && envVar.values,
                               )
                             })
                             .map((env) => {
-                              return { id: env.id!, key: env.key! }
+                              return {
+                                id: env.id!,
+                                key: env.key!,
+                                target: env.target,
+                              }
                             })
                           streamDialog({
                             title: 'Delete imported Envs from Vercel',

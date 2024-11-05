@@ -1,5 +1,6 @@
 'use client'
 
+import { map } from 'lodash-es'
 import { type SuperAction } from '~/super-action/action/createSuperAction'
 import { ActionForm } from '~/super-action/form/ActionForm'
 import { Button } from '../ui/button'
@@ -10,7 +11,7 @@ export const DeleteVercelEnvsDialog = ({
   vercelEnvs,
   onDelete,
 }: {
-  vercelEnvs?: { id: string; key: string }[]
+  vercelEnvs?: { id: string; key: string; target?: string[] | string }[]
   onDelete: SuperAction<void, FormData>
 }) => {
   return (
@@ -24,7 +25,12 @@ export const DeleteVercelEnvsDialog = ({
           {vercelEnvs?.map((env) => (
             <div className="flex gap-2" key={env.id}>
               <Checkbox name={env.id} id={env.id} />
-              <Label htmlFor={env.id}>{env.key}</Label>
+              <Label htmlFor={env.id}>
+                {env.key} - Target:{' '}
+                {typeof env.target === 'string'
+                  ? env.target
+                  : map(env.target, (t) => t).join(', ')}
+              </Label>
             </div>
           ))}
         </div>
