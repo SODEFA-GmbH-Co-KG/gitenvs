@@ -129,7 +129,6 @@ export const ImportFromVercel = async ({
           </ActionButton>
         </Fragment>
       </div>
-      {/* <ActionButton action={onNext}>Next</ActionButton> */}
     </div>
   )
 }
