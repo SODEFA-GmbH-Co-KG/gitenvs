@@ -3,8 +3,7 @@ import { getGlobalConfig } from '@/gitenvs/globalConfig'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { Vercel } from '@vercel/sdk'
 import { type Envs } from '@vercel/sdk/dist/commonjs/models/operations/filterprojectenvs'
-import { atom } from 'jotai'
-import { filter, groupBy, map } from 'lodash-es'
+import { filter, groupBy, map, some } from 'lodash-es'
 import { Fragment } from 'react'
 import {
   streamDialog,
@@ -12,9 +11,8 @@ import {
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { AddFromClipboardDialog } from './AddFromClipboardDialog'
+import { DeleteVercelEnvsDialog } from './vercel/DeleteVercelEnvsDialog'
 import { VercelTeamProjectSelect } from './vercel/VercelTeamProjectSelect'
-
-const importedEnvs = atom<Envs[] | undefined>(undefined)
 
 export const ImportFromVercel = async ({
   fileId,
@@ -116,7 +114,69 @@ export const ImportFromVercel = async ({
                       onClose={async () => {
                         'use server'
                         return superAction(async () => {
-                          streamDialog(null)
+                          const gitenvs = await getGitenvs()
+                          // console.log({
+                          //   envVarsToAdd,
+                          //   gitenvs: gitenvs.envVars,
+                          // })
+                          const currentEnvVarsInFile = filter(
+                            gitenvs.envVars,
+                            (env) => env.fileId === fileId,
+                          )
+
+                          const vercelEnvsToDelete = [
+                            ...alreadyDecrypted,
+                            ...decryptedVars,
+                          ]
+                            .filter((env) => {
+                              return some(
+                                currentEnvVarsInFile,
+                                (envVar) => envVar.key === env.key,
+                              )
+                            })
+                            .map((env) => {
+                              return { id: env.id!, key: env.key! }
+                            })
+                          streamDialog({
+                            title: 'Delete imported Envs from Vercel',
+                            cancel: 'cancel',
+                            content: (
+                              <DeleteVercelEnvsDialog
+                                vercelEnvs={vercelEnvsToDelete}
+                                onDelete={async (formdata) => {
+                                  'use server'
+                                  return superAction(async () => {
+                                    const config = await getGlobalConfig()
+                                    const toDelete = map(
+                                      Array.from(formdata.entries()),
+                                      (value) => {
+                                        return {
+                                          id: value[0],
+                                          value: value[1],
+                                        }
+                                      },
+                                    )
+                                    console.log({ toDelete })
+                                    // await Promise.all(
+                                    //   toDelete.map(async (env) => {
+                                    //     return fetch(
+                                    //       `https://api.vercel.com/v9/projects/${projectId}/env/${env.id}?teamId=${teamId}`,
+                                    //       {
+                                    //         headers: {
+                                    //           Authorization: `Bearer ${config.vercelToken}`,
+                                    //         },
+                                    //         method: 'delete',
+                                    //       },
+                                    //     )
+                                    //   }),
+                                    // )
+
+                                    streamDialog(null)
+                                  })
+                                }}
+                              />
+                            ),
+                          })
                         })
                       }}
                     />

@@ -1,4 +1,5 @@
 import { type GlobalConfig } from '@/gitenvs/globalConfig'
+import { orderBy } from 'lodash-es'
 import { z } from 'zod'
 
 export const getVercelProjects = async ({
@@ -32,6 +33,7 @@ export const getVercelProjects = async ({
         .parse(data),
     )
     .then((data) => data.projects)
+    .then((proj) => orderBy(proj, (p) => p.name))
 
   return projects
 }
