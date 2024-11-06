@@ -1,23 +1,24 @@
 {
   "name": "gitenvs",
-  "version": "1.0.7",
+  "version": "1.0.8-next.0",
   "private": false,
   "bin": {
-    "gitenvs": "dist/main.mjs"
+    "gitenvs": "dist/cli/main.mjs"
   },
+  "main": "dist/moduleApi/index.mjs",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm build-cli && pnpm build-ui",
-    "build-cli": "pkgroll --src cli --clean-dist --tsconfig=tsconfig.cli.json",
+    "build": "pnpm build-lib && pnpm build-ui",
+    "build-lib": "pkgroll --src lib --clean-dist --tsconfig=tsconfig.lib.json",
     "build-ui": "next build && cp -r .next/standalone dist/next && cp -r .next/static dist/next/.next/static && cp -r public dist/next/public",
     "dev": "pnpm dev-cli dev-ui",
     "lint": "next lint",
     "start": "next start",
-    "dev-cli": "tsx ./cli/main.ts init-playground && GITENVS_DIR=playground tsx ./cli/main.ts",
-    "dev-create": "GITENVS_DIR=playground tsx ./cli/main.ts create",
+    "dev-cli": "tsx ./lib/cli/main.ts init-playground && GITENVS_DIR=playground tsx ./lib/cli/main.ts",
+    "dev-create": "GITENVS_DIR=playground tsx ./lib/cli/main.ts create",
     "dev-next": "next dev",
     "prepublishOnly": "pnpm build"
   },
