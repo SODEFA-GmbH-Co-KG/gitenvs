@@ -13,7 +13,7 @@
   "scripts": {
     "build": "pnpm build-lib && pnpm build-ui",
     "build-lib": "pkgroll --src lib --clean-dist --tsconfig=tsconfig.lib.json",
-    "build-ui": "next build && cp -r .next/standalone dist/next && cp -r .next/static dist/next/.next/static && cp -r public dist/next/public",
+    "build-ui": "next build && cp -r .next/standalone dist/cli/next && cp -r .next/static dist/cli/next/.next/static && cp -r public dist/cli/next/public",
     "dev": "pnpm dev-cli dev-ui",
     "lint": "next lint",
     "start": "next start",
