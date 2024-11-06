@@ -23,8 +23,6 @@ export const upsertEnvVarValue = async ({
     throw new Error(`Env stage not found: ${stage}`)
   }
 
-  console.log(gitenvs.envFiles)
-
   const file = find(gitenvs.envFiles, (f) => f.id === fileId)
   if (!file) {
     // TODO: Create file
