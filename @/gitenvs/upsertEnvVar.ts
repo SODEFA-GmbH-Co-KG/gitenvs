@@ -25,7 +25,6 @@ export const upsertEnvVarValue = async ({
 
   const file = find(gitenvs.envFiles, (f) => f.id === fileId)
   if (!file) {
-    // TODO: Create file
     throw new Error(`File not found: ${fileId}`)
   }
 
