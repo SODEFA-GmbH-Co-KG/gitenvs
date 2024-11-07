@@ -3,7 +3,6 @@
 import { map } from 'lodash-es'
 import { type SuperAction } from '~/super-action/action/createSuperAction'
 import { useSuperAction } from '~/super-action/action/useSuperAction'
-import { ActionForm } from '~/super-action/form/ActionForm'
 import { Button } from '../ui/button'
 import { Checkbox } from '../ui/checkbox'
 import { DialogFooter } from '../ui/dialog'
@@ -21,9 +20,18 @@ export const DeleteVercelEnvsDialog = ({
   const { trigger: triggerOnCancel } = useSuperAction({
     action: onCancel,
   })
+  const { isLoading, trigger } = useSuperAction({ action: onDelete })
 
   return (
-    <ActionForm action={onDelete}>
+    <form
+      onSubmit={async (event) => {
+        event.preventDefault()
+        const form = event.target
+        if (!(form instanceof HTMLFormElement)) return
+        const formData = new FormData(form)
+        await trigger(formData)
+      }}
+    >
       <div className="flex flex-col gap-4">
         <p>
           You are about to delete the following environment variables from
@@ -56,8 +64,10 @@ export const DeleteVercelEnvsDialog = ({
           Cancel
         </Button>
 
-        <Button type="submit">Delete</Button>
+        <Button disabled={isLoading} type="submit">
+          Delete
+        </Button>
       </DialogFooter>
-    </ActionForm>
+    </form>
   )
 }
