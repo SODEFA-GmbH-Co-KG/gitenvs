@@ -1,3 +1,4 @@
+import { getProjectRoot } from '@/gitenvs/getProjectRoot'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { parse } from 'dotenv'
@@ -14,7 +15,8 @@ import { AddFromClipboardDialog } from './AddFromClipboardDialog'
 
 export const ImportFromFile = async ({ fileId }: { fileId: string }) => {
   const gitenvs = await getGitenvs()
-  const fileNames = filter(await readdir(process.cwd()), (fileName) =>
+  const projectRoot = await getProjectRoot()
+  const fileNames = filter(await readdir(projectRoot), (fileName) =>
     fileName.includes('.env'),
   )
   return (
