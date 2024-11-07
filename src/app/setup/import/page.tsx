@@ -3,8 +3,10 @@ import { ImportFromFile } from '@/components/ImportFromFile'
 import { ImportFromVercel } from '@/components/ImportFromVercel'
 import { SimpleParamSelect } from '@/components/simple/SimpleParamSelect'
 import { Button } from '@/components/ui/button'
+import { getVercelProject } from '@/components/vercel/getVercelProject'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export default async function Page({
   searchParams,
@@ -13,6 +15,17 @@ export default async function Page({
 }) {
   const gitenvs = await getGitenvs()
   const firstFileId = gitenvs.envFiles[0]!.id
+
+  const { teamId, projectId, fileId } = searchParams
+
+  if (!teamId && !projectId) {
+    const vercelProject = await getVercelProject()
+    if (vercelProject) {
+      redirect(
+        `/setup/import?fileId=${fileId ?? firstFileId}&teamId=${vercelProject.orgId}&projectId=${vercelProject.projectId}`,
+      )
+    }
+  }
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-center text-2xl">Import your env variables</h1>
@@ -36,8 +49,8 @@ export default async function Page({
       <div className="flex flex-col gap-4">
         <ImportFromVercel
           fileId={searchParams.fileId ?? firstFileId}
-          teamId={searchParams.teamId}
-          projectId={searchParams.projectId}
+          teamId={teamId}
+          projectId={projectId}
         />
       </div>
       <Hr />
