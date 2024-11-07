@@ -56,9 +56,8 @@ export const EditEnvKeyDialog = ({
         <DialogTitle>Edit Env Key</DialogTitle>
         <DialogDescription />
       </DialogHeader>
-      <div className="grid gap-4 py-4">
+      <div className="py-4">
         <Input
-          className="col-span-3"
           type="text"
           autoComplete="off"
           name="key"

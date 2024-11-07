@@ -56,13 +56,13 @@ const SuperDialog = ({
           }
         }}
       >
-        <DialogContent className="flex max-h-[90vh] max-w-[90vw] flex-col">
+        <DialogContent className="flex max-h-[90vh] flex-col sm:w-fit sm:min-w-96 sm:max-w-[90vw]">
           {dialog.title && (
             <DialogHeader>
               <DialogTitle>{dialog.title}</DialogTitle>
             </DialogHeader>
           )}
-          <div className="overflow-auto">{dialog.content}</div>
+          <div className="overflow-auto px-1">{dialog.content}</div>
           {(!!dialog.confirm || !!dialog.cancel) && (
             <DialogFooter>
               {dialog.cancel && (
