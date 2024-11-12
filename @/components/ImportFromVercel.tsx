@@ -134,6 +134,7 @@ export const ImportFromVercel = async ({
                             ...decryptedVars,
                           ]
                             .filter((env) => {
+                              if (env.key === 'GITENVS_STAGE') return false
                               return some(
                                 currentEnvVarsInFile,
                                 (envVar) => envVar.key === env.key,
