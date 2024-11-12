@@ -58,7 +58,10 @@ export const ImportFromVercel = async ({
               )
               const alreadyDecrypted = filter(
                 res.envs,
-                (env) => env.type === 'plain' && !env.gitBranch,
+                (env) =>
+                  env.type === 'plain' &&
+                  !env.gitBranch &&
+                  env.key !== 'GITENVS_STAGE',
               )
 
               const decryptedVars = await Promise.all(
@@ -134,7 +137,6 @@ export const ImportFromVercel = async ({
                             ...decryptedVars,
                           ]
                             .filter((env) => {
-                              if (env.key === 'GITENVS_STAGE') return false
                               return some(
                                 currentEnvVarsInFile,
                                 (envVar) => envVar.key === env.key,
