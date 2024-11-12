@@ -40,7 +40,7 @@ export const DeleteVercelEnvsDialog = ({
         <div className="flex flex-col gap-4">
           {vercelEnvs?.map((env) => (
             <div className="flex gap-2" key={env.id}>
-              <Checkbox name={env.id} id={env.id} />
+              <Checkbox name={env.id} id={env.id} defaultChecked={true} />
               <Label htmlFor={env.id}>
                 {env.key} - Target:{' '}
                 {typeof env.target === 'string'

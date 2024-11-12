@@ -3,7 +3,7 @@ import { getGlobalConfig } from '@/gitenvs/globalConfig'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { Vercel } from '@vercel/sdk'
 import { type Envs } from '@vercel/sdk/dist/commonjs/models/operations/filterprojectenvs'
-import { filter, groupBy, map, some } from 'lodash-es'
+import { chunk, filter, groupBy, map, some } from 'lodash-es'
 import { Fragment } from 'react'
 import {
   streamDialog,
@@ -171,22 +171,40 @@ export const ImportFromVercel = async ({
                                       },
                                     )
 
-                                    await Promise.all(
-                                      toDelete.map(async (env) => {
-                                        if (!env.id || !projectId || !teamId)
-                                          throw new Error('Missing data')
-                                        return fetch(
-                                          `https://api.vercel.com/v9/projects/${projectId}/env/${env.id}?teamId=${teamId}`,
-                                          {
-                                            headers: {
-                                              Authorization: `Bearer ${config.vercelToken}`,
-                                            },
-                                            method: 'delete',
-                                          },
-                                        )
-                                      }),
-                                    )
-
+                                    const deleteChunk = chunk(toDelete, 10)
+                                    for (const chunk of deleteChunk) {
+                                      const deleteResponses =
+                                        await Promise.allSettled([
+                                          ...chunk.map(async (env) => {
+                                            if (
+                                              !env.id ||
+                                              !projectId ||
+                                              !teamId
+                                            ) {
+                                              throw new Error('Missing data')
+                                            }
+                                            return fetch(
+                                              `https://api.vercel.com/v9/projects/${projectId}/env/${env.id}?teamId=${teamId}`,
+                                              {
+                                                headers: {
+                                                  Authorization: `Bearer ${config.vercelToken}`,
+                                                },
+                                                method: 'delete',
+                                              },
+                                            )
+                                          }),
+                                          new Promise((resolve) =>
+                                            setTimeout(resolve, 1000),
+                                          ),
+                                        ])
+                                      for (const response of deleteResponses) {
+                                        if (response.status === 'rejected') {
+                                          console.log({
+                                            error: response.reason,
+                                          })
+                                        }
+                                      }
+                                    }
                                     streamDialog(null)
                                   })
                                 }}
