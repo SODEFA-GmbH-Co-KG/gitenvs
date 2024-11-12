@@ -75,6 +75,10 @@ program
         const envVars = gitenvs.envVars.filter(
           (envVar) => envVar.fileId === envFile.id,
         )
+
+        console.log(
+          `🔒 Gitenvs: Creating ${envFile.name} file for stage: ${stage}`,
+        )
         const dotenvVars = await Promise.all(
           envVars.map(async (envVar) => {
             const value = envVar.values[stage]
