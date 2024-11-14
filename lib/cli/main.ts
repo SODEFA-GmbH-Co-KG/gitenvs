@@ -104,21 +104,32 @@ program
 
         const dotenvContent = dotenvVars
           .map((dotenvVar) => {
-            const includesDoubleQuote = dotenvVar.value?.includes('"') ?? false
-            const includesBacktick = dotenvVar.value?.includes('`') ?? false
-
-            let wrapWith = '`'
-            if (includesBacktick) {
-              if (!includesDoubleQuote) {
-                wrapWith = '"'
-              } else {
-                wrapWith = '' // Hope for the best
-              }
-            }
-
             console.log(
               `🔒 Gitenvs: Writing "${dotenvVar.key}" to ${envFile.filePath}`,
             )
+
+            const includesCommentCharacter =
+              dotenvVar.value?.includes('#') ?? false
+            const includesDoubleQuote = dotenvVar.value?.includes('"') ?? false
+            const includesSingleQuote = dotenvVar.value?.includes("'") ?? false
+
+            let wrapWith = ''
+            if (includesCommentCharacter) {
+              if (includesSingleQuote && includesDoubleQuote) {
+                throw new Error(
+                  `❌ Gitenvs: "${dotenvVar.key}" includes both single and double quotes and a comment character. This is not supported and will result in unexpected values.`,
+                )
+              }
+              if (includesDoubleQuote) {
+                wrapWith = "'"
+              } else {
+                wrapWith = '"'
+              }
+
+              console.log(
+                `⚠️ Gitenvs: wrapping "${dotenvVar.key}" with ${wrapWith} quotes because it includes a comment character`,
+              )
+            }
 
             return `${dotenvVar.key}=${wrapWith}${dotenvVar.value}${wrapWith}`
           })
