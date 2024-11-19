@@ -53,12 +53,13 @@ export const DeleteVercelEnvsDialog = ({
         <div>
           Before you submit, make sure you have checked the desired env vars and
           you stored your gitenvs safely (passphrases are saved and gitenvs are
-          commited)
+          committed)
         </div>
       </div>
       <DialogFooter>
         <Button
           variant={'outline'}
+          type="button"
           onClick={async () => await triggerOnCancel()}
         >
           Cancel
