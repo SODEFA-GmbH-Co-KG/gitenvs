@@ -39,6 +39,13 @@ program
       passphrase: string
       passphrasePath: string
     }) => {
+      //test node version >= 20
+      const [major, minor, patch] = process.versions.node.split('.').map(Number)
+      if (major && major < 20) {
+        console.error('❌ Gitenvs: Node version must be >= 20')
+        process.exit(1)
+      }
+
       const gitenvs = await getGitenvs()
       const stage = process.env[GITENVS_STAGE_ENV_NAME] ?? options.stage
 
