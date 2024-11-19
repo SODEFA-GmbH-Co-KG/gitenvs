@@ -1,5 +1,6 @@
 import { getProjectRoot } from '@/gitenvs/getProjectRoot'
 import { getGitenvs } from '@/gitenvs/gitenvs'
+import { type EnvVar } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { parse } from 'dotenv'
 import { readdir, readFile } from 'fs/promises'
@@ -43,11 +44,16 @@ export const ImportFromFile = async ({ fileId }: { fileId: string }) => {
                   const values = Object.fromEntries(
                     map(gitenvs.envStages, (stage) => [
                       stage.name,
-                      { value, encrypted: false, fileId },
+                      { value, encrypted: false, fileIds: [fileId] },
                     ]),
                   )
-                  return { id: getNewEnvVarId(), fileId, key, values }
-                })
+                  return {
+                    id: getNewEnvVarId(),
+                    fileIds: [fileId],
+                    key,
+                    values,
+                  }
+                }) satisfies EnvVar[]
                 return superAction(async () => {
                   streamDialog({
                     title: `Import Env File: ${fileName}`,

@@ -9,7 +9,7 @@ export type EnvVarValue = z.infer<typeof EnvVarValue>
 
 export const EnvVar = z.object({
   id: z.string(),
-  fileId: z.string(),
+  fileIds: z.array(z.string()),
   key: z.string(),
   values: z.record(z.string(), EnvVarValue),
 })
@@ -38,10 +38,25 @@ export const EnvStage = z.object({
 export type EnvStage = z.infer<typeof EnvStage>
 
 export const Gitenvs = z.object({
-  version: z.string(),
+  version: z.enum(['2']),
   envStages: z.array(EnvStage),
   envFiles: z.array(EnvFile),
   envVars: z.array(EnvVar),
+})
+
+/** @deprecated */
+export const Gitenvs1 = z.object({
+  version: z.enum(['1']),
+  envStages: z.array(EnvStage),
+  envFiles: z.array(EnvFile),
+  envVars: z.array(
+    z.object({
+      id: z.string(),
+      fileId: z.string(),
+      key: z.string(),
+      values: z.record(z.string(), EnvVarValue),
+    }),
+  ),
 })
 
 export type Gitenvs = z.infer<typeof Gitenvs>

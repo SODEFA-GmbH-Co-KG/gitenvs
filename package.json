@@ -1,6 +1,6 @@
 {
   "name": "gitenvs",
-  "version": "1.0.15",
+  "version": "2.0.0-beta",
   "private": false,
   "bin": {
     "gitenvs": "dist/cli/main.mjs"
@@ -19,6 +19,7 @@
     "start": "next start",
     "dev-cli": "tsx ./lib/cli/main.ts init-playground && GITENVS_DIR=playground tsx ./lib/cli/main.ts",
     "dev-create": "GITENVS_DIR=playground tsx ./lib/cli/main.ts create",
+    "dev-migrate": "GITENVS_DIR=playground tsx ./lib/cli/main.ts migrate-v2",
     "dev-next": "next dev",
     "prepublishOnly": "pnpm build"
   },

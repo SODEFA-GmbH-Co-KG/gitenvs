@@ -2,11 +2,12 @@ import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
 import { GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { getCwd } from '@/gitenvs/getCwd'
 import { getPassphrase, PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
-import { getGitenvs } from '@/gitenvs/gitenvs'
+import { getGitenvs, saveGitenvs } from '@/gitenvs/gitenvs'
+import { type Gitenvs, Gitenvs1 } from '@/gitenvs/gitenvs.schema'
 import { execSync } from 'child_process'
 import { Command } from 'commander'
 import { randomBytes } from 'crypto'
-import { mkdir, writeFile } from 'fs/promises'
+import { mkdir, readFile, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -22,6 +23,32 @@ const program = new Command()
 program
   .name('gitenvs')
   .description('Save your env variables in git – encrypted!')
+
+program.command('migrate-v2').action(async () => {
+  const gitenvsContent = await readFile(join(getCwd(), 'gitenvs.json'), 'utf-8')
+  const jsonParsedGitenvsContent = JSON.parse(gitenvsContent)
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  if (jsonParsedGitenvsContent?.version !== '1') {
+    console.error('❌ Gitenvs: Version is not 1')
+    process.exit(1)
+  }
+  const gitenvs1 = Gitenvs1.parse(jsonParsedGitenvsContent)
+
+  const migrated = {
+    ...gitenvs1,
+    version: '2',
+    envVars: gitenvs1.envVars.map((envVar) => {
+      const { fileId, ...rest } = envVar
+      return {
+        ...rest,
+        fileIds: [fileId],
+      }
+    }),
+  } satisfies Gitenvs
+
+  await saveGitenvs(migrated)
+})
 
 program
   .command('create')
@@ -72,8 +99,8 @@ program
 
       const promises = []
       for (const envFile of gitenvs.envFiles) {
-        const envVars = gitenvs.envVars.filter(
-          (envVar) => envVar.fileId === envFile.id,
+        const envVars = gitenvs.envVars.filter((envVar) =>
+          envVar.fileIds.includes(envFile.id),
         )
 
         console.log(

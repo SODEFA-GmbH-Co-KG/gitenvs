@@ -1,12 +1,12 @@
 'use client'
 import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
+import { usePasteHandler } from '@/hooks/usePasteHandler'
 import { parse } from 'dotenv'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { map } from 'lodash-es'
 import { useCallback } from 'react'
 import { AddFromClipboardDialog } from './AddFromClipboardDialog'
-import { usePasteHandler } from '@/hooks/usePasteHandler'
 
 export const envVarsToAddAtom = atom<EnvVar[] | undefined>(undefined)
 
@@ -34,7 +34,7 @@ export const PasteEnvVars = ({
               { value, encrypted: false },
             ]),
           )
-          return { id: getNewEnvVarId(), fileId, key, values }
+          return { id: getNewEnvVarId(), fileIds: [fileId], key, values }
         }),
       )
     },

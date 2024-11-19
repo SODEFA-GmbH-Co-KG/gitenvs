@@ -81,7 +81,7 @@ export const CreateGitenvs = () => {
             )
 
             await saveGitenvs({
-              version: '1',
+              version: '2',
               envStages: stages.map(({ passphrase: _, ...stage }) => stage), // IMPORTANT: Don't save the passphrase to gitenvs.json
               envFiles: [
                 {
