@@ -12,10 +12,12 @@ export const TableEnvKey = ({
   children,
   gitenvs,
   envVar,
+  fileId,
 }: {
   children: ReactNode
   gitenvs: Gitenvs
   envVar: EnvVar
+  fileId: string
 }) => {
   return (
     <ActionButton
@@ -30,7 +32,13 @@ export const TableEnvKey = ({
               <EditEnvKeyDialog
                 envVar={envVar}
                 gitenvs={gitenvs}
-                dropdown={<EnvKeyMenu gitenvs={gitenvs} envVar={envVar} />}
+                dropdown={
+                  <EnvKeyMenu
+                    gitenvs={gitenvs}
+                    envVar={envVar}
+                    fileId={fileId}
+                  />
+                }
               />
             ),
           })

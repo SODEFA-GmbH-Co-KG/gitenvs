@@ -51,7 +51,11 @@ export const EnvVarsTable = async ({
 
               return (
                 <Fragment key={index}>
-                  <TableEnvKey gitenvs={gitenvs} envVar={envVar}>
+                  <TableEnvKey
+                    gitenvs={gitenvs}
+                    envVar={envVar}
+                    fileId={fileId}
+                  >
                     <div className="flex w-full items-center justify-between">
                       <div className="truncate" title={envVar.key}>
                         {envVar.key}
