@@ -1,7 +1,7 @@
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { map } from 'lodash-es'
-import { Link } from 'lucide-react'
+import { Link, Plus } from 'lucide-react'
 import { Fragment } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import {
@@ -101,56 +101,60 @@ export const EnvVarsTable = async ({
           <p>No env vars so far. Add a new one</p>
         )}
       </div>
-      <ActionButton
-        command={{
-          shortcut: {
-            key: 'a',
-          },
-          label: 'Add new env var',
-        }}
-        action={async () => {
-          'use server'
+      <div className="flex w-full flex-col gap-2 md:flex-row">
+        <ActionButton
+          className="flex-1"
+          command={{
+            shortcut: {
+              key: 'a',
+            },
+            label: 'Add new env var',
+          }}
+          action={async () => {
+            'use server'
 
-          return superAction(async () => {
-            const values = Object.fromEntries(
-              map(gitenvs.envStages, (stage) => [
-                stage.name,
-                { value: '', encrypted: false },
-              ]),
-            )
-            const newGitenvs = {
-              ...gitenvs,
-              envVars: [
-                ...gitenvs.envVars,
-                { id: getNewEnvVarId(), fileIds: [fileId], key: '', values },
-              ],
-            }
-            await saveGitenvs(newGitenvs)
-          })
-        }}
-      >
-        Add new env var
-      </ActionButton>
-      <ActionButton
-        command={{
-          shortcut: {
-            key: 'a',
-          },
-          label: 'Add new env var',
-        }}
-        action={async () => {
-          'use server'
-
-          return superAction(async () => {
-            streamDialog({
-              title: `Link existing env var`,
-              content: <LinkEnvVarDialog gitenvs={gitenvs} fileId={fileId} />,
+            return superAction(async () => {
+              const values = Object.fromEntries(
+                map(gitenvs.envStages, (stage) => [
+                  stage.name,
+                  { value: '', encrypted: false },
+                ]),
+              )
+              const newGitenvs = {
+                ...gitenvs,
+                envVars: [
+                  ...gitenvs.envVars,
+                  { id: getNewEnvVarId(), fileIds: [fileId], key: '', values },
+                ],
+              }
+              await saveGitenvs(newGitenvs)
             })
-          })
-        }}
-      >
-        Link existing env var
-      </ActionButton>
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4 shrink-0" /> Add new env var
+        </ActionButton>
+        <ActionButton
+          className="flex-1"
+          command={{
+            shortcut: {
+              key: 'a',
+            },
+            label: 'Add new env var',
+          }}
+          action={async () => {
+            'use server'
+
+            return superAction(async () => {
+              streamDialog({
+                title: `Link existing env var`,
+                content: <LinkEnvVarDialog gitenvs={gitenvs} fileId={fileId} />,
+              })
+            })
+          }}
+        >
+          <Link className="mr-2 h-4 w-4 shrink-0" /> Link existing env var
+        </ActionButton>
+      </div>
     </Fragment>
   )
 }
