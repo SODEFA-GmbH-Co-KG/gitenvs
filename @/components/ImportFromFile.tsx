@@ -34,7 +34,7 @@ export const ImportFromFile = async ({ fileId }: { fileId: string }) => {
                 'use server'
 
                 const content = await readFile(
-                  join(process.cwd(), fileName),
+                  join(projectRoot, fileName),
                   'utf8',
                 )
 
