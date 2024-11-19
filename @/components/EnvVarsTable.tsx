@@ -4,9 +4,13 @@ import { map } from 'lodash-es'
 import { Link } from 'lucide-react'
 import { Fragment } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
-import { superAction } from '~/super-action/action/createSuperAction'
+import {
+  streamDialog,
+  superAction,
+} from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { EnvVarsStageHeader } from './EnvVarsStageHeader'
+import { LinkEnvVarDialog } from './LinkEnvVarDialog'
 import { TableEnvKey } from './TableEnvKey'
 import { TableEnvVar } from './TableEnvVar'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
@@ -122,6 +126,26 @@ export const EnvVarsTable = async ({
         }}
       >
         Add new env var
+      </ActionButton>
+      <ActionButton
+        command={{
+          shortcut: {
+            key: 'a',
+          },
+          label: 'Add new env var',
+        }}
+        action={async () => {
+          'use server'
+
+          return superAction(async () => {
+            streamDialog({
+              title: `Link existing env var`,
+              content: <LinkEnvVarDialog gitenvs={gitenvs} fileId={fileId} />,
+            })
+          })
+        }}
+      >
+        Link existing env var
       </ActionButton>
     </Fragment>
   )
