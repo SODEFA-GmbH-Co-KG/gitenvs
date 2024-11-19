@@ -16,7 +16,7 @@ export const EnvVar = z.object({
 
 export type EnvVar = z.infer<typeof EnvVar>
 
-export const EnvFileType = z.enum(['dotenv'])
+export const EnvFileType = z.enum(['dotenv', '.ts'])
 
 export type EnvFileType = z.infer<typeof EnvFileType>
 

@@ -102,45 +102,99 @@ program
           }),
         )
 
-        const dotenvContent = dotenvVars
-          .map((dotenvVar) => {
-            console.log(
-              `🔒 Gitenvs: Writing "${dotenvVar.key}" to ${envFile.filePath}`,
-            )
-
-            const includesCommentCharacter =
-              dotenvVar.value?.includes('#') ?? false
-            const includesDoubleQuote = dotenvVar.value?.includes('"') ?? false
-            const includesSingleQuote = dotenvVar.value?.includes("'") ?? false
-
-            let wrapWith = ''
-            if (includesCommentCharacter) {
-              if (includesSingleQuote && includesDoubleQuote) {
-                throw new Error(
-                  `❌ Gitenvs: "${dotenvVar.key}" includes both single and double quotes and a comment character. This is not supported and will result in unexpected values.`,
+        switch (envFile.type) {
+          case 'dotenv': {
+            const dotenvContent = dotenvVars
+              .map((dotenvVar) => {
+                console.log(
+                  `🔒 Gitenvs: Writing "${dotenvVar.key}" to ${envFile.filePath}`,
                 )
-              }
-              if (includesDoubleQuote) {
-                wrapWith = "'"
-              } else {
-                wrapWith = '"'
-              }
 
-              console.log(
-                `⚠️ Gitenvs: wrapping "${dotenvVar.key}" with ${wrapWith} quotes because it includes a comment character`,
-              )
-            }
+                const includesCommentCharacter =
+                  dotenvVar.value?.includes('#') ?? false
+                const includesDoubleQuote =
+                  dotenvVar.value?.includes('"') ?? false
+                const includesSingleQuote =
+                  dotenvVar.value?.includes("'") ?? false
 
-            return `${dotenvVar.key}=${wrapWith}${dotenvVar.value}${wrapWith}`
-          })
-          .join('\n')
+                let wrapWith = ''
+                if (includesCommentCharacter) {
+                  if (includesSingleQuote && includesDoubleQuote) {
+                    throw new Error(
+                      `❌ Gitenvs: "${dotenvVar.key}" includes both single and double quotes and a comment character. This is not supported and will result in unexpected values.`,
+                    )
+                  }
+                  if (includesDoubleQuote) {
+                    wrapWith = "'"
+                  } else {
+                    wrapWith = '"'
+                  }
 
-        promises.push(
-          writeFile(join(getCwd(), envFile.filePath), dotenvContent, 'utf-8'),
-        )
+                  console.log(
+                    `⚠️ Gitenvs: wrapping "${dotenvVar.key}" with ${wrapWith} quotes because it includes a comment character`,
+                  )
+                }
+
+                return `${dotenvVar.key}=${wrapWith}${dotenvVar.value}${wrapWith}`
+              })
+              .join('\n')
+
+            promises.push(
+              writeFile(
+                join(getCwd(), envFile.filePath),
+                dotenvContent,
+                'utf-8',
+              ),
+            )
+            break
+          }
+          case '.ts': {
+            const tsEnvContent = dotenvVars
+              .map((envVar) => {
+                console.log(
+                  `🔒 Gitenvs: Writing "${envVar.key}" to ${envFile.filePath}`,
+                )
+
+                const includesDoubleQuote = envVar.value?.includes('"') ?? false
+                const includesSingleQuote = envVar.value?.includes("'") ?? false
+                const includesBacktick = envVar.value?.includes('`') ?? false
+
+                let wrapWith = "'"
+
+                if (
+                  includesSingleQuote &&
+                  includesDoubleQuote &&
+                  includesBacktick
+                ) {
+                  throw new Error(
+                    `❌ Gitenvs: "${envVar.key}" includes all string encasing characters. This is not supported and will result in unexpected values.`,
+                  )
+                }
+                if (includesSingleQuote) {
+                  if (!includesBacktick) {
+                    wrapWith = '`'
+                  } else {
+                    wrapWith = '"'
+                  }
+                }
+
+                return `export const ${envVar.key} = process.env.${envVar.key} ?? ${wrapWith}${envVar.value}${wrapWith}`
+              })
+              .join('\n')
+
+            promises.push(
+              writeFile(
+                join(getCwd(), envFile.filePath),
+                tsEnvContent,
+                'utf-8',
+              ),
+            )
+            break
+          }
+        }
+
+        await Promise.allSettled(promises)
       }
-
-      await Promise.allSettled(promises)
     },
   )
 
