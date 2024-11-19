@@ -26,7 +26,6 @@ export const LinkEnvVarDialog = ({
         'use server'
 
         return superAction(async () => {
-          console.dir(formData, { depth: null })
           const merged = map(gitenvs.envVars, (ev) => {
             const checked = formData.get(ev.id)
             return checked ? { ...ev, fileIds: [...ev.fileIds, fileId] } : ev
@@ -37,11 +36,6 @@ export const LinkEnvVarDialog = ({
           })
 
           streamDialog(null)
-          // streamToast({
-          //   title: `Env file ${newEnvFile.name} ${envFile?.id ? 'updated' : 'created'}`,
-          //   description: `The env file has been successfully ${envFile?.id ? 'updated' : 'created'}.`,
-          // })
-
           revalidatePath('/', 'layout')
         })
       }}
