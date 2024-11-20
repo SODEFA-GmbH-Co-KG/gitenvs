@@ -30,12 +30,12 @@ export const upsertEnvVarValue = async ({
 
   let envVar = find(
     gitenvs.envVars,
-    (v) => v.fileId === file.id && v.key === key,
+    (v) => v.fileIds.includes(file.id) && v.key === key,
   )
   if (!envVar) {
     envVar = {
       id: getNewEnvFileId(),
-      fileId: file.id,
+      fileIds: [file.id],
       key,
       values: {},
     }

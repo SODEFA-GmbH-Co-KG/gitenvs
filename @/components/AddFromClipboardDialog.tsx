@@ -15,7 +15,6 @@ import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { useAtom } from 'jotai'
 import {
-  each,
   every,
   filter,
   find,
@@ -231,8 +230,7 @@ export const AddFromClipboardDialog = ({
     const keysMerged = map(gitenvs.envVars, (envVar) => {
       const pastedEnvVarForExistingKey = find(envVarsToSave, (pastedEnvVar) => {
         return (
-          pastedEnvVar.key === envVar.key &&
-          pastedEnvVar.fileId === envVar.fileId
+          pastedEnvVar.key === envVar.key && envVar.fileIds.includes(fileId)
         )
       })
       if (!pastedEnvVarForExistingKey) {
@@ -250,8 +248,7 @@ export const AddFromClipboardDialog = ({
     const newEnvVars = filter(envVarsToSave, (pastedEnvVar) => {
       return !find(gitenvs.envVars, (envVar) => {
         return (
-          envVar.key === pastedEnvVar.key &&
-          pastedEnvVar.fileId === envVar.fileId
+          envVar.key === pastedEnvVar.key && envVar.fileIds.includes(fileId)
         )
       })
     })
@@ -299,9 +296,7 @@ export const AddFromClipboardDialog = ({
                       size={'sm'}
                       variant={allKeysAllStagesEncrypted ? 'ghost' : 'default'}
                       onClick={() => {
-                        each(allStages, (stage) => {
-                          toggleEncryptionState({ stages: allStages })
-                        })
+                        toggleEncryptionState({ stages: allStages })
                       }}
                     >
                       {allKeysAllStagesEncrypted ? (
@@ -362,7 +357,7 @@ export const AddFromClipboardDialog = ({
               const existingKey = gitenvs.envVars.find(
                 (existingEnvVar) =>
                   existingEnvVar.key === envVar.key &&
-                  existingEnvVar.fileId === fileId,
+                  existingEnvVar.fileIds.includes(fileId),
               )
 
               const stagesWithKey =

@@ -2,11 +2,18 @@ import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
 import { GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { getCwd } from '@/gitenvs/getCwd'
 import { getPassphrase, PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
-import { getGitenvs } from '@/gitenvs/gitenvs'
+import {
+  getGitenvs,
+  getGitenvsVersion,
+  getIsLatestGitenvsVersion,
+  latestGitenvsVersion,
+  saveGitenvs,
+} from '@/gitenvs/gitenvs'
+import { type Gitenvs, Gitenvs1 } from '@/gitenvs/gitenvs.schema'
 import { execSync } from 'child_process'
 import { Command } from 'commander'
 import { randomBytes } from 'crypto'
-import { mkdir, writeFile } from 'fs/promises'
+import { mkdir, readFile, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -30,6 +37,53 @@ program
   .name('gitenvs')
   .description('Save your env variables in git – encrypted!')
 
+program.command('migrate').action(async () => {
+  let isLatestVersion = false
+  while (!isLatestVersion) {
+    let currentVersion
+    try {
+      currentVersion = await getGitenvsVersion()
+    } catch (error) {
+      console.error('❌ Gitenvs: cannot read version')
+      process.exit(1)
+    }
+
+    if (currentVersion === latestGitenvsVersion) {
+      isLatestVersion = true
+      console.log(`✅ Gitenvs: On latest version v${latestGitenvsVersion}`)
+      break
+    }
+
+    console.log(
+      `🔄 Gitenvs: Migrating from v${currentVersion} to v${currentVersion + 1}`,
+    )
+
+    const gitenvsContent = await readFile(
+      join(getCwd(), 'gitenvs.json'),
+      'utf-8',
+    )
+    const jsonParsedGitenvsContent = JSON.parse(gitenvsContent)
+
+    if (currentVersion === 1) {
+      const gitenvs1 = Gitenvs1.parse(jsonParsedGitenvsContent)
+
+      const migrated = {
+        ...gitenvs1,
+        version: '2',
+        envVars: gitenvs1.envVars.map((envVar) => {
+          const { fileId, ...rest } = envVar
+          return {
+            ...rest,
+            fileIds: [fileId],
+          }
+        }),
+      } satisfies Gitenvs
+
+      await saveGitenvs(migrated)
+    }
+  }
+})
+
 program
   .command('create')
   .description('Creates env files')
@@ -46,6 +100,14 @@ program
       passphrase: string
       passphrasePath: string
     }) => {
+      const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
+      if (!isLatestGitenvsVersion) {
+        console.error(
+          `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate\` to migrate to the latest version.`,
+        )
+        process.exit(1)
+      }
+
       const gitenvs = await getGitenvs()
       const stage = process.env[GITENVS_STAGE_ENV_NAME] ?? options.stage
 
@@ -79,8 +141,8 @@ program
 
       const promises = []
       for (const envFile of gitenvs.envFiles) {
-        const envVars = gitenvs.envVars.filter(
-          (envVar) => envVar.fileId === envFile.id,
+        const envVars = gitenvs.envVars.filter((envVar) =>
+          envVar.fileIds.includes(envFile.id),
         )
 
         console.log(
@@ -241,7 +303,15 @@ program
 program
   .command('ui', { isDefault: true })
   .description('Starts a browser UI to edit env vars')
-  .action(() => {
+  .action(async () => {
+    const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
+    if (!isLatestGitenvsVersion) {
+      console.error(
+        `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate\` to migrate to the latest version.`,
+      )
+      process.exit(1)
+    }
+
     const nodePath = process.argv0
     const currentDir = dirname(fileURLToPath(import.meta.url))
 

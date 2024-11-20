@@ -1,7 +1,22 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
+import { z } from 'zod'
 import { getCwd } from './getCwd'
 import { Gitenvs } from './gitenvs.schema'
+
+export const latestGitenvsVersion = 2
+
+export const getIsLatestGitenvsVersion = async () => {
+  return (await getGitenvsVersion()) === latestGitenvsVersion
+}
+
+export const getGitenvsVersion = async () => {
+  const gitenvsContent = await readFile(join(getCwd(), 'gitenvs.json'), 'utf-8')
+  const gitenvs = z
+    .object({ version: z.string() })
+    .parse(JSON.parse(gitenvsContent))
+  return parseInt(gitenvs.version)
+}
 
 export const getGitenvs = async () => {
   const gitenvsContent = await readFile(join(getCwd(), 'gitenvs.json'), 'utf-8')

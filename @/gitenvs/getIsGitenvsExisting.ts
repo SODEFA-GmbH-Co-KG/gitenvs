@@ -5,6 +5,9 @@ export const getIsGitenvsExisting = async () => {
     await getGitenvs()
     return true
   } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error(error)
+    }
     return false
   }
 }

@@ -1,5 +1,6 @@
 import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
-import { filter } from 'lodash-es'
+import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
+import { cloneDeep, filter, flatMap } from 'lodash-es'
 import { MoreVertical } from 'lucide-react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import {
@@ -18,9 +19,11 @@ import {
 export const EnvKeyMenu = ({
   gitenvs,
   envVar,
+  fileId,
 }: {
   gitenvs: Gitenvs
   envVar: EnvVar
+  fileId: string
 }) => {
   return (
     <DropdownMenu>
@@ -55,6 +58,50 @@ export const EnvKeyMenu = ({
             Delete
           </ActionButton>
         </DropdownMenuItem>
+        {envVar.fileIds.length > 1 && (
+          <DropdownMenuItem asChild>
+            <ActionButton
+              variant="vanilla"
+              size="vanilla"
+              stopPropagation
+              className="w-full justify-start"
+              action={async () => {
+                'use server'
+
+                return superAction(async () => {
+                  const envVarsSplitted = flatMap(gitenvs.envVars, (ev) => {
+                    if (ev.id !== envVar.id) return [ev]
+                    const oldEnvVar = cloneDeep(ev)
+                    const oldWithoutCurrentFileId = {
+                      ...ev,
+                      fileIds: filter(
+                        ev.fileIds,
+                        (evFileIds) => evFileIds !== fileId,
+                      ),
+                    }
+                    const oldEnvVarAsNew = {
+                      ...oldEnvVar,
+                      id: getNewEnvVarId(),
+                      fileIds: [fileId],
+                    }
+                    return [
+                      oldEnvVarAsNew,
+                      oldWithoutCurrentFileId,
+                    ] satisfies EnvVar[]
+                  })
+                  await saveGitenvs({ ...gitenvs, envVars: envVarsSplitted })
+                  streamRevalidatePath('/', 'layout')
+                  streamDialog(null)
+                })
+              }}
+              command={{
+                label: `Unlink Env "${envVar.key}"`,
+              }}
+            >
+              Unlink
+            </ActionButton>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

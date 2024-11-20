@@ -1,10 +1,10 @@
-import { saveGitenvs } from '~/lib/gitenvs'
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { filter } from 'lodash-es'
 import { Plus } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { Fragment } from 'react'
+import { saveGitenvs } from '~/lib/gitenvs'
 import {
   streamDialog,
   streamToast,
@@ -41,7 +41,7 @@ export const EnvFileSwitcher = ({
                   )
                   const newEnvVars = filter(
                     gitenvs.envVars,
-                    (envVar) => envVar.fileId !== envFile.id,
+                    (envVar) => !envVar.fileIds.includes(envFile.id),
                   )
                   await saveGitenvs({
                     ...gitenvs,

@@ -1,4 +1,5 @@
 import { getGitenvs } from '@/gitenvs/gitenvs'
+import { type EnvVar } from '@/gitenvs/gitenvs.schema'
 import { getGlobalConfig } from '@/gitenvs/globalConfig'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { Vercel } from '@vercel/sdk'
@@ -104,13 +105,13 @@ export const ImportFromVercel = async ({
                       {
                         value: valueInStage,
                         encrypted: false,
-                        fileId,
+                        fileIds: [fileId],
                       },
                     ]
                   }),
                 )
-                return { id: getNewEnvVarId(), fileId, key, values }
-              })
+                return { id: getNewEnvVarId(), fileIds: [fileId], key, values }
+              }) satisfies EnvVar[]
               return superAction(async () => {
                 streamDialog({
                   title: `Import Env from Vercel`,
@@ -129,7 +130,7 @@ export const ImportFromVercel = async ({
                           // })
                           const currentEnvVarsInFile = filter(
                             gitenvs.envVars,
-                            (env) => env.fileId === fileId,
+                            (env) => env.fileIds.includes(fileId),
                           )
 
                           const vercelEnvsToDelete = [
