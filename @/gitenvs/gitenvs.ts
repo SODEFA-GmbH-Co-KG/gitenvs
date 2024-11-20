@@ -9,6 +9,7 @@ export const latestGitenvsVersion = '2'
 export const getIsLatestGitenvsVersion = async () => {
   return (await getGitenvsVersion()) === latestGitenvsVersion
 }
+
 export const getGitenvsVersion = async () => {
   const gitenvsContent = await readFile(join(getCwd(), 'gitenvs.json'), 'utf-8')
   const gitenvs = z
