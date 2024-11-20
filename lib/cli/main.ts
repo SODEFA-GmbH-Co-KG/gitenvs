@@ -2,7 +2,12 @@ import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
 import { GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { getCwd } from '@/gitenvs/getCwd'
 import { getPassphrase, PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
-import { getGitenvs, saveGitenvs } from '@/gitenvs/gitenvs'
+import {
+  getGitenvs,
+  getIsLatestGitenvsVersion,
+  latestGitenvsVersion,
+  saveGitenvs,
+} from '@/gitenvs/gitenvs'
 import { type Gitenvs, Gitenvs1 } from '@/gitenvs/gitenvs.schema'
 import { execSync } from 'child_process'
 import { Command } from 'commander'
@@ -66,6 +71,14 @@ program
       passphrase: string
       passphrasePath: string
     }) => {
+      const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
+      if (!isLatestGitenvsVersion) {
+        console.error(
+          `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate-v${latestGitenvsVersion}\` to migrate to this version.`,
+        )
+        process.exit(1)
+      }
+
       const gitenvs = await getGitenvs()
       const stage = process.env[GITENVS_STAGE_ENV_NAME] ?? options.stage
 
