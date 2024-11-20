@@ -19,7 +19,7 @@
     "start": "next start",
     "dev-cli": "tsx ./lib/cli/main.ts init-playground && GITENVS_DIR=playground tsx ./lib/cli/main.ts",
     "dev-create": "GITENVS_DIR=playground tsx ./lib/cli/main.ts create",
-    "dev-migrate": "GITENVS_DIR=playground tsx ./lib/cli/main.ts migrate-v2",
+    "dev-migrate": "GITENVS_DIR=playground tsx ./lib/cli/main.ts migrate",
     "dev-next": "next dev",
     "prepublishOnly": "pnpm build"
   },

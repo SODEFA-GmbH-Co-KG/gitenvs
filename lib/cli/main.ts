@@ -4,6 +4,7 @@ import { getCwd } from '@/gitenvs/getCwd'
 import { getPassphrase, PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
 import {
   getGitenvs,
+  getGitenvsVersion,
   getIsLatestGitenvsVersion,
   latestGitenvsVersion,
   saveGitenvs,
@@ -29,30 +30,51 @@ program
   .name('gitenvs')
   .description('Save your env variables in git – encrypted!')
 
-program.command('migrate-v2').action(async () => {
-  const gitenvsContent = await readFile(join(getCwd(), 'gitenvs.json'), 'utf-8')
-  const jsonParsedGitenvsContent = JSON.parse(gitenvsContent)
+program.command('migrate').action(async () => {
+  let isLatestVersion = false
+  while (!isLatestVersion) {
+    let currentVersion
+    try {
+      currentVersion = await getGitenvsVersion()
+    } catch (error) {
+      console.error('❌ Gitenvs: cannot read version')
+      process.exit(1)
+    }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  if (jsonParsedGitenvsContent?.version !== '1') {
-    console.error('❌ Gitenvs: Version is not 1')
-    process.exit(1)
+    if (currentVersion === latestGitenvsVersion) {
+      isLatestVersion = true
+      console.log(`✅ Gitenvs: On latest version v${latestGitenvsVersion}`)
+      break
+    }
+
+    console.log(
+      `🔄 Gitenvs: Migrating from v${currentVersion} to v${currentVersion + 1}`,
+    )
+
+    const gitenvsContent = await readFile(
+      join(getCwd(), 'gitenvs.json'),
+      'utf-8',
+    )
+    const jsonParsedGitenvsContent = JSON.parse(gitenvsContent)
+
+    if (currentVersion === 1) {
+      const gitenvs1 = Gitenvs1.parse(jsonParsedGitenvsContent)
+
+      const migrated = {
+        ...gitenvs1,
+        version: '2',
+        envVars: gitenvs1.envVars.map((envVar) => {
+          const { fileId, ...rest } = envVar
+          return {
+            ...rest,
+            fileIds: [fileId],
+          }
+        }),
+      } satisfies Gitenvs
+
+      await saveGitenvs(migrated)
+    }
   }
-  const gitenvs1 = Gitenvs1.parse(jsonParsedGitenvsContent)
-
-  const migrated = {
-    ...gitenvs1,
-    version: '2',
-    envVars: gitenvs1.envVars.map((envVar) => {
-      const { fileId, ...rest } = envVar
-      return {
-        ...rest,
-        fileIds: [fileId],
-      }
-    }),
-  } satisfies Gitenvs
-
-  await saveGitenvs(migrated)
 })
 
 program
