@@ -57,8 +57,8 @@ export const LinkEnvVarDialog = ({
                   (ev) => {
                     return (
                       <div key={ev.id} className="flex gap-2">
-                        <Checkbox key={ev.id} value={ev.id} name={ev.id} />
-                        <Label>{ev.key}</Label>
+                        <Checkbox id={ev.id} value={ev.id} name={ev.id} />
+                        <Label htmlFor={ev.id}>{ev.key}</Label>
                       </div>
                     )
                   },
