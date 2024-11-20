@@ -96,7 +96,7 @@ program
       const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
       if (!isLatestGitenvsVersion) {
         console.error(
-          `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate-v${latestGitenvsVersion}\` to migrate to this version.`,
+          `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate\` to migrate to the latest version.`,
         )
         process.exit(1)
       }
@@ -296,7 +296,15 @@ program
 program
   .command('ui', { isDefault: true })
   .description('Starts a browser UI to edit env vars')
-  .action(() => {
+  .action(async () => {
+    const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
+    if (!isLatestGitenvsVersion) {
+      console.error(
+        `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate\` to migrate to the latest version.`,
+      )
+      process.exit(1)
+    }
+
     const nodePath = process.argv0
     const currentDir = dirname(fileURLToPath(import.meta.url))
 
