@@ -1,6 +1,7 @@
 import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
 import { GITENVS_STAGE_ENV_NAME } from '@/gitenvs/env'
 import { getCwd } from '@/gitenvs/getCwd'
+import { getIsGitenvsExisting } from '@/gitenvs/getIsGitenvsExisting'
 import { getPassphrase, PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
 import {
   getGitenvs,
@@ -100,6 +101,12 @@ program
       passphrase: string
       passphrasePath: string
     }) => {
+      const gitenvsExists = await getIsGitenvsExisting()
+      if (!gitenvsExists) {
+        console.error('❌ Gitenvs: gitenvs.json not found')
+        process.exit(1)
+      }
+
       const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
       if (!isLatestGitenvsVersion) {
         console.error(
@@ -304,12 +311,16 @@ program
   .command('ui', { isDefault: true })
   .description('Starts a browser UI to edit env vars')
   .action(async () => {
-    const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
-    if (!isLatestGitenvsVersion) {
-      console.error(
-        `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate\` to migrate to the latest version.`,
-      )
-      process.exit(1)
+    const gitenvsExists = await getIsGitenvsExisting()
+    // check version if gitenvs exists
+    if (gitenvsExists) {
+      const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
+      if (!isLatestGitenvsVersion) {
+        console.error(
+          `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate\` to migrate to the latest version.`,
+        )
+        process.exit(1)
+      }
     }
 
     const nodePath = process.argv0

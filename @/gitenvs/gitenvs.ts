@@ -1,3 +1,4 @@
+import { existsSync } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { z } from 'zod'
@@ -16,6 +17,10 @@ export const getGitenvsVersion = async () => {
     .object({ version: z.string() })
     .parse(JSON.parse(gitenvsContent))
   return parseInt(gitenvs.version)
+}
+
+export const checkGitenvsJsonExists = () => {
+  return existsSync(join(getCwd(), 'gitenvs.json'))
 }
 
 export const getGitenvs = async () => {
