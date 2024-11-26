@@ -161,21 +161,18 @@ program
           envVars.map(async (envVar) => {
             const value = envVar.values[stage]
             if (!value) return { key: envVar.key, value: '' }
-            if (!value.encrypted) {
-              return {
-                key: envVar.key,
-                value: value.value,
-              }
-            }
+            const envVarValue = value.encrypted
+              ? (await decryptEnvVar({
+                  encrypted: value.value,
+                  encryptedPrivateKey: envStage.encryptedPrivateKey,
+                  passphrase,
+                })) ?? ''
+              : value.value
 
-            // TODO: Whats on error?
             return {
               key: envVar.key,
-              value: await decryptEnvVar({
-                encrypted: value.value,
-                encryptedPrivateKey: envStage.encryptedPrivateKey,
-                passphrase,
-              }),
+              value: envVarValue,
+              isFunction: value.isFunction,
             }
           }),
         )
@@ -187,13 +184,23 @@ program
                 console.log(
                   `🔒 Gitenvs: Writing "${dotenvVar.key}" to ${envFile.filePath}`,
                 )
+                let envVarValue = dotenvVar.value
+                if (dotenvVar.isFunction) {
+                  try {
+                    envVarValue = eval(envVarValue)
+                  } catch (error) {
+                    console.error(
+                      `❌ Gitenvs: Error evaluating function "${dotenvVar.key}"`,
+                    )
+                    console.error(error)
+                    process.exit(1)
+                  }
+                }
 
                 const includesCommentCharacter =
-                  dotenvVar.value?.includes('#') ?? false
-                const includesDoubleQuote =
-                  dotenvVar.value?.includes('"') ?? false
-                const includesSingleQuote =
-                  dotenvVar.value?.includes("'") ?? false
+                  envVarValue.includes('#') ?? false
+                const includesDoubleQuote = envVarValue.includes('"') ?? false
+                const includesSingleQuote = envVarValue.includes("'") ?? false
 
                 let wrapWith = ''
                 if (includesCommentCharacter) {
@@ -213,7 +220,7 @@ program
                   )
                 }
 
-                return `${dotenvVar.key}=${wrapWith}${dotenvVar.value}${wrapWith}`
+                return `${dotenvVar.key}=${wrapWith}${envVarValue}${wrapWith}`
               })
               .join('\n')
 

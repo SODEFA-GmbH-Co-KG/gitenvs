@@ -17,11 +17,13 @@ import {
 import { cn } from '@/lib/utils'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useAtomValue } from 'jotai'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, FunctionSquare } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { KeyShortcut } from './KeyShortcut'
+import { Checkbox } from './ui/checkbox'
+import { Label } from './ui/label'
 
 export const EditEnvVarDialog = NiceModal.create(
   ({
@@ -36,6 +38,9 @@ export const EditEnvVarDialog = NiceModal.create(
     const modal = useModal()
     const [plaintext, setPlaintext] = useState('')
     const [show, setShow] = useState(false)
+    const [isFunction, setIsFunction] = useState(
+      envVar.values[envStage.name]?.isFunction ?? false,
+    )
 
     const stageEncryptionStates = useAtomValue(stageEncryptionStateAtom)
 
@@ -86,9 +91,11 @@ export const EditEnvVarDialog = NiceModal.create(
     const update = async ({
       value,
       encrypted,
+      isFunction,
     }: {
       value: string
       encrypted: boolean
+      isFunction: boolean
     }) => {
       const newEnVars = gitenvs.envVars.map((v) => {
         if (v.id !== envVar.id) return v
@@ -100,6 +107,7 @@ export const EditEnvVarDialog = NiceModal.create(
             [envStage.name]: {
               value: value,
               encrypted,
+              isFunction,
             },
           },
         }
@@ -112,7 +120,7 @@ export const EditEnvVarDialog = NiceModal.create(
     }
 
     const savePlain = async () => {
-      await update({ value: plaintext, encrypted: false })
+      await update({ value: plaintext, encrypted: false, isFunction })
       done()
     }
 
@@ -121,7 +129,7 @@ export const EditEnvVarDialog = NiceModal.create(
         plaintext,
         publicKey: envStage.publicKey,
       })
-      await update({ value: encrypted, encrypted: true })
+      await update({ value: encrypted, encrypted: true, isFunction })
       done()
     }
 
@@ -175,6 +183,17 @@ export const EditEnvVarDialog = NiceModal.create(
             </div>
           </div>
           <div className="flex flex-col gap-4">
+            <div className="flex flex-row items-center gap-2">
+              <Checkbox
+                id="isFunction"
+                checked={isFunction}
+                onCheckedChange={(checked) => setIsFunction(checked === true)}
+              ></Checkbox>
+              <Label htmlFor="isFunction" className="flex gap-2">
+                Is function
+                <FunctionSquare className="h-4 w-4" />
+              </Label>
+            </div>
             <Button
               variant={'outline'}
               type="button"
