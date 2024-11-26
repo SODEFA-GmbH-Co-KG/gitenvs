@@ -72,10 +72,12 @@ program.command('migrate').action(async () => {
         ...gitenvs1,
         version: '2',
         envVars: gitenvs1.envVars.map((envVar) => {
-          const { fileId, ...rest } = envVar
+          const { fileId, id, key, values } = envVar
           return {
-            ...rest,
+            id,
             fileIds: [fileId],
+            key,
+            values,
           }
         }),
       } satisfies Gitenvs
