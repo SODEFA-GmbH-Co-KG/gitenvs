@@ -157,7 +157,7 @@ program
         console.log(
           `🔒 Gitenvs: Creating ${envFile.name} file for stage: ${stage}`,
         )
-        const dotenvVars = await Promise.all(
+        const dotenvVarsUnfiltered = await Promise.all(
           envVars.map(async (envVar) => {
             const value = envVar.values[stage]
             if (!value) return { key: envVar.key, value: '' }
@@ -175,6 +175,10 @@ program
               isFunction: value.isFunction,
             }
           }),
+        )
+
+        const dotenvVars = dotenvVarsUnfiltered.filter(
+          (dotenvVar) => !!dotenvVar.value,
         )
 
         switch (envFile.type) {
