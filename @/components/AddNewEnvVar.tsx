@@ -1,5 +1,5 @@
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
-import { ChevronDown, Link, Plus } from 'lucide-react'
+import { ChevronDown, Import, Link, Plus } from 'lucide-react'
 import {
   streamDialog,
   superAction,
@@ -21,6 +21,7 @@ import { type EnvVar } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { map } from 'lodash-es'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { KeyShortcut } from './KeyShortcut'
 
@@ -125,12 +126,6 @@ export const AddNewEnvVar = async ({
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <ActionWrapper
-              command={{
-                shortcut: {
-                  key: 'a',
-                },
-                label: 'Add new env var',
-              }}
               action={async () => {
                 'use server'
 
@@ -146,6 +141,19 @@ export const AddNewEnvVar = async ({
             >
               <DropdownMenuItem>
                 <Link className="mr-2 h-4 w-4 shrink-0" /> Link existing env var
+              </DropdownMenuItem>
+            </ActionWrapper>
+            <ActionWrapper
+              action={async () => {
+                'use server'
+
+                return superAction(async () => {
+                  redirect(`/setup/import?fileId=${fileId}`)
+                })
+              }}
+            >
+              <DropdownMenuItem>
+                <Import className="mr-2 h-4 w-4 shrink-0" /> Import from Vercel
               </DropdownMenuItem>
             </ActionWrapper>
           </DropdownMenuContent>
