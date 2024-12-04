@@ -1,11 +1,15 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { ComponentPropsWithoutRef, forwardRef, ReactNode } from 'react'
+import {
+  type ComponentPropsWithoutRef,
+  forwardRef,
+  type ReactNode,
+} from 'react'
 import {
   ActionWrapper,
-  ActionWrapperProps,
-  ActionWrapperSlotProps,
+  type ActionWrapperProps,
+  type ActionWrapperSlotProps,
 } from './ActionWrapper'
 import { SuperIcon } from './SuperIcon'
 
