@@ -9,6 +9,7 @@ import {
   superAction,
 } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
+import { AddNewEnvVar } from './AddNewEnvVar'
 import { EnvVarsStageHeader } from './EnvVarsStageHeader'
 import { LinkEnvVarDialog } from './LinkEnvVarDialog'
 import { TableEnvKey } from './TableEnvKey'
@@ -46,6 +47,7 @@ export const EnvVarsTable = async ({
             <div className="col-span-4 my-4">
               <hr />
             </div>
+            <AddNewEnvVar />
             {gitenvs?.envVars.map((envVar, index) => {
               if (!envVar.fileIds.includes(fileId)) return null
 
