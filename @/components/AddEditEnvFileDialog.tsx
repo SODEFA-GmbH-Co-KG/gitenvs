@@ -5,6 +5,7 @@ import { EnvFile, EnvFileType, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvFileId } from '@/gitenvs/idsGenerator'
 import { map } from 'lodash-es'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { saveGitenvs } from '~/lib/gitenvs'
 import {
   streamDialog,
@@ -69,6 +70,7 @@ export const AddEditEnvFileDialog = ({
           })
 
           revalidatePath('/', 'layout')
+          redirect(`/file/${newEnvFile.id}`)
         })
       }}
       className="flex flex-col gap-4"

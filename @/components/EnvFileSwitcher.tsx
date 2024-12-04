@@ -28,7 +28,7 @@ export const EnvFileSwitcher = ({
   activeFileId,
 }: {
   gitenvs: Gitenvs
-  activeFileId: string
+  activeFileId?: string
 }) => {
   return (
     <div className="flex max-w-full flex-row flex-wrap gap-4">
