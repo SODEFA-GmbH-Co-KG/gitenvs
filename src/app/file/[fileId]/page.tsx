@@ -9,9 +9,9 @@ export default async function Page({
   searchParams,
 }: {
   params: { fileId: string }
-  searchParams: Promise<{ query?: string }>
+  searchParams: Promise<{ query?: string; sortAsc?: boolean }>
 }) {
-  const { query } = await searchParams
+  const { query, sortAsc } = await searchParams
   const gitenvs = await getGitenvs()
 
   if (!gitenvs.envFiles.find((file) => file.id === params.fileId)) {
@@ -21,7 +21,12 @@ export default async function Page({
   return (
     <div className="container flex flex-col gap-2">
       <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
-      <EnvVarsTable fileId={params.fileId} gitenvs={gitenvs} query={query} />
+      <EnvVarsTable
+        fileId={params.fileId}
+        gitenvs={gitenvs}
+        query={query}
+        sortAsc={sortAsc}
+      />
       <PasteEnvVars gitenvs={gitenvs} fileId={params.fileId} />
     </div>
   )
