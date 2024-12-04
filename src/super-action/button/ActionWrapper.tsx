@@ -66,7 +66,7 @@ export const ActionWrapper = forwardRef<HTMLElement, ActionWrapperProps>(
         <ActionWrapperSlot
           ref={ref}
           disabled={isLoading || disabled}
-          isLoading={isLoading}
+          // isLoading={isLoading}
           {...slotProps}
           {...Object.fromEntries(
             map(triggerOn, (superOn) => [

@@ -1,111 +1,130 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { EnvFileType } from '@/gitenvs/gitenvs.schema'
-import { revalidatePath } from 'next/cache'
-import {
-  streamDialog,
-  streamToast,
-  superAction,
-} from '~/super-action/action/createSuperAction'
-import { ActionForm } from '~/super-action/form/ActionForm'
+import { cn } from '@/lib/utils'
+import { Eye, EyeOff } from 'lucide-react'
+import { useState } from 'react'
+import { type SuperAction } from '~/super-action/action/createSuperAction'
+import { useSuperAction } from '~/super-action/action/useSuperAction'
+import { type AddEnvVarFormData } from './AddNewEnvVar'
+import { KeyShortcut } from './KeyShortcut'
 import { Label } from './ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select'
 
-const formNames = {
-  filePath: 'filePath',
-  name: 'name',
-  type: 'type',
-}
+export const AddEnvVarDialog = ({
+  saveAction,
+}: {
+  saveAction: SuperAction<void, AddEnvVarFormData>
+}) => {
+  const [show, setShow] = useState(false)
 
-export const AddEnvVarDialog = () => {
+  const { isLoading, trigger } = useSuperAction({
+    action: saveAction,
+    catchToast: true,
+  })
+  const [formData, setFormData] = useState<
+    Pick<AddEnvVarFormData, 'key' | 'value'>
+  >({
+    key: '',
+    value: '',
+  })
   return (
-    <ActionForm
-      action={async (formData) => {
-        'use server'
-
-        return superAction(async () => {
-          // const newEnvFile = EnvFile.parse({
-          //   id: envFile?.id ?? getNewEnvFileId(),
-          //   name: formData?.get(formNames.name),
-          //   filePath: formData?.get(formNames.filePath),
-          //   type: formData?.get(formNames.type),
-          // })
-
-          // const newEnvFiles = envFile?.id
-          //   ? map(gitenvs.envFiles, (file) => {
-          //       if (file.id !== envFile?.id) {
-          //         return file
-          //       }
-
-          //       return newEnvFile
-          //     })
-          //   : [...gitenvs.envFiles, newEnvFile]
-
-          // await saveGitenvs({
-          //   ...gitenvs,
-          //   envFiles: newEnvFiles,
-          // })
-
-          streamDialog(null)
-          streamToast({
-            // title: `Env file ${newEnvFile.name} ${envFile?.id ? 'updated' : 'created'}`,
-            // description: `The env file has been successfully ${envFile?.id ? 'updated' : 'created'}.`,
-          })
-
-          revalidatePath('/', 'layout')
-        })
-      }}
-      className="flex flex-col gap-4"
+    <form
+      className={'flex flex-col gap-4'}
+      // onSubmit={async (event) => {
+      //   event.preventDefault()
+      //   const form = event.target
+      //   if (!(form instanceof HTMLFormElement)) return
+      //   const formData = new FormData(form)
+      //   await trigger({ formData, encrypt: true })
+      // }}
     >
-      <div className="flex flex-col gap-4">
-        <Label htmlFor={formNames.filePath}>File Path</Label>
-        <Input
-          type="text"
-          autoComplete="off"
-          name={formNames.filePath}
-          // defaultValue={envFile?.filePath}
-        />
-      </div>
-      <div className="flex flex-row justify-stretch gap-4">
+      <div className="flex flex-col justify-stretch gap-4">
         <div className="flex flex-1 flex-col gap-4">
-          <Label htmlFor={formNames.name}>Name</Label>
+          <Label htmlFor={'key'}>Key</Label>
           <Input
             type="text"
             autoComplete="off"
-            name={formNames.name}
-            // defaultValue={envFile?.name}
+            name={'key'}
+            value={formData?.key}
+            onChange={(event) =>
+              setFormData((formdata) => ({
+                ...formdata,
+                key: event.target.value,
+              }))
+            }
           />
         </div>
         <div className="flex flex-1 flex-col gap-4">
-          <Label htmlFor={formNames.type}>Type</Label>
-          <Select
-            name={formNames.type}
-            // defaultValue={envFile?.type}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {EnvFileType.options.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label htmlFor={'value'}>Value</Label>
+          <div className="flex flex-row focus-within:rounded focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary">
+            <Input
+              className={cn(
+                'col-span-3 rounded-r-none border-r-0 outline-none focus-within:outline-none focus:outline-none focus:ring-0 focus-visible:ring-0',
+                !show && 'text-security-disc',
+              )}
+              type="text"
+              name={'value'}
+              autoComplete="off"
+              value={formData?.value}
+              onChange={(event) =>
+                setFormData((formdata) => ({
+                  ...formdata,
+                  value: event.target.value,
+                }))
+              }
+              onKeyDown={async (event) => {
+                if (event.key === 'Enter') {
+                  if (event.shiftKey) {
+                    await trigger({ ...formData, encrypt: false })
+                  }
+                  await trigger({ ...formData, encrypt: true })
+                }
+              }}
+            />
+            <Button
+              className="rounded-l-none"
+              variant={'outline'}
+              type="button"
+              size={'icon'}
+              onClick={() => setShow(!show)}
+            >
+              {show ? (
+                <Eye className="size-4" />
+              ) : (
+                <EyeOff className="size-4" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
       <DialogFooter>
-        <Button type="submit">Save</Button>
+        <div className="flex flex-col gap-4">
+          <Button
+            variant={'outline'}
+            type="button"
+            onClick={() => trigger({ ...formData, encrypt: false })}
+            className="flex flex-row gap-2"
+          >
+            <span>Save plain</span>
+            <div className="flex flex-row gap-1">
+              <KeyShortcut>Shift</KeyShortcut>
+              <KeyShortcut>Enter</KeyShortcut>
+            </div>
+          </Button>
+          <Button
+            type="button"
+            disabled={isLoading}
+            onClick={() => trigger({ ...formData, encrypt: true })}
+            className="flex flex-row gap-2"
+          >
+            <span>Save encrypted</span>
+            <KeyShortcut>Enter</KeyShortcut>
+          </Button>
+        </div>
       </DialogFooter>
-    </ActionForm>
+    </form>
   )
 }

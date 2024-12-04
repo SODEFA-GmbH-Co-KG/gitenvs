@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { Slot } from '@radix-ui/react-slot'
 import { ArrowRight, Loader2 } from 'lucide-react'
-import { ReactNode } from 'react'
+import { type ReactNode } from 'react'
 
 export const SuperIcon = ({
   icon = <ArrowRight />,

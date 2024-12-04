@@ -1,17 +1,8 @@
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
-import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
-import { map } from 'lodash-es'
-import { Link, Plus } from 'lucide-react'
+import { Link } from 'lucide-react'
 import { Fragment } from 'react'
-import { saveGitenvs } from '~/lib/gitenvs'
-import {
-  streamDialog,
-  superAction,
-} from '~/super-action/action/createSuperAction'
-import { ActionButton } from '~/super-action/button/ActionButton'
 import { AddNewEnvVar } from './AddNewEnvVar'
 import { EnvVarsStageHeader } from './EnvVarsStageHeader'
-import { LinkEnvVarDialog } from './LinkEnvVarDialog'
 import { TableEnvKey } from './TableEnvKey'
 import { TableEnvVar } from './TableEnvVar'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
@@ -47,7 +38,7 @@ export const EnvVarsTable = async ({
             <div className="col-span-4 my-4">
               <hr />
             </div>
-            <AddNewEnvVar />
+            <AddNewEnvVar fileId={fileId} gitenvs={gitenvs} />
             {gitenvs?.envVars.map((envVar, index) => {
               if (!envVar.fileIds.includes(fileId)) return null
 
@@ -104,7 +95,7 @@ export const EnvVarsTable = async ({
         )}
       </div>
       <div className="flex w-full flex-col gap-2 md:flex-row">
-        <ActionButton
+        {/* <ActionButton
           className="flex-1"
           command={{
             shortcut: {
@@ -134,8 +125,8 @@ export const EnvVarsTable = async ({
           }}
         >
           <Plus className="mr-2 h-4 w-4 shrink-0" /> Add new env var
-        </ActionButton>
-        <ActionButton
+        </ActionButton> */}
+        {/* <ActionButton
           className="flex-1"
           command={{
             shortcut: {
@@ -155,7 +146,7 @@ export const EnvVarsTable = async ({
           }}
         >
           <Link className="mr-2 h-4 w-4 shrink-0" /> Link existing env var
-        </ActionButton>
+        </ActionButton> */}
       </div>
     </Fragment>
   )
