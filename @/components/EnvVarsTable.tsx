@@ -47,6 +47,7 @@ export const EnvVarsTable = async ({
               <SimpleParamInput paramKey="query" placeholder="Search Keys..." />
               <SimpleParamButton
                 variant={sortAsc ? 'default' : 'outline'}
+                className="border"
                 paramKey={'sortAsc'}
               >
                 <ArrowDownAZ className="h-4 w-4" />

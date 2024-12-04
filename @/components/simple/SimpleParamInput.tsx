@@ -1,7 +1,9 @@
 'use client'
 
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 import { debounce } from 'lodash-es'
+import { CircleX } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -72,12 +74,25 @@ export const SimpleParamInput = ({
   }
 
   return (
-    <Input
-      type="text"
-      value={inputValue}
-      onChange={handleChange}
-      placeholder={placeholder}
-      className={className}
-    />
+    <div className="relative">
+      <Input
+        value={inputValue}
+        onChange={handleChange}
+        placeholder={placeholder}
+        className={cn('pe-9', className)}
+      />
+      {inputValue && (
+        <button
+          className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label="Clear input"
+          onClick={() => {
+            setInputValue('')
+            updateParam('')
+          }}
+        >
+          <CircleX size={16} strokeWidth={2} aria-hidden="true" />
+        </button>
+      )}
+    </div>
   )
 }
