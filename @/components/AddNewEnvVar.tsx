@@ -153,7 +153,8 @@ export const AddNewEnvVar = async ({
               }}
             >
               <DropdownMenuItem>
-                <Import className="mr-2 h-4 w-4 shrink-0" /> Import from Vercel
+                <Import className="mr-2 h-4 w-4 shrink-0" /> Import from file /
+                vercel
               </DropdownMenuItem>
             </ActionWrapper>
           </DropdownMenuContent>
