@@ -45,24 +45,23 @@ export const LinkEnvVarDialog = ({
         {map(
           gitenvs.envFiles.filter((file) => file.id !== fileId),
           (file) => {
+            const envVars = gitenvs.envVars.filter(
+              (ev) =>
+                ev.fileIds.includes(file.id) && !ev.fileIds.includes(fileId),
+            )
             return (
               <Fragment key={file.id}>
-                <div key={file.id}>{file.name}</div>
-                {map(
-                  gitenvs.envVars.filter(
-                    (ev) =>
-                      ev.fileIds.includes(file.id) &&
-                      !ev.fileIds.includes(fileId),
-                  ),
-                  (ev) => {
-                    return (
-                      <div key={ev.id} className="flex gap-2">
-                        <Checkbox id={ev.id} value={ev.id} name={ev.id} />
-                        <Label htmlFor={ev.id}>{ev.key}</Label>
-                      </div>
-                    )
-                  },
-                )}
+                <div className="font-bold">{file.name}</div>
+                {!envVars.length && <div className="italic">File Empty</div>}
+                {map(envVars, (ev) => {
+                  return (
+                    <div key={ev.id} className="flex gap-2">
+                      <Checkbox id={ev.id} value={ev.id} name={ev.id} />
+                      <Label htmlFor={ev.id}>{ev.key}</Label>
+                    </div>
+                  )
+                })}
+                <hr />
               </Fragment>
             )
           },

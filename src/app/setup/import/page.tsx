@@ -55,7 +55,9 @@ export default async function Page({
       </div>
       <Hr />
       <Button asChild variant={'default'}>
-        <Link href="/">Setup Done</Link>
+        <Link href={`/file/${searchParams.fileId ?? firstFileId}`}>
+          Setup Done
+        </Link>
       </Button>
     </div>
   )

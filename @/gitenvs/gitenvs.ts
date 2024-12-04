@@ -31,5 +31,9 @@ export const getGitenvs = async () => {
 
 export const saveGitenvs = async (gitenvs: Gitenvs) => {
   const path = join(getCwd(), 'gitenvs.json')
+  const isValid = Gitenvs.safeParse(gitenvs)
+  if (!isValid.success) {
+    throw new Error(isValid.error.message)
+  }
   await writeFile(path, JSON.stringify(gitenvs, null, 2))
 }
