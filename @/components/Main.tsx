@@ -13,8 +13,7 @@ export const Main = async () => {
   const envFile = gitenvs.envFiles.at(0)
 
   if (!envFile) {
-    // TODO: Autofix this
-    throw new Error('No env file found')
+    redirect('/file/new')
   }
 
   return redirect(`/file/${envFile.id}`)
