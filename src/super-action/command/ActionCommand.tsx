@@ -1,5 +1,5 @@
 import { ActionCommandClient } from './ActionCommandClient'
-import { ActionCommandConfig } from './ActionCommandProvider'
+import { type ActionCommandConfig } from './ActionCommandProvider'
 
 export const ActionCommand = <Result,>({
   children,
