@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const EnvVarValue = z.object({
   value: z.string(),
   encrypted: z.boolean(),
+  isFunction: z.boolean().optional(),
 })
 
 export type EnvVarValue = z.infer<typeof EnvVarValue>
