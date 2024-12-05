@@ -39,7 +39,10 @@ export default async function Page() {
   const firstFileId = gitenvs.envFiles[0]!.id
 
   const allDone =
-    isGitignoreExisting && isGitenvsInstalled && isPostInstallScriptExisting
+    isGitignoreExisting &&
+    isGitenvsInstalled &&
+    isPostInstallScriptExisting &&
+    isAddedToScripts
 
   return (
     <div className="flex flex-col gap-8">
