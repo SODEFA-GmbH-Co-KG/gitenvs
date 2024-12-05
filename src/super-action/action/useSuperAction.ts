@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 import { useShowDialog } from '../dialog/DialogProvider'
 import { consumeSuperActionResponse } from './consumeSuperActionResponse'
-import { SuperAction, SuperActionDialog } from './createSuperAction'
+import { type SuperAction, type SuperActionDialog } from './createSuperAction'
 
 export type UseSuperActionOptions<Result, Input> = {
   action: SuperAction<Result, Input>

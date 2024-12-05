@@ -2,10 +2,13 @@
 
 import { Slot } from '@radix-ui/react-slot'
 import { map } from 'lodash-es'
-import { DOMAttributes, ReactNode, forwardRef } from 'react'
-import { UseSuperActionOptions, useSuperAction } from '../action/useSuperAction'
+import { type DOMAttributes, type ReactNode, forwardRef } from 'react'
+import {
+  type UseSuperActionOptions,
+  useSuperAction,
+} from '../action/useSuperAction'
 import { ActionCommand } from '../command/ActionCommand'
-import { ActionCommandConfig } from '../command/ActionCommandProvider'
+import { type ActionCommandConfig } from '../command/ActionCommandProvider'
 
 type ReactEventHandler = Exclude<
   {

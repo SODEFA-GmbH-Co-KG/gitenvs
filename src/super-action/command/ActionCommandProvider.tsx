@@ -3,14 +3,14 @@
 import { CommandGroup } from '@/components/ui/command'
 import { atom, useAtomValue } from 'jotai'
 import { groupBy, indexOf, map, orderBy } from 'lodash-es'
-import { Fragment, ReactNode, useState } from 'react'
-import { UseSuperActionOptions } from '../action/useSuperAction'
+import { Fragment, type ReactNode } from 'react'
+import { type UseSuperActionOptions } from '../action/useSuperAction'
 import {
   ActionCommandDialog,
   useActionCommandDialog,
 } from './ActionCommandDialog'
 import {
-  ActionCommandGroup,
+  type ActionCommandGroup,
   DEFAULT_ACTION_COMMAND_GROUP,
   actionCommandGroups,
 } from './ActionCommandGroups'
@@ -52,8 +52,6 @@ export const ActionCommandProvider = () => {
   )
 
   const { open, setOpen } = useActionCommandDialog()
-
-  const [loading, setLoading] = useState(false)
 
   return (
     <>

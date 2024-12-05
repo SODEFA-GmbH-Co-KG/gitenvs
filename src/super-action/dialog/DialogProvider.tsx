@@ -9,8 +9,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { ReactNode, useCallback } from 'react'
-import { SuperActionDialog } from '../action/createSuperAction'
+import { type ReactNode, useCallback } from 'react'
+import { type SuperActionDialog } from '../action/createSuperAction'
 
 const renderAtom = atom<ReactNode>(null)
 

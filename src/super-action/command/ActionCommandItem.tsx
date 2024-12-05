@@ -1,9 +1,9 @@
 'use client'
 import { CommandItem } from '@/components/ui/command'
-import { ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { useSuperAction } from '../action/useSuperAction'
 import { SuperIcon } from '../button/SuperIcon'
-import { ActionCommandConfig } from './ActionCommandProvider'
+import { type ActionCommandConfig } from './ActionCommandProvider'
 
 export const ActionCommandItem = ({
   command,
@@ -24,7 +24,7 @@ export const ActionCommandItem = ({
       }}
       className="flex flex-row"
     >
-      <div className="flex-1 flex flex-row">
+      <div className="flex flex-1 flex-row">
         <SuperIcon icon={icon} isLoading={isLoading} className="mr-2" />
         {children}
       </div>
