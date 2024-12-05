@@ -1,9 +1,9 @@
 import {
-  SuperActionDialog,
-  SuperActionError,
-  SuperActionRedirect,
-  SuperActionResponse,
-  SuperActionToast,
+  type SuperActionDialog,
+  type SuperActionError,
+  type SuperActionRedirect,
+  type SuperActionResponse,
+  type SuperActionToast,
 } from './createSuperAction'
 
 export const consumeSuperActionResponse = async <Result, Input>(options: {

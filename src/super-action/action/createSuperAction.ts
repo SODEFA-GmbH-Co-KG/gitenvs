@@ -5,7 +5,7 @@ import {
   getURLFromRedirectError,
   isRedirectError,
 } from 'next/dist/client/components/redirect'
-import { ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { z } from 'zod'
 import { createResolvablePromise } from './createResolvablePromise'
 

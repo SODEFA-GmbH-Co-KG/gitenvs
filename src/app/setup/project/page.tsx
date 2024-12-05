@@ -39,7 +39,10 @@ export default async function Page() {
   const firstFileId = gitenvs.envFiles[0]!.id
 
   const allDone =
-    isGitignoreExisting && isGitenvsInstalled && isPostInstallScriptExisting
+    isGitignoreExisting &&
+    isGitenvsInstalled &&
+    isPostInstallScriptExisting &&
+    isAddedToScripts
 
   return (
     <div className="flex flex-col gap-8">
@@ -48,6 +51,31 @@ export default async function Page() {
       <p className="text-center">
         Here are some last steps to configure your project.
       </p>
+      <ActionButton
+        hideIcon={false}
+        action={async () => {
+          'use server'
+          return superAction(async () => {
+            await updateGitIgnore()
+            streamRevalidatePath('/setup/project')
+            await installGitenvs() // installGitenvs & updatePostInstall both change package.json. So one needs to be run first. FIXME: We run install first because adding the postinstall script breaks the GITENVS_DIR stuff.
+            streamRevalidatePath('/setup/project')
+            await updatePostInstall()
+            streamRevalidatePath('/setup/project')
+            await addToScripts()
+            streamRevalidatePath('/setup/project')
+          })
+        }}
+        disabled={allDone}
+        variant={allDone ? 'outline' : 'default'}
+        className={cn(allDone && 'line-through')}
+      >
+        Push all the buttons
+      </ActionButton>
+
+      <Hr outerClassName="col-span-full" thin marginX>
+        or
+      </Hr>
 
       <div className="grid grid-cols-[3fr_1fr] items-center gap-8">
         <p className={cn(isGitenvsInGitIgnore && 'text-gray-500 line-through')}>
@@ -130,35 +158,6 @@ export default async function Page() {
           className={cn(isAddedToScripts && 'line-through')}
         >
           Add to scripts
-        </ActionButton>
-
-        <Hr outerClassName="col-span-full" thin marginX>
-          or
-        </Hr>
-
-        <p className={cn(allDone && 'text-gray-500 line-through')}>
-          Push all the buttons
-        </p>
-        <ActionButton
-          hideIcon={false}
-          action={async () => {
-            'use server'
-            return superAction(async () => {
-              await updateGitIgnore()
-              streamRevalidatePath('/setup/project')
-              await installGitenvs() // installGitenvs & updatePostInstall both change package.json. So one needs to be run first. FIXME: We run install first because adding the postinstall script breaks the GITENVS_DIR stuff.
-              streamRevalidatePath('/setup/project')
-              await updatePostInstall()
-              streamRevalidatePath('/setup/project')
-              await addToScripts()
-              streamRevalidatePath('/setup/project')
-            })
-          }}
-          disabled={allDone}
-          variant={allDone ? 'outline' : 'default'}
-          className={cn(allDone && 'line-through')}
-        >
-          Run everything
         </ActionButton>
       </div>
 

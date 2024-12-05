@@ -15,7 +15,7 @@ export const ActionForm = ({
   className,
   ...superActionOptions
 }: ActionFormProps) => {
-  const { isLoading, trigger } = useSuperAction(superActionOptions)
+  const { trigger } = useSuperAction(superActionOptions)
   return (
     <form
       className={className}
