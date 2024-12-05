@@ -6,7 +6,7 @@ import {
   CommandInput,
   CommandList,
 } from '@/components/ui/command'
-import { ReactNode, useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 
 export const useActionCommandDialog = () => {
   const [open, setOpen] = useState(false)

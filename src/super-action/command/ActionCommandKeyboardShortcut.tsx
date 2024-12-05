@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 import { useSuperAction } from '../action/useSuperAction'
-import { ActionCommandConfig } from './ActionCommandProvider'
+import { type ActionCommandConfig } from './ActionCommandProvider'
 
 export const ActionCommandKeyboardShortcut = ({
   command,
@@ -29,7 +29,7 @@ export const ActionCommandKeyboardShortcut = ({
 
     document.addEventListener('keydown', down)
     return () => document.removeEventListener('keydown', down)
-  }, [shortcut, trigger])
+  }, [onActionExecuted, shortcut, trigger])
 
   return null
 }

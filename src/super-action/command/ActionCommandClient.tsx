@@ -3,7 +3,7 @@
 import { useSetAtom } from 'jotai'
 import { useId, useLayoutEffect } from 'react'
 import {
-  ActionCommandConfig,
+  type ActionCommandConfig,
   actionCommandsAtom,
 } from './ActionCommandProvider'
 
@@ -28,6 +28,7 @@ const useRegisterActionCommand = <Result,>({
     setCommands((prev) => ({ ...prev, [id]: command }))
     return () => {
       setCommands((prev) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [id]: _, ...rest } = prev
         return rest
       })
