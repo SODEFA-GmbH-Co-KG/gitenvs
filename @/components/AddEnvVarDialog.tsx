@@ -78,8 +78,10 @@ export const AddEnvVarDialog = ({
                 if (event.key === 'Enter') {
                   if (event.shiftKey) {
                     await trigger({ ...formData, encrypt: false })
+                    return
                   }
                   await trigger({ ...formData, encrypt: true })
+                  return
                 }
               }}
             />
