@@ -103,21 +103,21 @@ export const AddNewEnvVar = async ({
             })
           }}
         >
-          <Button className="flex items-center gap-2 rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10">
+          <Button className="flex items-center gap-2 overflow-hidden rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10">
             <Plus
               className="opacity-60"
               size={16}
               strokeWidth={2}
               aria-hidden="true"
             />
-            Add New EnvVar
+            <span className="flex-1 truncate">Add New EnvVar</span>
             <KeyShortcut>a</KeyShortcut>
           </Button>
         </ActionWrapper>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              className="rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10"
+              className="shrink-0 rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10"
               size="icon"
               aria-label="Options"
             >
