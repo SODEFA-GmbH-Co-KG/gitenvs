@@ -1,5 +1,6 @@
-import { existsSync } from 'fs'
+import { existsSync, statSync } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
+import { map, some } from 'lodash-es'
 import { join } from 'path'
 import { z } from 'zod'
 import { getCwd } from './getCwd'
@@ -26,7 +27,27 @@ export const checkGitenvsJsonExists = () => {
 export const getGitenvs = async () => {
   const gitenvsContent = await readFile(join(getCwd(), 'gitenvs.json'), 'utf-8')
   const gitenvs = Gitenvs.parse(JSON.parse(gitenvsContent))
+
   return gitenvs
+}
+
+export const checkShouldRegenerateEnvFiles = async () => {
+  const gitenvs = await getGitenvs()
+  const gitenvsFileInfo = statSync(join(getCwd(), 'gitenvs.json'))
+  const updatedAt = gitenvsFileInfo.mtime
+  const envFileRegenerateInfos = map(gitenvs.envFiles, (envFile) => {
+    const isExisting = existsSync(join(getCwd(), envFile.filePath))
+    if (!isExisting) {
+      return {
+        shouldRegenerate: true,
+      }
+    }
+    const envFileInfo = statSync(join(getCwd(), envFile.filePath))
+    return {
+      shouldRegenerate: envFileInfo.mtime < updatedAt,
+    }
+  })
+  return some(envFileRegenerateInfos, (info) => info.shouldRegenerate)
 }
 
 export const saveGitenvs = async (gitenvs: Gitenvs) => {

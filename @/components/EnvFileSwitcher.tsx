@@ -13,6 +13,7 @@ import {
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { ActionWrapper } from '~/super-action/button/ActionWrapper'
 import { AddEditEnvFileDialog } from './AddEditEnvFileDialog'
+import { GenerateEnvFilesButton } from './GenerateEnvFilesButton'
 import { FileTypeDotenv } from './icons/env'
 import { FileTypeTypescriptOfficial } from './icons/ts'
 import { Button } from './ui/button'
@@ -32,6 +33,7 @@ export const EnvFileSwitcher = ({
 }) => {
   return (
     <div className="flex max-w-full flex-row flex-wrap gap-4">
+      <GenerateEnvFilesButton />
       {gitenvs.envFiles.map((envFile, index) => {
         const isActive = envFile.id === activeFileId
         return (
