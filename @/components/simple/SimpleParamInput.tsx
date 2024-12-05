@@ -74,7 +74,7 @@ export const SimpleParamInput = ({
   }
 
   return (
-    <div className="relative">
+    <div className="relative flex-1">
       <Input
         value={inputValue}
         onChange={handleChange}
