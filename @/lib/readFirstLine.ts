@@ -5,6 +5,7 @@ type ReadFirstLineOptions = {
   lineEnding: string
 }
 
+// SOURCE: https://www.npmjs.com/package/firstline?activeTab=code
 export const readFirstLine = ({
   path,
   usrOpts,
