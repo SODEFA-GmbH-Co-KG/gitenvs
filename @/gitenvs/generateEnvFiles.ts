@@ -7,6 +7,9 @@ import { getGitenvs, getIsLatestGitenvsVersion } from '@/gitenvs/gitenvs'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
 
+export const AUTO_GEN_HEADLINE = (stage: string) =>
+  `Gitenvs auto-generated this file for stage: ${stage}`
+
 export const generateEnvFiles = async (options: {
   stage: string
   passphrase?: string
@@ -54,6 +57,8 @@ export const generateEnvFiles = async (options: {
     )
     process.exit(1)
   }
+
+  const headline = AUTO_GEN_HEADLINE(stage)
 
   const promises = []
   for (const envFile of gitenvs.envFiles) {
@@ -120,8 +125,10 @@ export const generateEnvFiles = async (options: {
           })
           .join('\n')
 
+        const fileContent = `# ${headline}\n\n${dotenvContent}`
+
         promises.push(
-          writeFile(join(getCwd(), envFile.filePath), dotenvContent, 'utf-8'),
+          writeFile(join(getCwd(), envFile.filePath), fileContent, 'utf-8'),
         )
         break
       }
@@ -159,8 +166,10 @@ export const generateEnvFiles = async (options: {
           })
           .join('\n')
 
+        const fileContent = `// ${headline}\n\n${tsEnvContent}`
+
         promises.push(
-          writeFile(join(getCwd(), envFile.filePath), tsEnvContent, 'utf-8'),
+          writeFile(join(getCwd(), envFile.filePath), fileContent, 'utf-8'),
         )
         break
       }
