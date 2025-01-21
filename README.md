@@ -17,7 +17,7 @@ Save your environment variables in git – encrypted.
 Just run 
 
 ```bash
-npx gitenvs
+npx gitenvs@latest
 ```
 
 A UI is automatically opened in your browser. Run through the wizard to set up gitenvs.
