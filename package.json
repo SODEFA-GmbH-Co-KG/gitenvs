@@ -10,6 +10,10 @@
   "engines": {
     "node": ">=20"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SODEFA-GmbH-Co-KG/gitenvs"
+  },
   "scripts": {
     "build": "pnpm build-lib && pnpm build-ui",
     "build-lib": "pkgroll --src lib --clean-dist --tsconfig=tsconfig.lib.json",
