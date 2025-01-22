@@ -29,3 +29,5 @@ A UI is automatically opened in your browser. Run through the wizard to set up g
 - **Import from .env**: Import existing .env files through the wizard or paste .env file contents directly in the environment variable overview.
 - **Decrypt env vars in the UI** to check the content. Can be toggled per stage.
 - **Import existing env vars**: Import from .env files in your project folder or from vercel.
+- **Fully keyboard navigable**: Use arrow keys and shortcuts to navigate through the UI.
+- **.env or .ts**: You can use .env or .ts files to write your environment variables.
