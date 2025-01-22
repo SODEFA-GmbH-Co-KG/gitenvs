@@ -46,7 +46,6 @@ export const EditEnvVarDialog = NiceModal.create(
     const [show, setShow] = useState(
       !envVar.values[envStage.name]?.encrypted ?? false,
     )
-    console.log({ adsF: envVar.values[envStage.name]?.encrypted })
 
     const [isFunction, setIsFunction] = useState(
       envVar.values[envStage.name]?.isFunction ?? false,
