@@ -2,7 +2,7 @@
 
 Save your environment variables in git – encrypted.
 
-<img src="docs/images/app.jpg" style="border-radius: 8px;" alt="App screenshot">
+![App screenshot](docs/images/app.jpg)
 
 ## Why?
 
@@ -14,10 +14,10 @@ Save your environment variables in git – encrypted.
 
 ## How?
 
-Just run 
+Just run
 
 ```bash
-npx gitenvs@latest
+npx gitenvs
 ```
 
 A UI is automatically opened in your browser. Run through the wizard to set up gitenvs.
