@@ -56,14 +56,25 @@ export default async function Page() {
         action={async () => {
           'use server'
           return superAction(async () => {
-            await updateGitIgnore()
-            streamRevalidatePath('/setup/project')
-            await installGitenvs() // installGitenvs & updatePostInstall both change package.json. So one needs to be run first. FIXME: We run install first because adding the postinstall script breaks the GITENVS_DIR stuff.
-            streamRevalidatePath('/setup/project')
-            await updatePostInstall()
-            streamRevalidatePath('/setup/project')
-            await addToScripts()
-            streamRevalidatePath('/setup/project')
+            if (!isGitignoreExisting || !isGitenvsInstalled) {
+              await updateGitIgnore()
+              streamRevalidatePath('/setup/project')
+            }
+
+            if (!isGitenvsInstalled) {
+              await installGitenvs() // installGitenvs & updatePostInstall both change package.json. So one needs to be run first. FIXME: We run install first because adding the postinstall script breaks the GITENVS_DIR stuff.
+              streamRevalidatePath('/setup/project')
+            }
+
+            if (!isPostInstallScriptExisting) {
+              await updatePostInstall()
+              streamRevalidatePath('/setup/project')
+            }
+
+            if (!isAddedToScripts) {
+              await addToScripts()
+              streamRevalidatePath('/setup/project')
+            }
           })
         }}
         disabled={allDone}
