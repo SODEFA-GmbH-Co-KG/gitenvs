@@ -73,8 +73,8 @@ export const LinkEnvVarDialog = ({
             <CircleAlert className="h-4 w-4" />
             <AlertTitle>Heads up!</AlertTitle>
             <AlertDescription>
-              To link an env var to this file, you must first link it to another
-              file.
+              To link an env var to this file, you have to create an env var in
+              another file first.
             </AlertDescription>
           </Alert>
         )}
