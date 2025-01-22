@@ -24,6 +24,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { KeyShortcut } from './KeyShortcut'
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 export const AddEnvVarFormSchema = z.object({
   key: z.string().min(1, 'Key is required'),
@@ -40,6 +41,7 @@ export const AddNewEnvVar = async ({
   fileId: string
   gitenvs: Gitenvs
 }) => {
+  const amountOfFiles = gitenvs.envFiles.length
   return (
     <>
       <div className="inline-flex -space-x-px divide-x divide-primary-foreground/30 rounded-lg shadow-sm shadow-black/5 rtl:space-x-reverse">
@@ -139,9 +141,28 @@ export const AddNewEnvVar = async ({
                 })
               }}
             >
-              <DropdownMenuItem>
-                <Link className="mr-2 h-4 w-4 shrink-0" /> Link existing env var
-              </DropdownMenuItem>
+              {amountOfFiles <= 1 ? (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <DropdownMenuItem disabled>
+                      <Link className="mr-2 h-4 w-4 shrink-0" /> Link existing
+                      env var
+                    </DropdownMenuItem>
+                  </TooltipTrigger>
+
+                  <TooltipContent>
+                    <p>
+                      To link an existing env var to this file, you have to
+                      create an env var in another file first.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <DropdownMenuItem>
+                  <Link className="mr-2 h-4 w-4 shrink-0" /> Link existing env
+                  var
+                </DropdownMenuItem>
+              )}
             </ActionWrapper>
             <ActionWrapper
               action={async () => {
