@@ -124,7 +124,7 @@ export const AddNewEnvVar = async ({
               <ChevronDown size={16} strokeWidth={2} aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent data-arrowtab="disable-down disable-up">
             <ActionWrapper
               action={async () => {
                 'use server'
