@@ -1,6 +1,6 @@
 <p align="center">
   <br/>
-  <img width="96px" src="dist/cli/next/public/logo.svg" />
+  <img width="96px" src="docs/images/logo.png" />
   <h3 align="center">Gitenvs</h3>
   <p align="center">Save your environment variables in git – encrypted.</p>
   
