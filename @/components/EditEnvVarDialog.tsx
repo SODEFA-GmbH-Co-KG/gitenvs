@@ -18,12 +18,18 @@ import { cn } from '@/lib/utils'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useAtomValue } from 'jotai'
 import { Eye, EyeOff, FunctionSquare } from 'lucide-react'
+import { Roboto_Mono } from 'next/font/google'
 import { useEffect, useState } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { KeyShortcut } from './KeyShortcut'
-import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
+import { Switch } from './ui/switch'
+
+const robotoMono = Roboto_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 export const EditEnvVarDialog = NiceModal.create(
   ({
@@ -37,7 +43,11 @@ export const EditEnvVarDialog = NiceModal.create(
   }) => {
     const modal = useModal()
     const [plaintext, setPlaintext] = useState('')
-    const [show, setShow] = useState(false)
+    const [show, setShow] = useState(
+      !envVar.values[envStage.name]?.encrypted ?? false,
+    )
+    console.log({ adsF: envVar.values[envStage.name]?.encrypted })
+
     const [isFunction, setIsFunction] = useState(
       envVar.values[envStage.name]?.isFunction ?? false,
     )
@@ -153,6 +163,7 @@ export const EditEnvVarDialog = NiceModal.create(
                 className={cn(
                   'col-span-3 rounded-r-none border-r-0 outline-none focus-within:outline-none focus:outline-none focus:ring-0 focus-visible:ring-0',
                   !show && 'text-security-disc',
+                  robotoMono.className,
                 )}
                 type="text"
                 autoComplete="off"
@@ -184,11 +195,16 @@ export const EditEnvVarDialog = NiceModal.create(
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex flex-row items-center gap-2">
-              <Checkbox
+              <Switch
                 id="isFunction"
                 checked={isFunction}
-                onCheckedChange={(checked) => setIsFunction(checked === true)}
-              ></Checkbox>
+                onCheckedChange={(checked) => {
+                  setIsFunction(checked === true)
+                  if (checked) {
+                    setShow(true)
+                  }
+                }}
+              ></Switch>
               <Label htmlFor="isFunction" className="flex gap-2">
                 Is function
                 <FunctionSquare className="h-4 w-4" />

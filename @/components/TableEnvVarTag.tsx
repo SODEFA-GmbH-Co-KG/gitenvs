@@ -1,5 +1,12 @@
 import { type EnvVarValue } from '@/gitenvs/gitenvs.schema'
+import { Roboto_Mono } from 'next/font/google'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+
+// If loading a variable font, you don't need to specify the font weight
+const robotoMono = Roboto_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 export const TableEnvVarTag = ({
   envVarValue,
@@ -34,9 +41,13 @@ export const TableEnvVarTag = ({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="truncate text-xs">{envVarValue.value}</span>
+        <span className={`truncate text-xs ${robotoMono.className}`}>
+          {envVarValue.value}
+        </span>
       </TooltipTrigger>
-      <TooltipContent>{envVarValue.value}</TooltipContent>
+      <TooltipContent className={robotoMono.className}>
+        {envVarValue.value}
+      </TooltipContent>
     </Tooltip>
   )
 }
