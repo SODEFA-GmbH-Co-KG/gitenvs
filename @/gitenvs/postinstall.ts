@@ -6,7 +6,7 @@ import { getProjectRoot } from './getProjectRoot'
 const POSTINSTALL_SCRIPT = 'gitenvs create'
 
 export const getPackageJsonPath = async () => {
-  const projectRoot = await getProjectRoot()
+  const { projectRoot } = await getProjectRoot()
   return join(projectRoot, 'package.json')
 }
 

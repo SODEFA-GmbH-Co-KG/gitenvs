@@ -1,5 +1,6 @@
 import { Hr } from '@/components/Hr'
 import { PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
+import { getProjectRoot } from '@/gitenvs/getProjectRoot'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import {
   getIsGitenvsInGitIgnore,
@@ -13,6 +14,7 @@ import {
   updatePostInstall,
 } from '@/gitenvs/postinstall'
 import { cn } from '@/lib/utils'
+import { AlertTriangleIcon } from 'lucide-react'
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import { redirect } from 'next/navigation'
 import { superAction } from '~/super-action/action/createSuperAction'
@@ -27,6 +29,7 @@ export default async function Page() {
     isPostInstallScriptExisting,
     isAddedToScripts,
     gitenvs,
+    { foundPackageJson },
   ] = await Promise.all([
     getIsGitignoreExisting(),
     getIsGitenvsInGitIgnore(),
@@ -34,7 +37,10 @@ export default async function Page() {
     getIsPostInstallScriptExisting(),
     getIsAddedToScripts(),
     getGitenvs(),
+    getProjectRoot(),
   ])
+
+  console.log({ foundPackageJson })
 
   const firstFileId = gitenvs.envFiles[0]!.id
 
@@ -51,6 +57,15 @@ export default async function Page() {
       <p className="text-center">
         Here are some last steps to configure your project.
       </p>
+      {!foundPackageJson && (
+        <div className="flex flex-1 items-center justify-center gap-4">
+          <AlertTriangleIcon className="h-4 w-4" />
+          <p className="text-center">
+            We couldn&apos;t find a <code>package.json</code> file in your
+            project. The following steps will be skipped.
+          </p>
+        </div>
+      )}
       <ActionButton
         hideIcon={false}
         action={async () => {
