@@ -17,8 +17,6 @@ export const getProjectRoot = async () => {
       })
 
     if (foundPackageJson) {
-      console.log({ cwd })
-
       return { projectRoot: cwd, foundPackageJson: true }
     }
 

@@ -40,8 +40,6 @@ export default async function Page() {
     getProjectRoot(),
   ])
 
-  console.log({ foundPackageJson })
-
   const firstFileId = gitenvs.envFiles[0]!.id
 
   const allDone =
