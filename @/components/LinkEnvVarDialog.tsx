@@ -3,6 +3,7 @@ import { DialogFooter } from '@/components/ui/dialog'
 import { saveGitenvs } from '@/gitenvs/gitenvs'
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { map } from 'lodash-es'
+import { CircleAlert } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import { Fragment } from 'react'
 import {
@@ -10,6 +11,7 @@ import {
   superAction,
 } from '~/super-action/action/createSuperAction'
 import { ActionForm } from '~/super-action/form/ActionForm'
+import { Alert, AlertDescription, AlertTitle } from './ui/alert'
 import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
 
@@ -66,11 +68,23 @@ export const LinkEnvVarDialog = ({
             )
           },
         )}
+        {gitenvs.envFiles.length === 1 && (
+          <Alert>
+            <CircleAlert className="h-4 w-4" />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              To link an env var to this file, you have to create an env var in
+              another file first.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
-      <DialogFooter>
-        <Button type="submit">Save</Button>
-      </DialogFooter>
+      {gitenvs.envFiles.length > 1 && (
+        <DialogFooter>
+          <Button type="submit">Save</Button>
+        </DialogFooter>
+      )}
     </ActionForm>
   )
 }
