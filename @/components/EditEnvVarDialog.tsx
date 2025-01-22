@@ -19,7 +19,7 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useAtomValue } from 'jotai'
 import { Eye, EyeOff, FunctionSquare } from 'lucide-react'
 import { Roboto_Mono } from 'next/font/google'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { KeyShortcut } from './KeyShortcut'
@@ -142,6 +142,19 @@ export const EditEnvVarDialog = NiceModal.create(
       done()
     }
 
+    const evaledValue = useMemo(() => {
+      if (!isFunction) return null
+      try {
+        const evaled = eval(plaintext) as string
+        return evaled?.toString() ?? 'undefined'
+      } catch (error) {
+        if (error instanceof Error) {
+          return error.message
+        }
+        return 'Unknown error'
+      }
+    }, [isFunction, plaintext])
+
     return (
       <Dialog
         open={modal.visible}
@@ -165,6 +178,7 @@ export const EditEnvVarDialog = NiceModal.create(
                   robotoMono.className,
                 )}
                 type="text"
+                placeholder={isFunction ? 'Date.now()' : ''}
                 autoComplete="off"
                 value={plaintext}
                 onChange={(event) => setPlaintext(event.target.value)}
@@ -192,6 +206,14 @@ export const EditEnvVarDialog = NiceModal.create(
               </Button>
             </div>
           </div>
+
+          {isFunction ? (
+            <div className="flex flex-row gap-2 text-xs text-muted-foreground">
+              <span>Eval: </span>
+              <span className="">{evaledValue}</span>
+            </div>
+          ) : null}
+
           <div className="flex flex-col gap-4">
             <div className="flex flex-row items-center gap-2">
               <Switch

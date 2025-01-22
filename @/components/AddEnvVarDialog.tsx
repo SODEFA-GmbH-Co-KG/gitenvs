@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { Eye, EyeOff, FunctionSquare } from 'lucide-react'
 import { Roboto_Mono } from 'next/font/google'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { type SuperAction } from '~/super-action/action/createSuperAction'
 import { useSuperAction } from '~/super-action/action/useSuperAction'
 import { type AddEnvVarFormData } from './AddNewEnvVar'
@@ -37,6 +37,20 @@ export const AddEnvVarDialog = ({
     value: '',
     isFunction: false,
   })
+
+  const evaledValue = useMemo(() => {
+    if (!formData.isFunction) return null
+    try {
+      const evaled = eval(formData.value) as string
+      return evaled?.toString() ?? 'undefined'
+    } catch (error) {
+      if (error instanceof Error) {
+        return error.message
+      }
+      return 'Unknown error'
+    }
+  }, [formData.isFunction, formData.value])
+
   return (
     <form className={'flex flex-col gap-4'}>
       <div className="flex flex-col justify-stretch gap-4">
@@ -65,6 +79,7 @@ export const AddEnvVarDialog = ({
                 !show && 'text-security-disc',
                 robotoMono.className,
               )}
+              placeholder={formData.isFunction ? 'Date.now()' : ''}
               type="text"
               name={'value'}
               autoComplete="off"
@@ -85,7 +100,7 @@ export const AddEnvVarDialog = ({
                   return
                 }
               }}
-            />{' '}
+            />
             <Button
               className="rounded-l-none"
               variant={'outline'}
@@ -102,6 +117,14 @@ export const AddEnvVarDialog = ({
           </div>
         </div>
       </div>
+
+      {formData.isFunction ? (
+        <div className="flex flex-row gap-2 text-xs text-muted-foreground">
+          <span>Eval: </span>
+          <span className="">{evaledValue}</span>
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-4">
         <div className="flex flex-row items-center gap-2">
           <Switch
