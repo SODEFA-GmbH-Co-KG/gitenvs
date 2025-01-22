@@ -202,9 +202,11 @@ program
                 }
 
                 const includesCommentCharacter =
-                  envVarValue.includes('#') ?? false
-                const includesDoubleQuote = envVarValue.includes('"') ?? false
-                const includesSingleQuote = envVarValue.includes("'") ?? false
+                  envVarValue.toString().includes('#') ?? false
+                const includesDoubleQuote =
+                  envVarValue.toString().includes('"') ?? false
+                const includesSingleQuote =
+                  envVarValue.toString().includes("'") ?? false
 
                 let wrapWith = ''
                 if (includesCommentCharacter) {
@@ -244,9 +246,25 @@ program
                   `🔒 Gitenvs: Writing "${envVar.key}" to ${envFile.filePath}`,
                 )
 
-                const includesDoubleQuote = envVar.value?.includes('"') ?? false
-                const includesSingleQuote = envVar.value?.includes("'") ?? false
-                const includesBacktick = envVar.value?.includes('`') ?? false
+                let envVarValue = envVar.value
+                if (envVar.isFunction) {
+                  try {
+                    envVarValue = eval(envVarValue)
+                  } catch (error) {
+                    console.error(
+                      `❌ Gitenvs: Error evaluating function "${envVar.key}"`,
+                    )
+                    console.error(error)
+                    process.exit(1)
+                  }
+                }
+
+                const includesDoubleQuote =
+                  envVarValue?.toString().includes('"') ?? false
+                const includesSingleQuote =
+                  envVarValue?.toString().includes("'") ?? false
+                const includesBacktick =
+                  envVarValue?.toString().includes('`') ?? false
 
                 let wrapWith = "'"
 
@@ -267,7 +285,7 @@ program
                   }
                 }
 
-                return `export const ${envVar.key} = process.env.${envVar.key} ?? ${wrapWith}${envVar.value}${wrapWith}`
+                return `export const ${envVar.key} = process.env.${envVar.key} ?? ${wrapWith}${envVarValue}${wrapWith}`
               })
               .join('\n')
 
