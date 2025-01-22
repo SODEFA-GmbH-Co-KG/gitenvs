@@ -1,4 +1,5 @@
 import { Hr } from '@/components/Hr'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
 import { getProjectRoot } from '@/gitenvs/getProjectRoot'
 import { getGitenvs } from '@/gitenvs/gitenvs'
@@ -56,12 +57,15 @@ export default async function Page() {
         Here are some last steps to configure your project.
       </p>
       {!foundPackageJson && (
-        <div className="flex flex-1 items-center justify-center gap-4">
-          <AlertTriangleIcon className="h-4 w-4" />
-          <p className="text-center">
-            We couldn&apos;t find a <code>package.json</code> file in your
-            project. The following steps will be skipped.
-          </p>
+        <div className="flex flex-1 justify-center">
+          <Alert className="max-w-xl">
+            <AlertTriangleIcon className="h-4 w-4" />
+            <AlertTitle className="">No package.json file found</AlertTitle>
+            <AlertDescription>
+              We couldn&apos;t find a <code>package.json</code> file in your
+              project. The following steps will be skipped.
+            </AlertDescription>
+          </Alert>
         </div>
       )}
       <ActionButton
