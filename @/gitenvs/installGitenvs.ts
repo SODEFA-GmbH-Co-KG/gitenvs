@@ -7,13 +7,13 @@ import { getProjectRoot } from './getProjectRoot'
 export const installGitenvs = async () => {
   await installPackage('gitenvs', {
     dev: true,
-    cwd: await getProjectRoot(),
+    cwd: (await getProjectRoot()).projectRoot,
   })
 }
 
 export const getIsGitenvsInstalled = async () => {
   try {
-    const projectRoot = await getProjectRoot()
+    const { projectRoot } = await getProjectRoot()
     const packageJson = await readFile(
       join(projectRoot, 'package.json'),
       'utf-8',
