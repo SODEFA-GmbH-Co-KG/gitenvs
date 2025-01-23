@@ -93,8 +93,8 @@ A UI is automatically opened in your browser. Run through the wizard to set up g
 - `gitenvs create` – create all configured env files in their specified paths
   - For your convenience this command can be specified in the `postinstall` of your package.json to automatically create the env files after installing your packages. The setup wizard offers you to add this command to your package.json.
   - This command uses the passphrase and stage specified in env vars
-    - `GITENVS_STAGE=<stage>`
-    - `GITENVS_PASSPHRASE_<stage>=<passphrase>`
+    - `GITENVS_STAGE=<stage>` (for example `GITENVS_STAGE=development`)
+    - `GITENVS_PASSPHRASE_<STAGE>=<passphrase>` (for example `GITENVS_PASSPHRASE_DEVELOPMENT=Y1Ib...`)
   - optional parameters:
     - `--stage <stage>` (default: development) - the stage to create the env files for (env var > cli param > default)
     - `--passphrase <passphrase>` - the passphrase to use for the stage (cli param > env var)
