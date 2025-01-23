@@ -91,7 +91,7 @@ A UI is automatically opened in your browser. Run through the wizard to set up g
 - `npx gitenvs@latest` - opens the UI, if its the first time in this project, the setup wizard will show up automatically
   - if gitenvs is installed as a dev dependency, you just run `gitenvs`
 - `gitenvs create` – create all configured env files in their specified paths
-  - This command should be run in the postinstall script of your package.json. For your convenience, the wizard will automatically add the command to your package.json.
+  - For your convenience this command can be specified in the `postinstall` of your package.json to automatically create the env files after installing your packages. The setup wizard offers you to add this command to your package.json.
   - This command uses the passphrase and stage specified in env vars
     - `GITENVS_STAGE=<stage>`
     - `GITENVS_PASSPHRASE_<stage>=<passphrase>`
