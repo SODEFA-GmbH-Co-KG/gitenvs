@@ -94,7 +94,7 @@ A UI is automatically opened in your browser. Run through the wizard to set up g
   - This command should be run in the postinstall script of your package.json. For your convenience, the wizard will automatically add the command to your package.json.
   - This command uses the passphrase and stage specified in env vars
     - `GITENVS_STAGE=<stage>`
-    - `GITENVS_PASSPHRASE_<stage>=<passphrase>`
+    - `GITENVS_PASSPHRASE_<STAGE>=<passphrase>` (for example `GITENVS_PASSPHRASE_DEVELOPMENT=Y1Ib...`)
   - optional parameters:
     - `--stage <stage>` (default: development) - the stage to create the env files for (env var > cli param > default)
     - `--passphrase <passphrase>` - the passphrase to use for the stage (cli param > env var)
