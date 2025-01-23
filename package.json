@@ -2,6 +2,17 @@
   "name": "gitenvs",
   "version": "2.0.6",
   "private": false,
+  "license": "MIT",
+  "description": "Store your environment variables in git – encrypted.",
+  "keywords": [
+    "git",
+    "env",
+    "environment",
+    "variables",
+    "encrypted",
+    "gitenvs",
+    "sodefa"
+  ],
   "bin": {
     "gitenvs": "dist/cli/main.mjs"
   },
