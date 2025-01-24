@@ -13,7 +13,7 @@ import { randomBytes } from 'crypto'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { createCommand, createCommandSchema } from './createCommand'
+import { createCommand, createCommandSchema } from './create/createCommand'
 
 // test node version >= 20
 const [major] = process.versions.node.split('.').map(Number)

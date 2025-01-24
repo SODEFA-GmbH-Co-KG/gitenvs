@@ -21,7 +21,8 @@
     "dev-create": "GITENVS_DIR=playground tsx ./lib/cli/main.ts create",
     "dev-migrate": "GITENVS_DIR=playground tsx ./lib/cli/main.ts migrate",
     "dev-next": "next dev",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm test && pnpm build",
+    "test": "vitest"
   },
   "dependencies": {
     "@antfu/install-pkg": "^0.4.1",
@@ -89,6 +90,8 @@
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.19.2",
     "typescript": "^5.1.6",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.4",
     "xdg-app-paths": "^8.3.0"
   },
   "ct3aMetadata": {
