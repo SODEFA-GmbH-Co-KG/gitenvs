@@ -85,9 +85,9 @@ const resolveEnvVar = async ({
 }
 
 const getDotenvLine = ({ key, value }: { key: string; value: string }) => {
-  const includesCommentCharacter = value.includes('#') ?? false
-  const includesDoubleQuote = value.includes('"') ?? false
-  const includesSingleQuote = value.includes("'") ?? false
+  const includesCommentCharacter = value.includes('#')
+  const includesDoubleQuote = value.includes('"')
+  const includesSingleQuote = value.includes("'")
 
   let wrapWith = ''
 
@@ -112,9 +112,9 @@ const getDotenvLine = ({ key, value }: { key: string; value: string }) => {
 }
 
 const getTsLine = ({ key, value }: { key: string; value: string }) => {
-  const includesDoubleQuote = value.includes('"') ?? false
-  const includesSingleQuote = value.includes("'") ?? false
-  const includesBacktick = value.includes('`') ?? false
+  const includesDoubleQuote = value.includes('"')
+  const includesSingleQuote = value.includes("'")
+  const includesBacktick = value.includes('`')
 
   let wrapWith = "'"
 

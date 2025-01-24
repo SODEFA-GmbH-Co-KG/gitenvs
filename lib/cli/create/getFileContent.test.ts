@@ -248,3 +248,93 @@ export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'
 export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? 'secretProduction'`,
   )
 })
+
+test('dotenv: hashtag quoting', async () => {
+  let gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_6Gv71d0ZenuC9N39CeGz1c'],
+      key: 'HASHTAG',
+      values: {
+        development: { value: 'hello#world', encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  expect(
+    await getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: dotEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe(`HASHTAG="hello#world"`)
+
+  gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_6Gv71d0ZenuC9N39CeGz1c'],
+      key: 'HASHTAG',
+      values: {
+        development: { value: "'hello#world'", encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  expect(
+    await getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: dotEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe(`HASHTAG="'hello#world'"`)
+
+  gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_6Gv71d0ZenuC9N39CeGz1c'],
+      key: 'HASHTAG',
+      values: {
+        development: { value: '"hello#world"', encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  expect(
+    await getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: dotEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe(`HASHTAG='"hello#world"'`)
+
+  gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_6Gv71d0ZenuC9N39CeGz1c'],
+      key: 'HASHTAG',
+      values: {
+        development: { value: `'"hello#world"'`, encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  await expect(
+    getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: dotEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).rejects.toThrow(/includes both single and double/i)
+})
