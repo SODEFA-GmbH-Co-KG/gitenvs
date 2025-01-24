@@ -37,11 +37,20 @@ const getTestdata = async () => {
         filePath: '.env',
         type: 'dotenv',
       },
+      {
+        id: 'envFile_V64kqIkyLTW1CqntKhSGzi',
+        name: '.env.ts',
+        filePath: '.env.ts',
+        type: '.ts',
+      },
     ],
     envVars: [
       {
         id: 'envVar_8r2GLmGTIxyKrQAvkOSREt',
-        fileIds: ['envFile_6Gv71d0ZenuC9N39CeGz1c'],
+        fileIds: [
+          'envFile_6Gv71d0ZenuC9N39CeGz1c',
+          'envFile_V64kqIkyLTW1CqntKhSGzi',
+        ],
         key: 'DATABASE_URL',
         values: {
           development: {
@@ -64,6 +73,50 @@ const getTestdata = async () => {
           },
         },
       },
+      {
+        id: 'envVar_M22bHTUUs0FAEUWBF8eSqp',
+        fileIds: [
+          'envFile_6Gv71d0ZenuC9N39CeGz1c',
+          'envFile_V64kqIkyLTW1CqntKhSGzi',
+        ],
+        key: 'DISCORD_CLIENT_ID',
+        values: {
+          development: {
+            value: '238423498842850',
+            encrypted: false,
+          },
+          staging: {
+            value: '238423498842850',
+            encrypted: false,
+          },
+          production: {
+            value: '238423498842850',
+            encrypted: false,
+          },
+        },
+      },
+      {
+        id: 'envVar_RkV9VV9Y53GybSnslqrR3q',
+        fileIds: [
+          'envFile_6Gv71d0ZenuC9N39CeGz1c',
+          'envFile_V64kqIkyLTW1CqntKhSGzi',
+        ],
+        key: 'ENABLE_SUPER_FEATURE',
+        values: {
+          development: {
+            value: 'true',
+            encrypted: false,
+          },
+          staging: {
+            value: 'false',
+            encrypted: false,
+          },
+          production: {
+            value: 'false',
+            encrypted: false,
+          },
+        },
+      },
     ],
   } satisfies Gitenvs
 
@@ -79,7 +132,7 @@ const testdata = await getTestdata()
 const gitenvs = testdata.gitenvs
 
 const dotEnvFile = testdata.gitenvs.envFiles[0]!
-
+const tsEnvFile = testdata.gitenvs.envFiles[1]!
 const developmentStage = testdata.gitenvs.envStages[0]!
 const developmentPassphrase = testdata.developmentKeys.passphrase
 
@@ -89,7 +142,7 @@ const stagingPassphrase = testdata.stagingKeys.passphrase
 const productionStage = testdata.gitenvs.envStages[2]!
 const productionPassphrase = testdata.productionKeys.passphrase
 
-test('getFileContent', async () => {
+test('dotenv file content', async () => {
   expect(
     await getFileContent({
       gitenvs,
@@ -97,7 +150,9 @@ test('getFileContent', async () => {
       envStage: developmentStage,
       passphrase: developmentPassphrase,
     }),
-  ).toBe('DATABASE_URL=postgres://localhost:5432/mydatabase')
+  ).toBe(`DATABASE_URL=postgres://localhost:5432/mydatabase
+DISCORD_CLIENT_ID=238423498842850
+ENABLE_SUPER_FEATURE=true`)
 
   expect(
     await getFileContent({
@@ -106,7 +161,9 @@ test('getFileContent', async () => {
       envStage: stagingStage,
       passphrase: stagingPassphrase,
     }),
-  ).toBe('DATABASE_URL=postgres://staging:5432/mydatabase')
+  ).toBe(`DATABASE_URL=postgres://staging:5432/mydatabase
+DISCORD_CLIENT_ID=238423498842850
+ENABLE_SUPER_FEATURE=false`)
 
   expect(
     await getFileContent({
@@ -115,5 +172,48 @@ test('getFileContent', async () => {
       envStage: productionStage,
       passphrase: productionPassphrase,
     }),
-  ).toBe('DATABASE_URL=postgres://production:5432/mydatabase')
+  ).toBe(`DATABASE_URL=postgres://production:5432/mydatabase
+DISCORD_CLIENT_ID=238423498842850
+ENABLE_SUPER_FEATURE=false`)
+})
+
+test('.ts file content', async () => {
+  expect(
+    await getFileContent({
+      gitenvs,
+      envFile: tsEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe(
+    `export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://localhost:5432/mydatabase'
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? '238423498842850'
+export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'true'`,
+  )
+
+  expect(
+    await getFileContent({
+      gitenvs,
+      envFile: tsEnvFile,
+      envStage: stagingStage,
+      passphrase: stagingPassphrase,
+    }),
+  ).toBe(
+    `export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://staging:5432/mydatabase'
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? '238423498842850'
+export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'`,
+  )
+
+  expect(
+    await getFileContent({
+      gitenvs,
+      envFile: tsEnvFile,
+      envStage: productionStage,
+      passphrase: productionPassphrase,
+    }),
+  ).toBe(
+    `export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://production:5432/mydatabase'
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? '238423498842850'
+export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'`,
+  )
 })
