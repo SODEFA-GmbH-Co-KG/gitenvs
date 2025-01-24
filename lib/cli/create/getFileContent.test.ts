@@ -338,3 +338,115 @@ test('dotenv: hashtag quoting', async () => {
     }),
   ).rejects.toThrow(/includes both single and double/i)
 })
+
+test('.ts: quoting', async () => {
+  let gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
+      key: 'QUOTES',
+      values: {
+        development: { value: '"hello world"', encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  expect(
+    await getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: tsEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe(`export const QUOTES = process.env.QUOTES ?? '"hello world"'`)
+
+  gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
+      key: 'QUOTES',
+      values: {
+        development: { value: "'hello world'", encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  expect(
+    await getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: tsEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe(`export const QUOTES = process.env.QUOTES ?? \`'hello world'\``)
+
+  gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
+      key: 'QUOTES',
+      values: {
+        development: { value: "'hello world`o'", encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  expect(
+    await getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: tsEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe(`export const QUOTES = process.env.QUOTES ?? "'hello world\`o'"`)
+
+  gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
+      key: 'QUOTES',
+      values: {
+        development: { value: '"hello world`o"', encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  expect(
+    await getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: tsEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe(`export const QUOTES = process.env.QUOTES ?? '"hello world\`o"'`)
+
+  gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
+      key: 'QUOTES',
+      values: {
+        development: { value: '"hell\'o world`o"', encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  await expect(
+    getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: tsEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).rejects.toThrow(/includes all string encasing characters/i)
+})
