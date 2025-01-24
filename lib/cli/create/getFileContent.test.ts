@@ -117,6 +117,34 @@ const getTestdata = async () => {
           },
         },
       },
+      {
+        id: 'envVar_4wUc7KZvqV9sjk3JMiHBPI',
+        fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
+        key: 'NEXTAUTH_SECRET',
+        values: {
+          development: {
+            value: await encryptEnvVar({
+              plaintext: 'secretDevelopment',
+              publicKey: developmentKeys.publicKey,
+            }),
+            encrypted: true,
+          },
+          staging: {
+            value: await encryptEnvVar({
+              plaintext: 'secretStaging',
+              publicKey: stagingKeys.publicKey,
+            }),
+            encrypted: true,
+          },
+          production: {
+            value: await encryptEnvVar({
+              plaintext: 'secretProduction',
+              publicKey: productionKeys.publicKey,
+            }),
+            encrypted: true,
+          },
+        },
+      },
     ],
   } satisfies Gitenvs
 
@@ -188,7 +216,8 @@ test('.ts file content', async () => {
   ).toBe(
     `export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://localhost:5432/mydatabase'
 export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? '238423498842850'
-export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'true'`,
+export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'true'
+export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? 'secretDevelopment'`,
   )
 
   expect(
@@ -201,7 +230,8 @@ export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'true'`,
   ).toBe(
     `export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://staging:5432/mydatabase'
 export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? '238423498842850'
-export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'`,
+export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'
+export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? 'secretStaging'`,
   )
 
   expect(
@@ -214,6 +244,7 @@ export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'`
   ).toBe(
     `export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://production:5432/mydatabase'
 export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? '238423498842850'
-export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'`,
+export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'
+export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? 'secretProduction'`,
   )
 })
