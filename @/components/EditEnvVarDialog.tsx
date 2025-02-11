@@ -157,7 +157,7 @@ export const EditEnvVarDialog = NiceModal.create(
           }
         }}
       >
-        <DialogContent className="sm:max-w-[300px]">
+        <DialogContent className="sm:max-w-[400px]">
           <DialogHeader className="truncate">
             <DialogTitle>Edit Env Var</DialogTitle>
             <DialogDescription className="truncate">
