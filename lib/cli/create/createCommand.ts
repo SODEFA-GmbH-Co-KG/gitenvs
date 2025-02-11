@@ -10,8 +10,8 @@ import { getFileContent } from './getFileContent'
 
 export const createCommandSchema = z.object({
   stage: z.string(),
-  passphrase: z.string(),
-  passphrasePath: z.string(),
+  passphrase: z.string().optional(),
+  passphrasePath: z.string().optional(),
 })
 
 export const createCommand = async (
