@@ -4,7 +4,8 @@ import { z } from 'zod'
 import { PASSPHRASE_FILE_NAME } from './getPassphrase'
 import { getProjectRoot } from './getProjectRoot'
 
-const getGitIgnorePath = async () => join(await getProjectRoot(), '.gitignore')
+const getGitIgnorePath = async () =>
+  join((await getProjectRoot()).projectRoot, '.gitignore')
 
 const GITENVS_IGNORE_PATTERN = PASSPHRASE_FILE_NAME
 

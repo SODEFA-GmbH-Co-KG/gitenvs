@@ -4,7 +4,7 @@ import { type Passphrase } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { useAtomValue } from 'jotai'
 import { map } from 'lodash-es'
-import { Save, WholeWord } from 'lucide-react'
+import { CopyIcon, Save, WholeWord } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Fragment } from 'react'
 import { toast } from 'sonner'
@@ -45,12 +45,19 @@ export const CopyPassphrases = ({ projectName }: { projectName?: string }) => {
       <div className="flex flex-col gap-4">
         <p>
           These are your secret passphrases. You will need them to decrypt your
-          secrets. Save those in a safe place (password manager).
+          secrets. Save those in a safe place (password manager).{' '}
         </p>
+        {!!projectName ? (
+          <p>
+            You can use the <WholeWord className="inline-block size-4" /> button
+            to copy a suggested name for your password manager.
+          </p>
+        ) : null}
         <p>
-          You can also download your{' '}
+          You can also save your{' '}
           <span className="font-bold">development passphrase</span> to your
-          project folder. {` `}
+          project folder by clicking the{' '}
+          <CopyIcon className="inline-block size-4" /> button. {` `}
           <span className="text-sm">
             This is not recommended for staging or production passphrases! (But
             some people love to live dangerously)

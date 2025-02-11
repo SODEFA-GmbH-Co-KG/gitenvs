@@ -1,5 +1,7 @@
 import { Hr } from '@/components/Hr'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
+import { getProjectRoot } from '@/gitenvs/getProjectRoot'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import {
   getIsGitenvsInGitIgnore,
@@ -13,6 +15,7 @@ import {
   updatePostInstall,
 } from '@/gitenvs/postinstall'
 import { cn } from '@/lib/utils'
+import { AlertTriangleIcon } from 'lucide-react'
 import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate'
 import { redirect } from 'next/navigation'
 import { superAction } from '~/super-action/action/createSuperAction'
@@ -27,6 +30,7 @@ export default async function Page() {
     isPostInstallScriptExisting,
     isAddedToScripts,
     gitenvs,
+    { foundPackageJson },
   ] = await Promise.all([
     getIsGitignoreExisting(),
     getIsGitenvsInGitIgnore(),
@@ -34,6 +38,7 @@ export default async function Page() {
     getIsPostInstallScriptExisting(),
     getIsAddedToScripts(),
     getGitenvs(),
+    getProjectRoot(),
   ])
 
   const firstFileId = gitenvs.envFiles[0]!.id
@@ -51,19 +56,42 @@ export default async function Page() {
       <p className="text-center">
         Here are some last steps to configure your project.
       </p>
+      {!foundPackageJson && (
+        <div className="flex flex-1 justify-center">
+          <Alert className="max-w-xl">
+            <AlertTriangleIcon className="h-4 w-4" />
+            <AlertTitle className="">No package.json file found</AlertTitle>
+            <AlertDescription>
+              We couldn&apos;t find a <code>package.json</code> file in your
+              project. The following steps will be skipped.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
       <ActionButton
         hideIcon={false}
         action={async () => {
           'use server'
           return superAction(async () => {
-            await updateGitIgnore()
-            streamRevalidatePath('/setup/project')
-            await installGitenvs() // installGitenvs & updatePostInstall both change package.json. So one needs to be run first. FIXME: We run install first because adding the postinstall script breaks the GITENVS_DIR stuff.
-            streamRevalidatePath('/setup/project')
-            await updatePostInstall()
-            streamRevalidatePath('/setup/project')
-            await addToScripts()
-            streamRevalidatePath('/setup/project')
+            if (!isGitignoreExisting || !isGitenvsInstalled) {
+              await updateGitIgnore()
+              streamRevalidatePath('/setup/project')
+            }
+
+            if (!isGitenvsInstalled) {
+              await installGitenvs() // installGitenvs & updatePostInstall both change package.json. So one needs to be run first. FIXME: We run install first because adding the postinstall script breaks the GITENVS_DIR stuff.
+              streamRevalidatePath('/setup/project')
+            }
+
+            if (!isPostInstallScriptExisting) {
+              await updatePostInstall()
+              streamRevalidatePath('/setup/project')
+            }
+
+            if (!isAddedToScripts) {
+              await addToScripts()
+              streamRevalidatePath('/setup/project')
+            }
           })
         }}
         disabled={allDone}

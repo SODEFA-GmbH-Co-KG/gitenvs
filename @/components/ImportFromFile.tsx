@@ -16,7 +16,7 @@ import { AddFromClipboardDialog } from './AddFromClipboardDialog'
 
 export const ImportFromFile = async ({ fileId }: { fileId: string }) => {
   const gitenvs = await getGitenvs()
-  const projectRoot = await getProjectRoot()
+  const { projectRoot } = await getProjectRoot()
   const fileNames = filter(await readdir(projectRoot), (fileName) =>
     fileName.includes('.env'),
   )

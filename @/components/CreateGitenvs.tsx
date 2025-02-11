@@ -48,7 +48,7 @@ export const CreateGitenvs = () => {
       envFile: {
         name: '.env',
         type: 'dotenv',
-        filePath: './.env',
+        filePath: '.env',
       },
       envStages: [
         { name: 'development' },

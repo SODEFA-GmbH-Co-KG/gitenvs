@@ -5,8 +5,8 @@ import { z } from 'zod'
 
 export const getVercelProject = async () => {
   try {
-    const root = await getProjectRoot()
-    const vercelProjectJson = join(root, '.vercel', 'project.json')
+    const { projectRoot } = await getProjectRoot()
+    const vercelProjectJson = join(projectRoot, '.vercel', 'project.json')
     const vercelProject = JSON.parse(await readFile(vercelProjectJson, 'utf-8'))
     const parsed = z
       .object({

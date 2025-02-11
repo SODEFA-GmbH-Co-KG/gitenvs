@@ -17,8 +17,14 @@ export const getProjectRoot = async () => {
       })
 
     if (foundPackageJson) {
-      return cwd
+      return { projectRoot: cwd, foundPackageJson: true }
     }
+
+    if (cwd === '/') {
+      // If we've reached the root, there is no package.json that defines the project root. We use the current directory as the project root.
+      return { projectRoot: getCwd(), foundPackageJson: false }
+    }
+
     cwd = dirname(cwd)
   }
 }

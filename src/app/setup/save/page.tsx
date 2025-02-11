@@ -10,7 +10,7 @@ export default async function Page() {
 }
 
 const getProjectName = async () => {
-  const projectRoot = await getProjectRoot()
+  const { projectRoot } = await getProjectRoot()
   const packageJson = await readFile(join(projectRoot, 'package.json'), 'utf-8')
   const packageJsonParsed = z
     .object({ name: z.string() })

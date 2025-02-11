@@ -6,7 +6,7 @@ import { getProjectRoot } from './getProjectRoot'
 const POSTINSTALL_SCRIPT = 'gitenvs create'
 
 export const getPackageJsonPath = async () => {
-  const projectRoot = await getProjectRoot()
+  const { projectRoot } = await getProjectRoot()
   return join(projectRoot, 'package.json')
 }
 
@@ -37,6 +37,11 @@ export const updatePostInstall = async () => {
 }
 
 export const getIsPostInstallScriptExisting = async () => {
-  const packageJson = await getPackageJson()
-  return packageJson.scripts?.postinstall?.includes(POSTINSTALL_SCRIPT)
+  try {
+    const packageJson = await getPackageJson()
+    return packageJson.scripts?.postinstall?.includes(POSTINSTALL_SCRIPT)
+  } catch (error) {
+    // Mild hack: If we can't read the package.json, we assume we aren't in a node project. True disables the install button.
+    return true
+  }
 }

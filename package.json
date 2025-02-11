@@ -2,6 +2,17 @@
   "name": "gitenvs",
   "version": "2.1.0",
   "private": false,
+  "license": "MIT",
+  "description": "Store your environment variables in git – encrypted.",
+  "keywords": [
+    "git",
+    "env",
+    "environment",
+    "variables",
+    "encrypted",
+    "gitenvs",
+    "sodefa"
+  ],
   "bin": {
     "gitenvs": "dist/cli/main.mjs"
   },
@@ -9,6 +20,10 @@
   "type": "module",
   "engines": {
     "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SODEFA-GmbH-Co-KG/gitenvs"
   },
   "scripts": {
     "build": "pnpm build-lib && pnpm build-ui",
@@ -37,7 +52,8 @@
     "zod": "^3.22.4"
   },
   "files": [
-    "dist/*"
+    "dist/*",
+    "docs/*"
   ],
   "devDependencies": {
     "@ebay/nice-modal-react": "^1.2.13",
