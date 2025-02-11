@@ -1,11 +1,19 @@
-import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
+import { saveGitenvs } from '@/gitenvs/gitenvs'
+import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
+import { map } from 'lodash-es'
 import { ChevronDown, Import, Link, Plus } from 'lucide-react'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { z } from 'zod'
 import {
   streamDialog,
   superAction,
 } from '~/super-action/action/createSuperAction'
 import { ActionWrapper } from '~/super-action/button/ActionWrapper'
 import { AddEnvVarDialog } from './AddEnvVarDialog'
+import { KeyShortcut } from './KeyShortcut'
 import { LinkEnvVarDialog } from './LinkEnvVarDialog'
 import { Button } from './ui/button'
 import {
@@ -15,21 +23,13 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 
-import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
-import { saveGitenvs } from '@/gitenvs/gitenvs'
-import { type EnvVar } from '@/gitenvs/gitenvs.schema'
-import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
-import { map } from 'lodash-es'
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
-import { z } from 'zod'
-import { KeyShortcut } from './KeyShortcut'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 export const AddEnvVarFormSchema = z.object({
   key: z.string().min(1, 'Key is required'),
   value: z.string(),
   encrypt: z.boolean(),
+  isFunction: z.boolean(),
 })
 
 export type AddEnvVarFormData = z.infer<typeof AddEnvVarFormSchema>
@@ -81,6 +81,7 @@ export const AddNewEnvVar = async ({
                                         })
                                       : formData.value,
                                     encrypted: formData.encrypt,
+                                    isFunction: formData.isFunction,
                                   },
                                 ]
                               }),

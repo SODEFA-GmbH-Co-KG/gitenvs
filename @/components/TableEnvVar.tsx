@@ -8,6 +8,7 @@ import {
 } from '@/gitenvs/gitenvs.schema'
 import NiceModal from '@ebay/nice-modal-react'
 import { useAtomValue } from 'jotai'
+import { FunctionSquare } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { EditEnvVarDialog } from './EditEnvVarDialog'
@@ -51,6 +52,7 @@ export const TableEnvVar = ({
       setEnvVarValue({
         encrypted: initialEnvVarValue?.encrypted ?? false,
         value: decryptedValue ?? '',
+        isFunction: initialEnvVarValue?.isFunction ?? false,
       })
     }
 
@@ -60,6 +62,7 @@ export const TableEnvVar = ({
     initialEnvVarValue?.encrypted,
     initialEnvVarValue?.value,
     stageEncryptionState?.passphrase,
+    initialEnvVarValue?.isFunction,
   ])
 
   return (
@@ -73,8 +76,11 @@ export const TableEnvVar = ({
           gitenvs,
         })
       }}
-      className="flex w-full cursor-pointer items-center justify-start truncate p-1"
+      className="flex w-full cursor-pointer items-center justify-start gap-1 truncate p-1"
     >
+      {envVarValue?.isFunction && (
+        <FunctionSquare className="h-4 w-4 shrink-0" />
+      )}
       <TableEnvVarTag envVarValue={envVarValue} showValue={showValues} />
     </Button>
   )

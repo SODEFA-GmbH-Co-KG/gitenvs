@@ -12,16 +12,25 @@ import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
 import {
   type EnvStage,
   type EnvVar,
+  type EnvVarValue,
   type Gitenvs,
 } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { useAtomValue } from 'jotai'
-import { Eye, EyeOff } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Eye, EyeOff, FunctionSquare } from 'lucide-react'
+import { Roboto_Mono } from 'next/font/google'
+import { useEffect, useMemo, useState } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { KeyShortcut } from './KeyShortcut'
+import { Label } from './ui/label'
+import { Switch } from './ui/switch'
+
+const robotoMono = Roboto_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 export const EditEnvVarDialog = NiceModal.create(
   ({
@@ -35,7 +44,13 @@ export const EditEnvVarDialog = NiceModal.create(
   }) => {
     const modal = useModal()
     const [plaintext, setPlaintext] = useState('')
-    const [show, setShow] = useState(false)
+    const [show, setShow] = useState(
+      envVar.values[envStage.name]?.encrypted === false,
+    )
+
+    const [isFunction, setIsFunction] = useState(
+      envVar.values[envStage.name]?.isFunction ?? false,
+    )
 
     const stageEncryptionStates = useAtomValue(stageEncryptionStateAtom)
 
@@ -83,14 +98,8 @@ export const EditEnvVarDialog = NiceModal.create(
       modal.remove()
     }
 
-    const update = async ({
-      value,
-      encrypted,
-    }: {
-      value: string
-      encrypted: boolean
-    }) => {
-      const newEnVars = gitenvs.envVars.map((v) => {
+    const update = async ({ value, encrypted, isFunction }: EnvVarValue) => {
+      const newEnvVars = gitenvs.envVars.map((v) => {
         if (v.id !== envVar.id) return v
 
         return {
@@ -100,6 +109,7 @@ export const EditEnvVarDialog = NiceModal.create(
             [envStage.name]: {
               value: value,
               encrypted,
+              isFunction,
             },
           },
         }
@@ -107,12 +117,12 @@ export const EditEnvVarDialog = NiceModal.create(
 
       await saveGitenvs({
         ...gitenvs,
-        envVars: newEnVars,
+        envVars: newEnvVars,
       })
     }
 
     const savePlain = async () => {
-      await update({ value: plaintext, encrypted: false })
+      await update({ value: plaintext, encrypted: false, isFunction })
       done()
     }
 
@@ -121,9 +131,22 @@ export const EditEnvVarDialog = NiceModal.create(
         plaintext,
         publicKey: envStage.publicKey,
       })
-      await update({ value: encrypted, encrypted: true })
+      await update({ value: encrypted, encrypted: true, isFunction })
       done()
     }
+
+    const evaledValue = useMemo(() => {
+      if (!isFunction) return null
+      try {
+        const evaled = eval(plaintext) as string
+        return evaled?.toString() ?? 'undefined'
+      } catch (error) {
+        if (error instanceof Error) {
+          return error.message
+        }
+        return 'Unknown error'
+      }
+    }, [isFunction, plaintext])
 
     return (
       <Dialog
@@ -134,10 +157,13 @@ export const EditEnvVarDialog = NiceModal.create(
           }
         }}
       >
-        <DialogContent className="sm:max-w-[300px]">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader className="truncate">
             <DialogTitle>Edit Env Var</DialogTitle>
-            <DialogDescription />
+            <DialogDescription className="truncate">
+              <div className="truncate">Stage: {envStage.name}</div>
+              <div className="truncate">Key: {envVar.key}</div>
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex flex-row focus-within:rounded focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary">
@@ -145,8 +171,10 @@ export const EditEnvVarDialog = NiceModal.create(
                 className={cn(
                   'col-span-3 rounded-r-none border-r-0 outline-none focus-within:outline-none focus:outline-none focus:ring-0 focus-visible:ring-0',
                   !show && 'text-security-disc',
+                  robotoMono.className,
                 )}
                 type="text"
+                placeholder={isFunction ? 'Date.now()' : ''}
                 autoComplete="off"
                 value={plaintext}
                 onChange={(event) => setPlaintext(event.target.value)}
@@ -174,7 +202,31 @@ export const EditEnvVarDialog = NiceModal.create(
               </Button>
             </div>
           </div>
+
+          {isFunction ? (
+            <div className="flex flex-row gap-2 text-xs text-muted-foreground">
+              <span>Eval: </span>
+              <span className="">{evaledValue}</span>
+            </div>
+          ) : null}
+
           <div className="flex flex-col gap-4">
+            <div className="flex flex-row items-center gap-2">
+              <Switch
+                id="isFunction"
+                checked={isFunction}
+                onCheckedChange={(checked) => {
+                  setIsFunction(checked === true)
+                  if (checked) {
+                    setShow(true)
+                  }
+                }}
+              ></Switch>
+              <Label htmlFor="isFunction" className="flex gap-2">
+                Is function
+                <FunctionSquare className="h-4 w-4" />
+              </Label>
+            </div>
             <Button
               variant={'outline'}
               type="button"

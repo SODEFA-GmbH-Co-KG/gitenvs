@@ -1,6 +1,6 @@
 {
   "name": "gitenvs",
-  "version": "2.0.6",
+  "version": "2.1.0",
   "private": false,
   "license": "MIT",
   "description": "Store your environment variables in git – encrypted.",
@@ -36,7 +36,10 @@
     "dev-create": "GITENVS_DIR=playground tsx ./lib/cli/main.ts create",
     "dev-migrate": "GITENVS_DIR=playground tsx ./lib/cli/main.ts migrate",
     "dev-next": "next dev",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "vitest run && pnpm build",
+    "test": "vitest",
+    "coverage": "vitest --coverage",
+    "coverage:ui": "cd coverage && http-server"
   },
   "dependencies": {
     "@antfu/install-pkg": "^0.4.1",
@@ -79,12 +82,14 @@
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.3.0",
     "@typescript-eslint/parser": "^6.3.0",
+    "@vitest/coverage-v8": "3.0.4",
     "autoprefixer": "^10.4.14",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^1.0.0",
     "eslint": "^8.47.0",
     "eslint-config-next": "^14.2.14",
+    "http-server": "^14.1.1",
     "jotai": "^2.8.4",
     "lucide-react": "^0.454.0",
     "nanoid": "^5.0.7",
@@ -105,6 +110,8 @@
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.19.2",
     "typescript": "^5.1.6",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.4",
     "xdg-app-paths": "^8.3.0"
   },
   "ct3aMetadata": {
