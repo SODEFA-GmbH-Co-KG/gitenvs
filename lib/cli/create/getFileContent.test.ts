@@ -1,6 +1,6 @@
 import { createKeys } from '@/gitenvs/createKeys'
 import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
-import { Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { expect, test } from 'vitest'
 import { getFileContent } from './getFileContent'
 
