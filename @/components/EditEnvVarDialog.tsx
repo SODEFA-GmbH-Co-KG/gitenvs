@@ -12,6 +12,7 @@ import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
 import {
   type EnvStage,
   type EnvVar,
+  type EnvVarValue,
   type Gitenvs,
 } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
@@ -44,7 +45,7 @@ export const EditEnvVarDialog = NiceModal.create(
     const modal = useModal()
     const [plaintext, setPlaintext] = useState('')
     const [show, setShow] = useState(
-      !envVar.values[envStage.name]?.encrypted ?? false,
+      envVar.values[envStage.name]?.encrypted === false,
     )
 
     const [isFunction, setIsFunction] = useState(
@@ -97,16 +98,8 @@ export const EditEnvVarDialog = NiceModal.create(
       modal.remove()
     }
 
-    const update = async ({
-      value,
-      encrypted,
-      isFunction,
-    }: {
-      value: string
-      encrypted: boolean
-      isFunction: boolean
-    }) => {
-      const newEnVars = gitenvs.envVars.map((v) => {
+    const update = async ({ value, encrypted, isFunction }: EnvVarValue) => {
+      const newEnvVars = gitenvs.envVars.map((v) => {
         if (v.id !== envVar.id) return v
 
         return {
@@ -124,7 +117,7 @@ export const EditEnvVarDialog = NiceModal.create(
 
       await saveGitenvs({
         ...gitenvs,
-        envVars: newEnVars,
+        envVars: newEnvVars,
       })
     }
 
@@ -165,9 +158,12 @@ export const EditEnvVarDialog = NiceModal.create(
         }}
       >
         <DialogContent className="sm:max-w-[300px]">
-          <DialogHeader>
+          <DialogHeader className="truncate">
             <DialogTitle>Edit Env Var</DialogTitle>
-            <DialogDescription />
+            <DialogDescription className="truncate">
+              <div className="truncate">Stage: {envStage.name}</div>
+              <div className="truncate">Key: {envVar.key}</div>
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex flex-row focus-within:rounded focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary">
