@@ -78,6 +78,7 @@ export const AddNewEnvVar = async ({
                                         })
                                       : formData.value,
                                     encrypted: formData.encrypt,
+                                    isFunction: formData.isFunction,
                                   },
                                 ]
                               }),
