@@ -1,12 +1,9 @@
+'use client'
+
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { ChevronDown, Import, Link, Plus } from 'lucide-react'
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { z } from 'zod'
-import {
-  streamDialog,
-  superAction,
-} from '~/super-action/action/createSuperAction'
 import { ActionWrapper } from '~/super-action/button/ActionWrapper'
 import { AddEnvVarDialog } from './AddEnvVarDialog'
 import { KeyShortcut } from './KeyShortcut'
@@ -19,8 +16,8 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 
+import { useShowDialog } from '~/super-action/dialog/DialogProvider'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
-
 export const AddEnvVarFormSchema = z.object({
   key: z.string().min(1, 'Key is required'),
   value: z.string(),
@@ -30,7 +27,7 @@ export const AddEnvVarFormSchema = z.object({
 
 export type AddEnvVarFormData = z.infer<typeof AddEnvVarFormSchema>
 
-export const AddNewEnvVar = async ({
+export const AddNewEnvVar = ({
   fileId,
   gitenvs,
 }: {
@@ -38,6 +35,8 @@ export const AddNewEnvVar = async ({
   gitenvs: Gitenvs
 }) => {
   const amountOfFiles = gitenvs.envFiles.length
+  const showDialog = useShowDialog()
+  const router = useRouter()
   return (
     <>
       <div className="inline-flex -space-x-px divide-x divide-primary-foreground/30 rounded-lg shadow-sm shadow-black/5 rtl:space-x-reverse">
@@ -49,26 +48,10 @@ export const AddNewEnvVar = async ({
             label: 'Add new env var',
           }}
           action={async () => {
-            'use server'
-
-            return superAction(async () => {
-              streamDialog({
-                title: `Add new env var`,
-                content: (
-                  <AddEnvVarDialog
-                    fileId={fileId}
-                    gitenvs={gitenvs}
-                    onAfterSave={async () => {
-                      'use server'
-
-                      return superAction(async () => {
-                        streamDialog(null)
-                        revalidatePath('/', 'layout')
-                      })
-                    }}
-                  />
-                ),
-              })
+            // This code runs on the client side intentionally
+            await showDialog({
+              title: `Add new env var`,
+              content: <AddEnvVarDialog fileId={fileId} gitenvs={gitenvs} />,
             })
           }}
         >
@@ -96,15 +79,12 @@ export const AddNewEnvVar = async ({
           <DropdownMenuContent data-arrowtab="disable-down disable-up">
             <ActionWrapper
               action={async () => {
-                'use server'
-
-                return superAction(async () => {
-                  streamDialog({
-                    title: `Link existing env var`,
-                    content: (
-                      <LinkEnvVarDialog gitenvs={gitenvs} fileId={fileId} />
-                    ),
-                  })
+                // This code runs on the client side intentionally
+                await showDialog({
+                  title: `Link existing env var`,
+                  content: (
+                    <LinkEnvVarDialog gitenvs={gitenvs} fileId={fileId} />
+                  ),
                 })
               }}
             >
@@ -133,11 +113,8 @@ export const AddNewEnvVar = async ({
             </ActionWrapper>
             <ActionWrapper
               action={async () => {
-                'use server'
-
-                return superAction(async () => {
-                  redirect(`/setup/import?fileId=${fileId}`)
-                })
+                // This code runs on the client side intentionally
+                router.push(`/setup/import?fileId=${fileId}`)
               }}
             >
               <DropdownMenuItem>

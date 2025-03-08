@@ -11,8 +11,8 @@ import { Eye, EyeOff, FunctionSquare } from 'lucide-react'
 import { Roboto_Mono } from 'next/font/google'
 import { useMemo, useState } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
-import { type SuperAction } from '~/super-action/action/createSuperAction'
 import { useSuperAction } from '~/super-action/action/useSuperAction'
+import { useShowDialog } from '~/super-action/dialog/DialogProvider'
 import { type AddEnvVarFormData } from './AddNewEnvVar'
 import { KeyShortcut } from './KeyShortcut'
 import { Label } from './ui/label'
@@ -27,13 +27,12 @@ const robotoMono = Roboto_Mono({
 export const AddEnvVarDialog = ({
   fileId,
   gitenvs,
-  onAfterSave,
 }: {
   fileId: string
   gitenvs: Gitenvs
-  onAfterSave: SuperAction<void, void>
 }) => {
   const [show, setShow] = useState(false)
+  const showDialog = useShowDialog()
 
   const saveForm = async ({
     key,
@@ -77,7 +76,7 @@ export const AddEnvVarDialog = ({
       envVars: [...gitenvs.envVars, newEnVar],
     })
 
-    return await onAfterSave()
+    await showDialog(null)
   }
 
   const { isLoading, trigger } = useSuperAction({
