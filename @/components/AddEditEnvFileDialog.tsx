@@ -1,17 +1,14 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { EnvFile, EnvFileType, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { getNewEnvFileId } from '@/gitenvs/idsGenerator'
 import { map } from 'lodash-es'
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { saveGitenvs } from '~/lib/gitenvs'
-import {
-  streamDialog,
-  streamToast,
-  superAction,
-} from '~/super-action/action/createSuperAction'
+import { useShowDialog } from '~/super-action/dialog/DialogProvider'
 import { ActionForm } from '~/super-action/form/ActionForm'
 import { Label } from './ui/label'
 import {
@@ -21,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { toast } from './ui/use-toast'
 
 const formNames = {
   filePath: 'filePath',
@@ -35,43 +33,43 @@ export const AddEditEnvFileDialog = ({
   gitenvs: Gitenvs
   envFile?: EnvFile
 }) => {
+  const showDialog = useShowDialog()
+  const router = useRouter()
+
   return (
     <ActionForm
       action={async (formData) => {
-        'use server'
-
-        return superAction(async () => {
-          const newEnvFile = EnvFile.parse({
-            id: envFile?.id ?? getNewEnvFileId(),
-            name: formData?.get(formNames.name),
-            filePath: formData?.get(formNames.filePath),
-            type: formData?.get(formNames.type),
-          })
-
-          const newEnvFiles = envFile?.id
-            ? map(gitenvs.envFiles, (file) => {
-                if (file.id !== envFile?.id) {
-                  return file
-                }
-
-                return newEnvFile
-              })
-            : [...gitenvs.envFiles, newEnvFile]
-
-          await saveGitenvs({
-            ...gitenvs,
-            envFiles: newEnvFiles,
-          })
-
-          streamDialog(null)
-          streamToast({
-            title: `Env file ${newEnvFile.name} ${envFile?.id ? 'updated' : 'created'}`,
-            description: `The env file has been successfully ${envFile?.id ? 'updated' : 'created'}.`,
-          })
-
-          revalidatePath('/', 'layout')
-          redirect(`/file/${newEnvFile.id}`)
+        // This code runs on the client side intentionally
+        const newEnvFile = EnvFile.parse({
+          id: envFile?.id ?? getNewEnvFileId(),
+          name: formData?.get(formNames.name),
+          filePath: formData?.get(formNames.filePath),
+          type: formData?.get(formNames.type),
         })
+
+        const newEnvFiles = envFile?.id
+          ? map(gitenvs.envFiles, (file) => {
+              if (file.id !== envFile?.id) {
+                return file
+              }
+
+              return newEnvFile
+            })
+          : [...gitenvs.envFiles, newEnvFile]
+
+        await saveGitenvs({
+          ...gitenvs,
+          envFiles: newEnvFiles,
+        })
+
+        await showDialog(null)
+
+        toast({
+          title: `Env file ${newEnvFile.name} ${envFile?.id ? 'updated' : 'created'}`,
+          description: `The env file has been successfully ${envFile?.id ? 'updated' : 'created'}.`,
+        })
+
+        router.push(`/file/${newEnvFile.id}`)
       }}
       className="flex flex-col gap-4"
     >
