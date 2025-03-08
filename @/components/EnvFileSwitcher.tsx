@@ -1,17 +1,15 @@
+'use client'
+
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { filter } from 'lodash-es'
 import { ChevronDown, Pencil, Plus, Trash2 } from 'lucide-react'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Fragment } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
-import {
-  streamDialog,
-  streamToast,
-  superAction,
-} from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { ActionWrapper } from '~/super-action/button/ActionWrapper'
+import { useShowDialog } from '~/super-action/dialog/DialogProvider'
 import { AddEditEnvFileDialog } from './AddEditEnvFileDialog'
 import { FileTypeDotenv } from './icons/env'
 import { FileTypeTypescriptOfficial } from './icons/ts'
@@ -22,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-
+import { toast } from './ui/use-toast'
 export const EnvFileSwitcher = ({
   gitenvs,
   activeFileId,
@@ -30,6 +28,9 @@ export const EnvFileSwitcher = ({
   gitenvs: Gitenvs
   activeFileId?: string
 }) => {
+  const router = useRouter()
+  const showDialog = useShowDialog()
+
   return (
     <div className="flex max-w-full flex-row flex-wrap gap-4">
       {gitenvs.envFiles.map((envFile, index) => {
@@ -41,10 +42,8 @@ export const EnvFileSwitcher = ({
                 variant={isActive ? 'default' : 'secondary'}
                 // size={'vanilla'}
                 action={async () => {
-                  'use server'
-                  return superAction(async () => {
-                    redirect(`/file/${envFile.id}`)
-                  })
+                  // This code runs on the client side intentionally
+                  router.push(`/file/${envFile.id}`)
                 }}
                 className={cn(
                   'overflow-hidden rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10',
@@ -102,17 +101,15 @@ export const EnvFileSwitcher = ({
                       group: 'Edit',
                     }}
                     action={async () => {
-                      'use server'
-                      return superAction(async () => {
-                        streamDialog({
-                          title: `Edit Env File: ${envFile.name}`,
-                          content: (
-                            <AddEditEnvFileDialog
-                              gitenvs={gitenvs}
-                              envFile={envFile}
-                            />
-                          ),
-                        })
+                      // This code runs on the client side intentionally
+                      await showDialog({
+                        title: `Edit Env File: ${envFile.name}`,
+                        content: (
+                          <AddEditEnvFileDialog
+                            gitenvs={gitenvs}
+                            envFile={envFile}
+                          />
+                        ),
                       })
                     }}
                   >
@@ -134,27 +131,24 @@ export const EnvFileSwitcher = ({
                       cancel: 'Cancel',
                     }}
                     action={async () => {
-                      'use server'
+                      // This code runs on the client side intentionally
+                      const newEnvFiles = filter(
+                        gitenvs.envFiles,
+                        (file) => file.id !== envFile.id,
+                      )
+                      const newEnvVars = filter(
+                        gitenvs.envVars,
+                        (envVar) => !envVar.fileIds.includes(envFile.id),
+                      )
+                      await saveGitenvs({
+                        ...gitenvs,
+                        envFiles: newEnvFiles,
+                        envVars: newEnvVars,
+                      })
 
-                      return superAction(async () => {
-                        const newEnvFiles = filter(
-                          gitenvs.envFiles,
-                          (file) => file.id !== envFile.id,
-                        )
-                        const newEnvVars = filter(
-                          gitenvs.envVars,
-                          (envVar) => !envVar.fileIds.includes(envFile.id),
-                        )
-                        await saveGitenvs({
-                          ...gitenvs,
-                          envFiles: newEnvFiles,
-                          envVars: newEnvVars,
-                        })
-
-                        streamToast({
-                          title: `${envFile.name} deleted`,
-                          description: `The env file ${envFile.name} has been deleted.`,
-                        })
+                      toast({
+                        title: `${envFile.name} deleted`,
+                        description: `The env file ${envFile.name} has been deleted.`,
                       })
                     }}
                   >
@@ -181,12 +175,10 @@ export const EnvFileSwitcher = ({
         )}
         command={{ shortcut: { key: 'N' }, label: 'New Env File' }}
         action={async () => {
-          'use server'
-          return superAction(async () => {
-            streamDialog({
-              title: 'New Env File',
-              content: <AddEditEnvFileDialog gitenvs={gitenvs} />,
-            })
+          // This code runs on the client side intentionally
+          await showDialog({
+            title: 'New Env File',
+            content: <AddEditEnvFileDialog gitenvs={gitenvs} />,
           })
         }}
       >
