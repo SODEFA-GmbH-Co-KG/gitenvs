@@ -1,8 +1,4 @@
-import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
-import { saveGitenvs } from '@/gitenvs/gitenvs'
-import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
-import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
-import { map } from 'lodash-es'
+import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { ChevronDown, Import, Link, Plus } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -60,43 +56,13 @@ export const AddNewEnvVar = async ({
                 title: `Add new env var`,
                 content: (
                   <AddEnvVarDialog
-                    saveAction={async (formData: AddEnvVarFormData) => {
+                    fileId={fileId}
+                    gitenvs={gitenvs}
+                    onAfterSave={async () => {
                       'use server'
 
                       return superAction(async () => {
-                        const envStages = gitenvs.envStages
-                        const newEnVar = {
-                          id: getNewEnvVarId(),
-                          key: formData.key,
-                          values: Object.fromEntries(
-                            await Promise.all(
-                              map(envStages, async (es) => {
-                                return [
-                                  es.name,
-                                  {
-                                    value: formData.encrypt
-                                      ? await encryptEnvVar({
-                                          plaintext: formData.value,
-                                          publicKey: es.publicKey,
-                                        })
-                                      : formData.value,
-                                    encrypted: formData.encrypt,
-                                    isFunction: formData.isFunction,
-                                  },
-                                ]
-                              }),
-                            ),
-                          ),
-                          fileIds: [fileId],
-                        } satisfies EnvVar
-
-                        await saveGitenvs({
-                          ...gitenvs,
-                          envVars: [...gitenvs.envVars, newEnVar],
-                        })
-
                         streamDialog(null)
-
                         revalidatePath('/', 'layout')
                       })
                     }}
