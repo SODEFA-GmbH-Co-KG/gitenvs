@@ -1,6 +1,6 @@
 import { getCwd } from '@/gitenvs/getCwd'
-import { getIsGitenvsExisting } from '@/gitenvs/getIsGitenvsExisting'
 import {
+  checkGitenvsJsonExists,
   getGitenvsVersion,
   getIsLatestGitenvsVersion,
   latestGitenvsVersion,
@@ -28,6 +28,20 @@ const getGitenvsUiEnvVars = () => ({
   GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
   PORT: '1337',
 })
+
+const checkGitenvsVersion = async () => {
+  const gitenvsExists = checkGitenvsJsonExists()
+  // check version if gitenvs exists
+  if (gitenvsExists) {
+    const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
+    if (!isLatestGitenvsVersion) {
+      console.error(
+        `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate\` to migrate to the latest version.`,
+      )
+      process.exit(1)
+    }
+  }
+}
 
 const program = new Command()
 
@@ -95,6 +109,8 @@ program
   .option('--passphrase <passphrase>')
   .option('--passphrasePath <passphrasePath>')
   .action(async (options) => {
+    await checkGitenvsVersion()
+
     const parsed = createCommandSchema.safeParse(options)
 
     if (!parsed.success) {
@@ -110,7 +126,9 @@ program
 program
   .command('dev-ui')
   .description('Starts a browser UI to edit env vars')
-  .action(() => {
+  .action(async () => {
+    await checkGitenvsVersion()
+
     // start npm command with env vars
     execSync('pnpm run dev-next', {
       stdio: 'inherit',
@@ -143,17 +161,7 @@ program
   .command('ui', { isDefault: true })
   .description('Starts a browser UI to edit env vars')
   .action(async () => {
-    const gitenvsExists = await getIsGitenvsExisting()
-    // check version if gitenvs exists
-    if (gitenvsExists) {
-      const isLatestGitenvsVersion = await getIsLatestGitenvsVersion()
-      if (!isLatestGitenvsVersion) {
-        console.error(
-          `❌ Gitenvs: Version is not latest. Please run \`gitenvs migrate\` to migrate to the latest version.`,
-        )
-        process.exit(1)
-      }
-    }
+    await checkGitenvsVersion()
 
     const nodePath = process.argv0
     const currentDir = dirname(fileURLToPath(import.meta.url))
