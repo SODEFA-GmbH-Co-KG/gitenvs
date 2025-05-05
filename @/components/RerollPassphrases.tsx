@@ -7,6 +7,8 @@ import { getGitenvs, saveGitenvs } from '@/gitenvs/gitenvs'
 import { type Passphrase } from '@/gitenvs/gitenvs.schema'
 import { readFile, writeFile } from 'fs/promises'
 import { every, map } from 'lodash-es'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { join } from 'path'
 import { superAction } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
@@ -150,6 +152,8 @@ export const RerollPassphrases = async () => {
               path,
               JSON.stringify(passPhrasesFileContent, null, 2),
             )
+            revalidatePath('/', 'layout')
+            return redirect('/setup/save')
           })
         }}
       >

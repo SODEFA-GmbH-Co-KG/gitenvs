@@ -1,7 +1,7 @@
 'use client'
 
 import { atom, useAtom } from 'jotai'
-import { map } from 'lodash-es'
+import { map, omit } from 'lodash-es'
 import { useEffect } from 'react'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
 import {
@@ -34,8 +34,6 @@ export const AtomifyPassphrase = ({
   const getEncryptionKey = useEncryptionKeyOnClient()
 
   useEffect(() => {
-    if (stageEncryptionState) return
-
     const decrypt = async () => {
       const encryptionKey = await getEncryptionKey()
       if (!encryptionKey) return
@@ -57,7 +55,26 @@ export const AtomifyPassphrase = ({
         }),
       )
 
-      setStageEncryptionState(passphraseResults)
+      // compare passphrase results
+      if (
+        stageEncryptionState?.every((ses) =>
+          passphraseResults.some(
+            (pr) =>
+              pr.stageName === ses.stageName &&
+              pr.passphrase === ses.passphrase,
+          ),
+        )
+      ) {
+        console.log('no changes')
+      } else {
+        console.log(
+          'changes',
+          omit(stageEncryptionState, 'showValues'),
+          omit(passphraseResults, 'showValues'),
+        )
+        setStageEncryptionState(passphraseResults)
+        console.dir(passphraseResults, { depth: null })
+      }
     }
 
     decrypt().catch(console.error)
