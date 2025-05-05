@@ -71,7 +71,7 @@ export const CopyPassphrases = ({ projectName }: { projectName?: string }) => {
         })}
       >
         {passphrases.map((passphrase) => (
-          <Fragment key={passphrase.stageName}>
+          <Fragment key={passphrase.passphrase}>
             <Label htmlFor={passphrase.stageName} className="col-span-full">
               {passphrase.stageName}
             </Label>

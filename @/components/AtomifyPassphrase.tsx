@@ -34,8 +34,6 @@ export const AtomifyPassphrase = ({
   const getEncryptionKey = useEncryptionKeyOnClient()
 
   useEffect(() => {
-    if (stageEncryptionState) return
-
     const decrypt = async () => {
       const encryptionKey = await getEncryptionKey()
       if (!encryptionKey) return
@@ -57,7 +55,19 @@ export const AtomifyPassphrase = ({
         }),
       )
 
-      setStageEncryptionState(passphraseResults)
+      // necessary to check for reroll action
+      if (
+        !stageEncryptionState?.every((ses) =>
+          passphraseResults.some(
+            (pr) =>
+              pr.stageName === ses.stageName &&
+              pr.passphrase === ses.passphrase,
+          ),
+        )
+      ) {
+        setStageEncryptionState(passphraseResults)
+        console.dir(passphraseResults, { depth: null })
+      }
     }
 
     decrypt().catch(console.error)
