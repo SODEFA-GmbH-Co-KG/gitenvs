@@ -121,8 +121,8 @@ export const RerollPassphrases = async () => {
                   value: newEncryptedValue,
                   encrypted: true,
                 }
-                newEnvVars.push(newEnvVar)
               }
+              newEnvVars.push(newEnvVar)
             }
 
             // console.log({ newEnvVars, newStageEncryptionStates })
