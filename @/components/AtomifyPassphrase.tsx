@@ -1,7 +1,7 @@
 'use client'
 
 import { atom, useAtom } from 'jotai'
-import { map, omit } from 'lodash-es'
+import { map } from 'lodash-es'
 import { useEffect } from 'react'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
 import {
@@ -55,9 +55,9 @@ export const AtomifyPassphrase = ({
         }),
       )
 
-      // compare passphrase results
+      // necessary to check for reroll action
       if (
-        stageEncryptionState?.every((ses) =>
+        !stageEncryptionState?.every((ses) =>
           passphraseResults.some(
             (pr) =>
               pr.stageName === ses.stageName &&
@@ -65,13 +65,6 @@ export const AtomifyPassphrase = ({
           ),
         )
       ) {
-        console.log('no changes')
-      } else {
-        console.log(
-          'changes',
-          omit(stageEncryptionState, 'showValues'),
-          omit(passphraseResults, 'showValues'),
-        )
         setStageEncryptionState(passphraseResults)
         console.dir(passphraseResults, { depth: null })
       }
