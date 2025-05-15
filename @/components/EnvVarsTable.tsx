@@ -25,7 +25,8 @@ export const EnvVarsTable = async ({
 
   const envVarsInFile = gitenvs?.envVars.filter(
     (envVar) =>
-      envVar.fileIds.includes(fileId) && envVar.key.includes(query ?? ''),
+      envVar.fileIds.includes(fileId) &&
+      envVar.key.toLowerCase().includes(query?.toLowerCase() ?? ''),
   )
 
   const sortedEnvVars = sortAsc
