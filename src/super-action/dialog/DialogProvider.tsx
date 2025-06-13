@@ -25,14 +25,17 @@ export const useShowDialog = () => {
   const setRender = useSetAtom(renderAtom)
   return useCallback(
     async (dialog: SuperActionDialog) => {
-      const confirmed = await new Promise<boolean>((res) => {
-        const newRender = dialog && (
-          <SuperDialog dialog={dialog} onConfirm={res} />
-        )
-        setRender(newRender)
-      })
-      setRender(null) // close dialog on confirm
-      return confirmed
+      if (!!dialog?.confirm || !!dialog?.cancel) {
+        const confirmed = await new Promise<boolean>((res) => {
+          const newRender = dialog && (
+            <SuperDialog dialog={dialog} onConfirm={res} />
+          )
+          setRender(newRender)
+        })
+        setRender(null) // close dialog on confirm
+        return confirmed
+      }
+      setRender(dialog && <SuperDialog dialog={dialog} />)
     },
     [setRender],
   )
