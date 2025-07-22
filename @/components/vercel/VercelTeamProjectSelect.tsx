@@ -25,6 +25,10 @@ export const VercelTeamProjectSelect = async ({
   teamId?: string
 }) => {
   const config = await getGlobalConfig()
+  if (!config.vercelToken) {
+    return <TokenInput />
+  }
+
   const [teams, projects] = await Promise.all([
     getVercelTeams({ config }),
     teamId ? getVercelProjects({ config, teamId }) : Promise.resolve([]),
