@@ -36,6 +36,7 @@ export const TokenInput = ({ closeDialog }: { closeDialog?: boolean }) => {
             }
             await setGlobalConfig({ vercelToken })
             revalidatePath('/setup/deploy')
+            revalidatePath('/setup/import')
             if (closeDialog) {
               streamDialog(null)
             }
