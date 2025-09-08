@@ -45,6 +45,9 @@ export const AddNewStage = ({ gitenvs }: { gitenvs: Gitenvs }) => {
           ]
         })
         router.push('/setup/save')
+        toast.success('Stage added', {
+          description: 'Please save the stages passphrase',
+        })
         await showDialog(null)
       }}
     >
