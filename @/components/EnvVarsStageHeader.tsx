@@ -14,6 +14,7 @@ import {
   Trash,
   TriangleAlert,
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { saveGitenvs } from '~/lib/gitenvs'
@@ -44,6 +45,7 @@ export const EnvVarsStageHeader = ({
   const [stageEncryptionStates, setStageEncryptionState] = useAtom(
     stageEncryptionStateAtom,
   )
+  const router = useRouter()
 
   const stageEncryptionState = stageEncryptionStates?.find(
     (s) => s.stageName === stage.name,
@@ -176,14 +178,27 @@ export const EnvVarsStageHeader = ({
                           return v
                         })
                         await saveGitenvs(gitenvs)
+                        setStageEncryptionState((prev) => {
+                          if (!prev) return prev
+                          return map(prev, (s) => {
+                            if (s.stageName === stage.name) {
+                              return { ...s, stageName: newStageName }
+                            }
+                            return s
+                          })
+                        })
                         toast.success('Stage renamed')
+                        router.push('/setup/save?redirect=/')
                         await showDialog(null)
                       }}
                       className="flex flex-col gap-4 pt-2"
                     >
                       {({ isLoading }) => (
                         <>
-                          <Alert variant="destructive">
+                          <Alert
+                            variant="destructive"
+                            className="max-w-[400px]"
+                          >
                             <TriangleAlert />
                             <AlertTitle>Heads up!</AlertTitle>
                             <AlertDescription className="text-destructive">
