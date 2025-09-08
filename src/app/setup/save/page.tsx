@@ -4,9 +4,19 @@ import { readFile } from 'fs/promises'
 import { join } from 'path'
 import { z } from 'zod'
 
-export default async function Page() {
+const allowedRedirects = ['/']
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect: string }>
+}) {
+  const { redirect } = await searchParams
+  if (!allowedRedirects.includes(redirect)) {
+    throw new Error('Invalid redirect')
+  }
   const projectName = await getProjectName().catch(() => undefined)
-  return <CopyPassphrases projectName={projectName} />
+  return <CopyPassphrases projectName={projectName} redirect={redirect} />
 }
 
 const getProjectName = async () => {

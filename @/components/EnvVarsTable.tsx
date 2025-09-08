@@ -35,12 +35,12 @@ export const EnvVarsTable = async ({
 
   return (
     <Fragment>
-      <div className="flex max-w-full flex-col gap-2 overflow-auto rounded-md border p-4">
+      <div className="flex max-w-full flex-col gap-2 overflow-x-auto rounded-md border bg-background p-4">
         <div
           className="grid w-full gap-2"
           id="supergrid"
           style={{
-            gridTemplateColumns: `minmax(200px, 1fr) repeat(${columns - 1}, minmax(300px, 1fr))`,
+            gridTemplateColumns: `repeat(${columns}, minmax(300px, 1fr))`,
           }}
         >
           <div className="flex items-center justify-start gap-2 p-1">
@@ -56,11 +56,11 @@ export const EnvVarsTable = async ({
           {gitenvs?.envStages.map((stage) => {
             return (
               <div className="flex items-center gap-2" key={stage.name}>
-                <EnvVarsStageHeader stage={stage} />
+                <EnvVarsStageHeader stage={stage} gitenvs={gitenvs} />
               </div>
             )
           })}
-          <div className="col-span-4 my-2">
+          <div className="col-span-full my-2">
             <hr />
           </div>
 
