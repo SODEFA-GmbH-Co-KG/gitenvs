@@ -1,15 +1,13 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
-import { saveGitenvs } from '@/gitenvs/gitenvs'
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { map } from 'lodash-es'
 import { CircleAlert } from 'lucide-react'
-import { revalidatePath } from 'next/cache'
 import { Fragment } from 'react'
-import {
-  streamDialog,
-  superAction,
-} from '~/super-action/action/createSuperAction'
+import { saveGitenvs } from '~/lib/gitenvs'
+import { useShowDialog } from '~/super-action/dialog/DialogProvider'
 import { ActionForm } from '~/super-action/form/ActionForm'
 import { Alert, AlertDescription, AlertTitle } from './ui/alert'
 import { Checkbox } from './ui/checkbox'
@@ -22,24 +20,21 @@ export const LinkEnvVarDialog = ({
   gitenvs: Gitenvs
   fileId: string
 }) => {
+  const showDialog = useShowDialog()
   return (
     <ActionForm
       action={async (formData) => {
-        'use server'
-
-        return superAction(async () => {
-          const merged = map(gitenvs.envVars, (ev) => {
-            const checked = formData.get(ev.id)
-            return checked ? { ...ev, fileIds: [...ev.fileIds, fileId] } : ev
-          })
-          await saveGitenvs({
-            ...gitenvs,
-            envVars: merged,
-          })
-
-          streamDialog(null)
-          revalidatePath('/', 'layout')
+        // This code runs on the client side intentionally
+        const merged = map(gitenvs.envVars, (ev) => {
+          const checked = formData.get(ev.id)
+          return checked ? { ...ev, fileIds: [...ev.fileIds, fileId] } : ev
         })
+        await saveGitenvs({
+          ...gitenvs,
+          envVars: merged,
+        })
+
+        await showDialog(null)
       }}
       className="flex flex-col gap-4"
     >

@@ -2,12 +2,17 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
+import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { cn } from '@/lib/utils'
+import { map } from 'lodash-es'
 import { Eye, EyeOff, FunctionSquare } from 'lucide-react'
 import { Roboto_Mono } from 'next/font/google'
 import { useMemo, useState } from 'react'
-import { type SuperAction } from '~/super-action/action/createSuperAction'
+import { saveGitenvs } from '~/lib/gitenvs'
 import { useSuperAction } from '~/super-action/action/useSuperAction'
+import { useShowDialog } from '~/super-action/dialog/DialogProvider'
 import { type AddEnvVarFormData } from './AddNewEnvVar'
 import { KeyShortcut } from './KeyShortcut'
 import { Label } from './ui/label'
@@ -20,14 +25,62 @@ const robotoMono = Roboto_Mono({
 })
 
 export const AddEnvVarDialog = ({
-  saveAction,
+  fileId,
+  gitenvs,
 }: {
-  saveAction: SuperAction<void, AddEnvVarFormData>
+  fileId: string
+  gitenvs: Gitenvs
 }) => {
   const [show, setShow] = useState(false)
+  const showDialog = useShowDialog()
+
+  const saveForm = async ({
+    key,
+    value,
+    encrypt,
+    isFunction,
+  }: {
+    key: string
+    value: string
+    encrypt: boolean
+    isFunction: boolean
+  }) => {
+    const envStages = gitenvs.envStages
+    const newEnVar = {
+      id: getNewEnvVarId(),
+      key,
+      values: Object.fromEntries(
+        await Promise.all(
+          map(envStages, async (stage) => {
+            return [
+              stage.name,
+              {
+                value: encrypt
+                  ? await encryptEnvVar({
+                      plaintext: value,
+                      publicKey: stage.publicKey,
+                    })
+                  : value,
+                encrypted: encrypt,
+                isFunction: isFunction,
+              },
+            ]
+          }),
+        ),
+      ),
+      fileIds: [fileId],
+    } satisfies EnvVar
+
+    await saveGitenvs({
+      ...gitenvs,
+      envVars: [...gitenvs.envVars, newEnVar],
+    })
+
+    await showDialog(null)
+  }
 
   const { isLoading, trigger } = useSuperAction({
-    action: saveAction,
+    action: saveForm,
     catchToast: true,
   })
   const [formData, setFormData] = useState<
