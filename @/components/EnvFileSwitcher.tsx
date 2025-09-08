@@ -36,9 +36,14 @@ export const EnvFileSwitcher = ({
         const isActive = envFile.id === activeFileId
         return (
           <Fragment key={envFile.id}>
-            <div className="group inline-flex max-w-60 -space-x-px divide-x divide-primary-foreground/30 rounded-lg shadow-sm shadow-black/5 rtl:space-x-reverse">
+            <div
+              className={cn(
+                'group inline-flex max-w-60 ',
+                isActive && 'rounded-lg border',
+              )}
+            >
               <ActionButton
-                variant={isActive ? 'default' : 'secondary'}
+                variant={'ghost'}
                 // size={'vanilla'}
                 action={async () => {
                   'use server'
@@ -84,7 +89,7 @@ export const EnvFileSwitcher = ({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant={isActive ? 'default' : 'secondary'}
+                    variant={'ghost'}
                     className={cn(
                       'shrink-0 rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10',
                       // envFile.id !== activeFileId && 'bg-muted text-primary',
