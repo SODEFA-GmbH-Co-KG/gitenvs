@@ -13,6 +13,7 @@ import {
   ShieldEllipsis,
   Trash,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { ActionWrapper } from '~/super-action/button/ActionWrapper'
@@ -136,6 +137,11 @@ export const EnvVarsStageHeader = ({
                   return v
                 })
                 await saveGitenvs(gitenvs)
+                setStageEncryptionState((prev) => {
+                  if (!prev) return prev
+                  return filter(prev, (s) => s.stageName !== stage.name)
+                })
+                toast.success('Stage deleted')
               }}
             >
               <DropdownMenuItem className="flex items-center gap-2">
@@ -168,6 +174,7 @@ export const EnvVarsStageHeader = ({
                           return v
                         })
                         await saveGitenvs(gitenvs)
+                        toast.success('Stage renamed')
                         await showDialog(null)
                       }}
                       className="flex flex-col gap-4 pt-2"

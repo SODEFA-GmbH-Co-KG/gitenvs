@@ -44,7 +44,7 @@ export const AddNewStage = ({ gitenvs }: { gitenvs: Gitenvs }) => {
             { stageName: name, passphrase: keys.passphrase, showValues: false },
           ]
         })
-        router.push('/setup/save')
+        router.push('/setup/save?redirect=/')
         toast.success('Stage added', {
           description: 'Please save the stages passphrase',
         })
