@@ -30,6 +30,7 @@ export const TokenInput = ({ closeDialog }: { closeDialog?: boolean }) => {
         action={async (formData) => {
           'use server'
           return superAction(async () => {
+            // TODO: Encrypt this
             const vercelToken = formData.get('vercelToken')
             if (typeof vercelToken !== 'string') {
               throw new Error('Vercel token is required')
