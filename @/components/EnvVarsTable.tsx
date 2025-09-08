@@ -41,7 +41,6 @@ export const EnvVarsTable = async ({
           id="supergrid"
           style={{
             gridTemplateColumns: `repeat(${columns}, minmax(300px, 1fr))`,
-            minWidth: 'max-content',
           }}
         >
           <div className="flex items-center justify-start gap-2 p-1">

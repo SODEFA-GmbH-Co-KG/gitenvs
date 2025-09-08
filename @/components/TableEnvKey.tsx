@@ -44,7 +44,7 @@ export const TableEnvKey = ({
           })
         })
       }}
-      className="sticky left-0 z-10 flex cursor-pointer flex-row justify-between gap-4 bg-background p-1"
+      className="flex cursor-pointer flex-row justify-between gap-4 p-1"
     >
       {children}
     </ActionButton>
