@@ -6,6 +6,7 @@ import {
 } from '~/super-action/action/createSuperAction'
 import { ActionWrapper } from '~/super-action/button/ActionWrapper'
 import { AddNewStage } from './AddNewStage'
+import { Button } from './ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +25,9 @@ export const MainDropdown = async ({ className }: { className?: string }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={className}>
-        <MoreVertical />
+        <Button variant="ghost" size="icon">
+          <MoreVertical className="size-4" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <ActionWrapper

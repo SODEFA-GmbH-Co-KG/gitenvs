@@ -195,7 +195,7 @@ export const EnvFileSwitcher = ({
           })
         }}
       >
-        <Plus />
+        <Plus className="size-4" />
         <span>New</span>
       </ActionButton>
     </div>
