@@ -56,7 +56,7 @@ export const EnvVarsTable = async ({
           {gitenvs?.envStages.map((stage) => {
             return (
               <div className="flex items-center gap-2" key={stage.name}>
-                <EnvVarsStageHeader stage={stage} />
+                <EnvVarsStageHeader stage={stage} gitenvs={gitenvs} />
               </div>
             )
           })}
