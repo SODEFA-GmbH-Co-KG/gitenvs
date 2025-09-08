@@ -5,9 +5,19 @@ import { cn } from '@/lib/utils'
 import NiceModal from '@ebay/nice-modal-react'
 import { useAtom } from 'jotai'
 import { filter, map } from 'lodash-es'
-import { ChevronDown, Eye, EyeOff, ShieldEllipsis, Trash } from 'lucide-react'
+import {
+  ChevronDown,
+  Eye,
+  EyeOff,
+  Pencil,
+  ShieldEllipsis,
+  Trash,
+} from 'lucide-react'
+import { z } from 'zod'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { ActionWrapper } from '~/super-action/button/ActionWrapper'
+import { useShowDialog } from '~/super-action/dialog/DialogProvider'
+import { ActionForm } from '~/super-action/form/ActionForm'
 import { AddPassphraseDialog } from './AddPassphraseDialog'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { Button } from './ui/button'
@@ -17,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
+import { Input } from './ui/input'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 export const EnvVarsStageHeader = ({
@@ -26,6 +37,7 @@ export const EnvVarsStageHeader = ({
   stage: EnvStage
   gitenvs: Gitenvs
 }) => {
+  const showDialog = useShowDialog()
   const [stageEncryptionStates, setStageEncryptionState] = useAtom(
     stageEncryptionStateAtom,
   )
@@ -131,6 +143,55 @@ export const EnvVarsStageHeader = ({
                 <span>Delete</span>
               </DropdownMenuItem>
             </ActionWrapper>
+            <DropdownMenuItem
+              className="flex items-center gap-2"
+              onClick={async () => {
+                await showDialog({
+                  title: `New Stage Name`,
+                  content: (
+                    <ActionForm
+                      action={async (formData) => {
+                        const newStageName = z
+                          .string()
+                          .parse(formData.get('name'))
+                        gitenvs.envStages = map(gitenvs.envStages, (s) => {
+                          if (s.name === stage.name) {
+                            return { ...s, name: newStageName }
+                          }
+                          return s
+                        })
+                        gitenvs.envVars = map(gitenvs.envVars, (v) => {
+                          const stageValue = v.values[stage.name]
+                          if (!stageValue) return v
+                          v.values[newStageName] = stageValue
+                          delete v.values[stage.name]
+                          return v
+                        })
+                        await saveGitenvs(gitenvs)
+                        await showDialog(null)
+                      }}
+                      className="flex flex-col gap-4 pt-2"
+                    >
+                      {({ isLoading }) => (
+                        <>
+                          <Input
+                            name="name"
+                            placeholder="Stage Name"
+                            defaultValue={stage.name}
+                          />
+                          <Button type="submit" disabled={isLoading}>
+                            Rename
+                          </Button>
+                        </>
+                      )}
+                    </ActionForm>
+                  ),
+                })
+              }}
+            >
+              <Pencil className="size-4" />
+              <span>Rename</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
