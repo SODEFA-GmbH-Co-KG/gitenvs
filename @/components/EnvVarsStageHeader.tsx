@@ -12,6 +12,7 @@ import {
   Pencil,
   ShieldEllipsis,
   Trash,
+  TriangleAlert,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -21,6 +22,7 @@ import { useShowDialog } from '~/super-action/dialog/DialogProvider'
 import { ActionForm } from '~/super-action/form/ActionForm'
 import { AddPassphraseDialog } from './AddPassphraseDialog'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
+import { Alert, AlertDescription, AlertTitle } from './ui/alert'
 import { Button } from './ui/button'
 import {
   DropdownMenu,
@@ -181,6 +183,14 @@ export const EnvVarsStageHeader = ({
                     >
                       {({ isLoading }) => (
                         <>
+                          <Alert variant="destructive">
+                            <TriangleAlert />
+                            <AlertTitle>Heads up!</AlertTitle>
+                            <AlertDescription className="text-destructive">
+                              Be sure that you update GITENVS_STAGE &
+                              GITENVS_PASSPHRASE_[...] if you rename the stage
+                            </AlertDescription>
+                          </Alert>
                           <Input
                             name="name"
                             placeholder="Stage Name"
