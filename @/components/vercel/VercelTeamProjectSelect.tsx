@@ -65,7 +65,10 @@ export const VercelTeamProjectSelect = async ({
               <MoreVertical className="h-3 w-3 opacity-60" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent forceMount>
+          <DropdownMenuContent
+            forceMount
+            data-arrowtab="disable-down disable-up"
+          >
             <DropdownMenuItem asChild>
               <ActionButton
                 variant="ghost"

@@ -63,7 +63,7 @@ export const TableEnvKey = ({
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent forceMount>
+        <DropdownMenuContent forceMount data-arrowtab="disable-down disable-up">
           <ActionWrapper action={rename}>
             <DropdownMenuItem className="flex items-center gap-2">
               <Pencil className="size-4" />

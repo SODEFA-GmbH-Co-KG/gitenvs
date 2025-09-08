@@ -100,7 +100,7 @@ export const EnvFileSwitcher = ({
                     <ChevronDown size={16} strokeWidth={2} aria-hidden="true" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
+                <DropdownMenuContent data-arrowtab="disable-down disable-up">
                   <ActionWrapper
                     command={{
                       label: `Edit EnvFile: ${envFile.name}`,

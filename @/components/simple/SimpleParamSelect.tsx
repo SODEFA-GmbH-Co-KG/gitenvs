@@ -110,10 +110,10 @@ export const SimpleParamSelect = (
             className={cn('text-nowrap', props.className)}
           >
             {selected?.label ?? props.label}
-            <ChevronDown className="size-4 ml-2" />
+            <ChevronDown className="ml-2 size-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent data-arrowtab="disable-down disable-up">
           <ScrollArea
             className="flex max-h-[40vh] flex-col"
             onKeyDown={handleKeyDown}

@@ -29,7 +29,7 @@ export const MainDropdown = async ({ className }: { className?: string }) => {
           <MoreVertical className="size-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent forceMount data-arrowtab="disable-down disable-up">
         <ActionWrapper
           command={{
             label: 'Add new Stage',
@@ -56,7 +56,7 @@ export const MainDropdown = async ({ className }: { className?: string }) => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Setup</DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent>
+              <DropdownMenuSubContent data-arrowtab="disable-down disable-up">
                 <DropdownMenuItem>
                   <a href="/setup/save" className="w-full">
                     Goto Save Passphrases
