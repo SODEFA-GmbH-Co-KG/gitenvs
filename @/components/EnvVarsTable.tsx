@@ -60,7 +60,7 @@ export const EnvVarsTable = async ({
               </div>
             )
           })}
-          <div className="col-span-4 my-2">
+          <div className="col-span-full my-2">
             <hr />
           </div>
 

@@ -44,7 +44,7 @@ export const AddNewEnvVar = async ({
   const amountOfFiles = gitenvs.envFiles.length
   return (
     <>
-      <div className="inline-flex -space-x-px divide-x divide-primary-foreground/30 rounded-lg shadow-sm shadow-black/5 rtl:space-x-reverse">
+      <div className="col-span-full inline-flex -space-x-px divide-x divide-primary-foreground/30 rounded-lg shadow-sm shadow-black/5 rtl:space-x-reverse">
         <ActionWrapper
           command={{
             shortcut: {
@@ -182,9 +182,6 @@ export const AddNewEnvVar = async ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div></div>
-      <div></div>
-      <div></div>
     </>
   )
 }
