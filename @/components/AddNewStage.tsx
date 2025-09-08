@@ -3,8 +3,10 @@
 import { createKeys } from '@/gitenvs/createKeys'
 import { type EnvStage, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { useSetAtom } from 'jotai'
+import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { saveGitenvs } from '~/lib/gitenvs'
+import { useShowDialog } from '~/super-action/dialog/DialogProvider'
 import { ActionForm } from '~/super-action/form/ActionForm'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { Button } from './ui/button'
@@ -12,6 +14,8 @@ import { Input } from './ui/input'
 
 export const AddNewStage = ({ gitenvs }: { gitenvs: Gitenvs }) => {
   const setStageEncryptionState = useSetAtom(stageEncryptionStateAtom)
+  const router = useRouter()
+  const showDialog = useShowDialog()
 
   return (
     <ActionForm
@@ -33,12 +37,18 @@ export const AddNewStage = ({ gitenvs }: { gitenvs: Gitenvs }) => {
             { stageName: name, passphrase: keys.passphrase, showValues: false },
           ]
         })
+        await showDialog(null)
+        router.push('/setup/save')
       }}
     >
-      <Input name="name" placeholder="Stage Name" />
-      <Button type="submit" className="self-end">
-        Add
-      </Button>
+      {({ isLoading }) => (
+        <>
+          <Input name="name" placeholder="Stage Name" />
+          <Button type="submit" className="self-end" disabled={isLoading}>
+            {isLoading ? 'Adding...' : 'Add'}
+          </Button>
+        </>
+      )}
     </ActionForm>
   )
 }
