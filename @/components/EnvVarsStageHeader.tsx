@@ -125,34 +125,6 @@ export const EnvVarsStageHeader = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent data-arrowtab="disable-down disable-up">
-            <ActionWrapper
-              askForConfirmation={{
-                title: `Delete Stage "${stage.name}"?`,
-                confirm: 'Delete',
-                cancel: 'Cancel',
-              }}
-              action={async () => {
-                gitenvs.envStages = filter(
-                  gitenvs.envStages,
-                  (s) => s.name !== stage.name,
-                )
-                gitenvs.envVars = map(gitenvs.envVars, (v) => {
-                  delete v.values[stage.name]
-                  return v
-                })
-                await saveGitenvs(gitenvs)
-                setStageEncryptionState((prev) => {
-                  if (!prev) return prev
-                  return filter(prev, (s) => s.stageName !== stage.name)
-                })
-                toast.success('Stage deleted')
-              }}
-            >
-              <DropdownMenuItem className="flex items-center gap-2">
-                <Trash className="size-4" />
-                <span>Delete</span>
-              </DropdownMenuItem>
-            </ActionWrapper>
             <DropdownMenuItem
               className="flex items-center gap-2"
               onClick={async () => {
@@ -224,6 +196,35 @@ export const EnvVarsStageHeader = ({
               <Pencil className="size-4" />
               <span>Rename</span>
             </DropdownMenuItem>
+
+            <ActionWrapper
+              askForConfirmation={{
+                title: `Delete Stage "${stage.name}"?`,
+                confirm: 'Delete',
+                cancel: 'Cancel',
+              }}
+              action={async () => {
+                gitenvs.envStages = filter(
+                  gitenvs.envStages,
+                  (s) => s.name !== stage.name,
+                )
+                gitenvs.envVars = map(gitenvs.envVars, (v) => {
+                  delete v.values[stage.name]
+                  return v
+                })
+                await saveGitenvs(gitenvs)
+                setStageEncryptionState((prev) => {
+                  if (!prev) return prev
+                  return filter(prev, (s) => s.stageName !== stage.name)
+                })
+                toast.success('Stage deleted')
+              }}
+            >
+              <DropdownMenuItem className="flex items-center gap-2">
+                <Trash className="size-4" />
+                <span>Delete</span>
+              </DropdownMenuItem>
+            </ActionWrapper>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
