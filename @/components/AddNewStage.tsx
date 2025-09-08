@@ -4,6 +4,7 @@ import { createKeys } from '@/gitenvs/createKeys'
 import { type EnvStage, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { useSetAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { useShowDialog } from '~/super-action/dialog/DialogProvider'
@@ -21,8 +22,14 @@ export const AddNewStage = ({ gitenvs }: { gitenvs: Gitenvs }) => {
     <ActionForm
       className="flex flex-col gap-4 pt-2"
       action={async (formData) => {
-        const keys = await createKeys()
         const name = z.string().parse(formData.get('name'))
+
+        if (gitenvs.envStages.some((s) => s.name === name)) {
+          toast.error('Stage already exists')
+          return
+        }
+
+        const keys = await createKeys()
         const newStage = {
           name,
           publicKey: keys.publicKey,
@@ -37,8 +44,8 @@ export const AddNewStage = ({ gitenvs }: { gitenvs: Gitenvs }) => {
             { stageName: name, passphrase: keys.passphrase, showValues: false },
           ]
         })
-        await showDialog(null)
         router.push('/setup/save')
+        await showDialog(null)
       }}
     >
       {({ isLoading }) => (
