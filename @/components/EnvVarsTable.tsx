@@ -35,12 +35,13 @@ export const EnvVarsTable = async ({
 
   return (
     <Fragment>
-      <div className="flex max-w-full flex-col gap-2 overflow-auto rounded-md border p-4">
+      <div className="flex max-w-full flex-col gap-2 overflow-x-auto rounded-md border bg-background p-4">
         <div
           className="grid w-full gap-2"
           id="supergrid"
           style={{
-            gridTemplateColumns: `minmax(200px, 1fr) repeat(${columns - 1}, minmax(300px, 1fr))`,
+            gridTemplateColumns: `repeat(${columns}, minmax(300px, 1fr))`,
+            minWidth: 'max-content',
           }}
         >
           <div className="flex items-center justify-start gap-2 p-1">
