@@ -1,0 +1,16 @@
+name: lint
+on: push
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup and cache node modules
+        uses: ./.github/actions/node-pnpm-cache-setup
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Run ESLint
+        run: pnpm run lint

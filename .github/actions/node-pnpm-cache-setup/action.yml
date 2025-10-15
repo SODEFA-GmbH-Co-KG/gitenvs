@@ -1,0 +1,24 @@
+name: 'Setup node and yarn cache'
+description: 'Set up node with node_modules caching'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node v20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 9
+        run_install: false
+
+    - name: Cache node modules
+      uses: actions/cache@v4
+      id: cache-node-modules
+      with:
+        path: '**/node_modules/'
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
