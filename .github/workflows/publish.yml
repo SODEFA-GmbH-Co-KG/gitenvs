@@ -27,5 +27,8 @@ jobs:
       - name: Run Test
         run: pnpm run test
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Run Publish
         run: npm publish
