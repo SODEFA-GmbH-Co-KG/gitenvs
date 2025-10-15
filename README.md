@@ -1,17 +1,14 @@
+[![Publish Package](https://github.com/SODEFA-GmbH-Co-KG/gitenvs/actions/workflows/publish.yml/badge.svg)](https://github.com/SODEFA-GmbH-Co-KG/gitenvs/actions/workflows/publish.yml)
+![git tag](https://img.shields.io/github/v/tag/SODEFA-GmbH-Co-KG/gitenvs?label=git%20tag&sort=semver)
+[![npm version](https://img.shields.io/npm/v/gitenvs.svg?style=flat)](https://www.npmjs.com/package/gitenvs)
+[![npm version](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/SODEFA-GmbH-Co-KG/gitenvs/blob/main/LICENSE)
+
 <p align="center">
   <br/>
   <img width="96px" src="docs/images/logo.png" />
   <h3 align="center">Gitenvs</h3>
   <p align="center">Store your environment variables in git – encrypted.</p>
-  
-  <p align="center">
-  <a href="https://www.npmjs.com/package/gitenvs">
-    <img src="https://img.shields.io/npm/v/gitenvs.svg?style=flat" alt="npm version">
-  </a>
-  <a href="https://github.com/SODEFA-GmbH-Co-KG/gitenvs/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
-  </a>
-  </p>
+
   <p align="center">
   Gitenvs is a tool that lets you securely store environment variables in your git repository by encrypting them with public/private key pairs. It provides a modern web UI for managing variables across multiple environments and files, with features like importing from .env files, linking shared variables in monorepos, and granular access control through environment-specific encryption keys.
   </p>
