@@ -1,4 +1,3 @@
-[![Publish Package](https://github.com/SODEFA-GmbH-Co-KG/gitenvs/actions/workflows/publish.yml/badge.svg)](https://github.com/SODEFA-GmbH-Co-KG/gitenvs/actions/workflows/publish.yml)
 ![git tag](https://img.shields.io/github/v/tag/SODEFA-GmbH-Co-KG/gitenvs?label=git%20tag&sort=semver)
 [![npm version](https://img.shields.io/npm/v/gitenvs.svg?style=flat)](https://www.npmjs.com/package/gitenvs)
 [![npm version](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/SODEFA-GmbH-Co-KG/gitenvs/blob/main/LICENSE)
