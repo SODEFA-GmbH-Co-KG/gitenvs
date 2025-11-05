@@ -47,7 +47,7 @@ export const TableEnvKey = ({
         variant="ghost"
         autoFocus={envVar.key === ''}
         action={rename}
-        className="flex flex-1 cursor-pointer flex-row justify-between gap-4 rounded-none rounded-l-lg p-2 px-4"
+        className="flex flex-1 cursor-pointer flex-row justify-between gap-4 truncate rounded-none rounded-l-lg p-2 px-4"
       >
         {children}
       </ActionButton>
