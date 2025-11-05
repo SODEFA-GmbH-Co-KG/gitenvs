@@ -21,8 +21,10 @@ export default async function Page({
 
   return (
     <div className="container flex flex-col gap-2">
-      <MainDropdown className="self-end" />
-      <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
+      <div className="flex gap-4">
+        <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
+        <MainDropdown className="self-start" />
+      </div>
       <EnvVarsTable
         fileId={params.fileId}
         gitenvs={gitenvs}

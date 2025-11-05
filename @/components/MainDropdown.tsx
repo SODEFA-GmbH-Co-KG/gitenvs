@@ -25,7 +25,7 @@ export const MainDropdown = async ({ className }: { className?: string }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={className}>
-        <Button variant="ghost" size="icon">
+        <Button variant="outline" size="icon">
           <MoreVertical className="size-4" />
         </Button>
       </DropdownMenuTrigger>
