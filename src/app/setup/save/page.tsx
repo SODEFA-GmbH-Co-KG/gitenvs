@@ -12,7 +12,7 @@ export default async function Page({
   searchParams: Promise<{ redirect: string }>
 }) {
   const { redirect } = await searchParams
-  if (!allowedRedirects.includes(redirect)) {
+  if (!!redirect && !allowedRedirects.includes(redirect)) {
     throw new Error('Invalid redirect')
   }
   const projectName = await getProjectName().catch(() => undefined)
