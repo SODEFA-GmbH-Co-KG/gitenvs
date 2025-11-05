@@ -128,7 +128,7 @@ export const LinkEnvVarDialog = ({
         {gitenvs.envFiles.length > 1 && (
           <DialogFooter>
             <Button type="submit" className="my-2">
-              Save
+              Add to File
             </Button>
           </DialogFooter>
         )}
