@@ -136,7 +136,29 @@ export const AddNewEnvVar = async ({
                   streamDialog({
                     title: `Link existing env var`,
                     content: (
-                      <LinkEnvVarDialog gitenvs={gitenvs} fileId={fileId} />
+                      <LinkEnvVarDialog
+                        gitenvs={gitenvs}
+                        fileId={fileId}
+                        saveAction={async (formData) => {
+                          'use server'
+
+                          return superAction(async () => {
+                            const merged = map(gitenvs.envVars, (ev) => {
+                              const checked = formData.get(ev.id)
+                              return checked
+                                ? { ...ev, fileIds: [...ev.fileIds, fileId] }
+                                : ev
+                            })
+                            await saveGitenvs({
+                              ...gitenvs,
+                              envVars: merged,
+                            })
+
+                            streamDialog(null)
+                            revalidatePath('/', 'layout')
+                          })
+                        }}
+                      />
                     ),
                   })
                 })
