@@ -24,8 +24,8 @@ export const MainDropdown = async ({ className }: { className?: string }) => {
   const gitenvs = await getGitenvs()
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={className}>
-        <Button variant="outline" size="icon">
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon" className={className}>
           <MoreVertical className="size-4" />
         </Button>
       </DropdownMenuTrigger>
