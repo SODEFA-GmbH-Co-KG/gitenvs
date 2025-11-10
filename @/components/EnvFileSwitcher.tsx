@@ -2,7 +2,7 @@ import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { filter } from 'lodash-es'
 import { ChevronDown, Pencil, Plus, Trash2 } from 'lucide-react'
-import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { Fragment } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import {
@@ -32,7 +32,7 @@ export const EnvFileSwitcher = ({
 }) => {
   return (
     <div className="flex max-w-full flex-row flex-wrap gap-4">
-      {gitenvs.envFiles.map((envFile, index) => {
+      {gitenvs.envFiles.map((envFile) => {
         const isActive = envFile.id === activeFileId
         return (
           <Fragment key={envFile.id}>
@@ -42,50 +42,34 @@ export const EnvFileSwitcher = ({
                 isActive && 'rounded-lg border',
               )}
             >
-              <ActionButton
-                variant={'ghost'}
-                // size={'vanilla'}
-                action={async () => {
-                  'use server'
-                  return superAction(async () => {
-                    redirect(`/file/${envFile.id}`)
-                  })
-                }}
-                className={cn(
-                  'overflow-hidden rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10',
-                  // envFile.id !== activeFileId && 'bg-muted text-primary',
-                )}
-                command={{
-                  shortcut: { key: `${index + 1}` },
-                  label: `Switch to ${envFile.name}`,
-                }}
-              >
-                {/* <GitFork
-                  className="me-2 opacity-60"
-                  size={16}
-                  strokeWidth={2}
-                  aria-hidden="true"
-                /> */}
-                <div className="shrink-0">
-                  {envFile.type === '.ts' && (
-                    <FileTypeTypescriptOfficial
-                      className={cn(
-                        'me-2 h-4 w-4 opacity-60 group-hover:grayscale-0',
-                        !isActive && 'grayscale',
-                      )}
-                    />
+              <Link href={`/file/${envFile.id}`}>
+                <Button
+                  className={cn(
+                    'overflow-hidden rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10',
                   )}
-                  {envFile.type === 'dotenv' && (
-                    <FileTypeDotenv
-                      className={cn(
-                        'me-2 h-4 w-4 opacity-60 group-hover:grayscale-0',
-                        !isActive && 'grayscale',
-                      )}
-                    />
-                  )}
-                </div>
-                <div className="truncate">{envFile.name}</div>
-              </ActionButton>
+                  variant={'ghost'}
+                >
+                  <div className="shrink-0">
+                    {envFile.type === '.ts' && (
+                      <FileTypeTypescriptOfficial
+                        className={cn(
+                          'me-2 h-4 w-4 opacity-60 group-hover:grayscale-0',
+                          !isActive && 'grayscale',
+                        )}
+                      />
+                    )}
+                    {envFile.type === 'dotenv' && (
+                      <FileTypeDotenv
+                        className={cn(
+                          'me-2 h-4 w-4 opacity-60 group-hover:grayscale-0',
+                          !isActive && 'grayscale',
+                        )}
+                      />
+                    )}
+                  </div>
+                  <div className="truncate">{envFile.name}</div>
+                </Button>
+              </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button

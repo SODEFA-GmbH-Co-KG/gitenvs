@@ -1,6 +1,6 @@
 {
   "name": "gitenvs",
-  "version": "2.1.10",
+  "version": "2.1.11",
   "private": false,
   "license": "MIT",
   "description": "Store your environment variables in git – encrypted.",
