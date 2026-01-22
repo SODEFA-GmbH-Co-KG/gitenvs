@@ -46,7 +46,7 @@ export const CopyPassphrases = ({
   )
 
   return (
-    <div className="flex max-w-lg flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <h1 className="text-center text-2xl">Your secret Passphrases</h1>
       <div className="flex flex-col gap-4">
         <p>
