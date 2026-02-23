@@ -9,6 +9,10 @@ export const getVercelProjects = async ({
   config: GlobalConfig
   teamId: string
 }) => {
+  if (!config.vercelToken) {
+    return []
+  }
+
   const projects = await fetch(
     `https://api.vercel.com/v9/projects?teamId=${teamId}&limit=1000`,
     {
@@ -29,10 +33,9 @@ export const getVercelProjects = async ({
             }),
           ),
         })
-
-        .parse(data),
+        .safeParse(data),
     )
-    .then((data) => data.projects)
+    .then((data) => (data.success ? data.data.projects : []))
     .then((proj) => orderBy(proj, (p) => p.name))
 
   return projects
