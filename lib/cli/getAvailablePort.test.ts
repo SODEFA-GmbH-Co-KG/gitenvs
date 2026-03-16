@@ -49,6 +49,21 @@ test('increments to the next free port when the requested port is occupied', asy
   })
 })
 
+test('treats an ipv6 localhost listener as occupied', async () => {
+  const server = createServer()
+  servers.push(server)
+
+  await new Promise<void>((resolve, reject) => {
+    server.once('error', reject)
+    server.listen(1337, '::1', () => resolve())
+  })
+
+  await expect(getAvailablePort('1337')).resolves.toEqual({
+    basePort: 1337,
+    port: 1338,
+  })
+})
+
 test('falls back to the default port when PORT is invalid', async () => {
   await expect(getAvailablePort('not-a-number')).resolves.toEqual({
     basePort: 1337,

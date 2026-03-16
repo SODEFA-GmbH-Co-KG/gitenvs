@@ -37,6 +37,7 @@
     "dev-migrate": "GITENVS_DIR=playground tsx ./lib/cli/main.ts migrate",
     "dev-next": "next dev",
     "prepublishOnly": "vitest run && pnpm build",
+    "test:port-fallback": "tsx ./scripts/testPortFallback.ts",
     "test": "vitest",
     "coverage": "vitest --coverage",
     "coverage:ui": "cd coverage && http-server"
