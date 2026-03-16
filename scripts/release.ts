@@ -44,7 +44,15 @@ const getSuggestedVersion = (currentVersion: string) => {
     )
   }
 
-  const [, major, minor, patch] = match
+  const major = match[1]
+  const minor = match[2]
+  const patch = match[3]
+
+  if (!major || !minor || !patch) {
+    throw new Error(
+      `Current version "${currentVersion}" is not a supported semver value.`,
+    )
+  }
 
   return `${major}.${minor}.${Number.parseInt(patch, 10) + 1}`
 }
