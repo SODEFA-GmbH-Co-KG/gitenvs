@@ -14,6 +14,7 @@ import { mkdir, readFile, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCommand, createCommandSchema } from './create/createCommand'
+import { getAvailablePort } from './getAvailablePort'
 
 // test node version >= 20
 const [major] = process.versions.node.split('.').map(Number)
@@ -22,12 +23,20 @@ if (major && major < 20) {
   process.exit(1)
 }
 
-const getGitenvsUiEnvVars = () => ({
-  ...process.env,
-  GITENVS_DIR: getCwd(),
-  GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
-  PORT: '1337',
-})
+const getGitenvsUiEnvVars = async () => {
+  const { basePort, port } = await getAvailablePort(process.env.PORT)
+
+  if (port !== basePort) {
+    console.log(`⚠️ Gitenvs: Port ${basePort} is in use, using ${port} instead.`)
+  }
+
+  return {
+    ...process.env,
+    GITENVS_DIR: getCwd(),
+    GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
+    PORT: String(port),
+  }
+}
 
 const checkGitenvsVersion = async () => {
   const gitenvsExists = checkGitenvsJsonExists()
@@ -132,7 +141,7 @@ program
     // start npm command with env vars
     execSync('pnpm run dev-next', {
       stdio: 'inherit',
-      env: getGitenvsUiEnvVars(),
+      env: await getGitenvsUiEnvVars(),
     })
   })
 
@@ -169,7 +178,7 @@ program
     // start npm command with env vars
     execSync(`${nodePath} ${currentDir}/next/server.js`, {
       stdio: 'inherit',
-      env: getGitenvsUiEnvVars(),
+      env: await getGitenvsUiEnvVars(),
     })
   })
 
