@@ -36,6 +36,7 @@
     "dev-create": "GITENVS_DIR=playground tsx ./lib/cli/main.ts create",
     "dev-migrate": "GITENVS_DIR=playground tsx ./lib/cli/main.ts migrate",
     "dev-next": "next dev",
+    "release": "tsx ./scripts/release.ts",
     "prepublishOnly": "vitest run && pnpm build",
     "test:port-fallback": "tsx ./scripts/testPortFallback.ts",
     "test": "vitest",
