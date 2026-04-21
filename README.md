@@ -86,6 +86,15 @@ A UI is automatically opened in your browser. Run through the wizard to set up g
 
 - `npx gitenvs@latest` - opens the UI, if its the first time in this project, the setup wizard will show up automatically
   - if gitenvs is installed as a dev dependency, you just run `gitenvs`
+- `gitenvs set` – add or update an env var (encrypted by default). Designed for scripts and AI agents – no passphrase required since encryption uses each stage's public key from `gitenvs.json`.
+  - required parameters:
+    - `--file <filePath>` – the env file to add the var to, matched against `envFiles[].filePath` in `gitenvs.json` (e.g. `--file .env`)
+    - `--key <key>` – the env var key (e.g. `DATABASE_URL`)
+    - `--value <value>` – the value to store
+  - optional parameters:
+    - `--stage <stage>` – limit the change to a single stage. Without it the value is written to **all** stages.
+    - `--no-encrypt` – store the value as plaintext. By default the value is encrypted with the stage's public key.
+  - if a var with the same `key` already exists in that file, only the targeted stages are updated; other stages are left untouched.
 - `gitenvs create` – create all configured env files in their specified paths
   - For your convenience this command can be specified in the `postinstall` of your package.json to automatically create the env files after installing your packages. The setup wizard offers you to add this command to your package.json.
   - This command uses the passphrase and stage specified in env vars

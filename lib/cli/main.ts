@@ -15,6 +15,7 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCommand, createCommandSchema } from './create/createCommand'
 import { getAvailablePort } from './getAvailablePort'
+import { setCommand, setCommandSchema } from './set/setCommand'
 
 // test node version >= 20
 const [major] = process.versions.node.split('.').map(Number)
@@ -129,6 +130,31 @@ program
     }
 
     await createCommand(parsed.data)
+  })
+
+program
+  .command('set')
+  .description('Add or update an env var (encrypted by default)')
+  .requiredOption(
+    '--file <filePath>',
+    'Path of the env file from gitenvs.json (e.g. .env)',
+  )
+  .requiredOption('--key <key>', 'Env var key, e.g. DATABASE_URL')
+  .requiredOption('--value <value>', 'Value to store')
+  .option('--stage <stage>', 'Limit to a single stage; defaults to all stages')
+  .option('--no-encrypt', 'Store the value as plaintext')
+  .action(async (options) => {
+    await checkGitenvsVersion()
+
+    const parsed = setCommandSchema.safeParse(options)
+
+    if (!parsed.success) {
+      console.error('❌ Gitenvs: Invalid options')
+      console.error(parsed.error.message)
+      process.exit(1)
+    }
+
+    await setCommand(parsed.data)
   })
 
 // TODO: Should only be visible in dev mode
