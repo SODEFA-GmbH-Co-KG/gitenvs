@@ -1,7 +1,7 @@
 import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
+import { createEnvVar } from '@/gitenvs/createEnvVar'
 import { saveGitenvs } from '@/gitenvs/gitenvs'
-import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
-import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
+import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { map } from 'lodash-es'
 import { ChevronDown, Import, Link, Plus } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
@@ -65,8 +65,7 @@ export const AddNewEnvVar = async ({
 
                       return superAction(async () => {
                         const envStages = gitenvs.envStages
-                        const newEnVar = {
-                          id: getNewEnvVarId(),
+                        const newEnVar = createEnvVar({
                           key: formData.key,
                           values: Object.fromEntries(
                             await Promise.all(
@@ -88,7 +87,7 @@ export const AddNewEnvVar = async ({
                             ),
                           ),
                           fileIds: [fileId],
-                        } satisfies EnvVar
+                        })
 
                         await saveGitenvs({
                           ...gitenvs,

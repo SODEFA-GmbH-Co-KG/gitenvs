@@ -1,6 +1,6 @@
+import { createEnvVar } from '@/gitenvs/createEnvVar'
 import { saveGitenvs } from '@/gitenvs/gitenvs'
 import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
-import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { cloneDeep, filter, flatMap } from 'lodash-es'
 import { ChevronDown, Pencil, Trash, Unlink } from 'lucide-react'
 import { type ReactNode } from 'react'
@@ -119,11 +119,11 @@ export const TableEnvKey = ({
                         (evFileIds) => evFileIds !== fileId,
                       ),
                     }
-                    const oldEnvVarAsNew = {
-                      ...oldEnvVar,
-                      id: getNewEnvVarId(),
+                    const oldEnvVarAsNew = createEnvVar({
+                      key: oldEnvVar.key,
+                      values: oldEnvVar.values,
                       fileIds: [fileId],
-                    }
+                    })
                     return [
                       oldEnvVarAsNew,
                       oldWithoutCurrentFileId,
