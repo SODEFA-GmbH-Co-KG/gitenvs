@@ -1,7 +1,6 @@
+import { createEnvVar } from '@/gitenvs/createEnvVar'
 import { getGitenvs } from '@/gitenvs/gitenvs'
-import { type EnvVar } from '@/gitenvs/gitenvs.schema'
 import { getGlobalConfig } from '@/gitenvs/globalConfig'
-import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { Vercel } from '@vercel/sdk'
 import { type Envs } from '@vercel/sdk/dist/commonjs/models/operations/filterprojectenvs'
 import { chunk, filter, groupBy, map, some } from 'lodash-es'
@@ -105,13 +104,12 @@ export const ImportFromVercel = async ({
                       {
                         value: valueInStage,
                         encrypted: false,
-                        fileIds: [fileId],
                       },
                     ]
                   }),
                 )
-                return { id: getNewEnvVarId(), fileIds: [fileId], key, values }
-              }) satisfies EnvVar[]
+                return createEnvVar({ fileIds: [fileId], key, values })
+              })
               return superAction(async () => {
                 streamDialog({
                   title: `Import Env from Vercel`,

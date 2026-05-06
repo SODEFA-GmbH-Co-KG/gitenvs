@@ -1,6 +1,6 @@
 'use client'
+import { createEnvVar } from '@/gitenvs/createEnvVar'
 import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
-import { getNewEnvVarId } from '@/gitenvs/idsGenerator'
 import { usePasteHandler } from '@/hooks/usePasteHandler'
 import { parse } from 'dotenv'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
@@ -34,7 +34,7 @@ export const PasteEnvVars = ({
               { value, encrypted: false },
             ]),
           )
-          return { id: getNewEnvVarId(), fileIds: [fileId], key, values }
+          return createEnvVar({ fileIds: [fileId], key, values })
         }),
       )
     },
