@@ -270,7 +270,7 @@ test('dotenv: hashtag quoting', async () => {
       envStage: developmentStage,
       passphrase: developmentPassphrase,
     }),
-  ).toBe(`HASHTAG="hello#world"`)
+  ).toBe(`HASHTAG='hello#world'`)
 
   gitenvsToTest = structuredClone(gitenvs)
   gitenvsToTest.envVars = [
@@ -336,7 +336,75 @@ test('dotenv: hashtag quoting', async () => {
       envStage: developmentStage,
       passphrase: developmentPassphrase,
     }),
-  ).rejects.toThrow(/includes both single and double/i)
+  ).rejects.toThrow(/both dotenv-parser compatible and shell-sourceable/i)
+})
+
+test('dotenv: shell-sensitive characters are quoted safely', async () => {
+  let gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_6Gv71d0ZenuC9N39CeGz1c'],
+      key: 'SHELL_SENSITIVE',
+      values: {
+        development: { value: 'hello world & $PATH `date`', encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  expect(
+    await getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: dotEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe("SHELL_SENSITIVE='hello world & $PATH `date`'")
+
+  gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_6Gv71d0ZenuC9N39CeGz1c'],
+      key: 'SINGLE_QUOTE',
+      values: {
+        development: { value: "hello 'quoted' world", encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  expect(
+    await getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: dotEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).toBe(`SINGLE_QUOTE="hello 'quoted' world"`)
+
+  gitenvsToTest = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: ['envFile_6Gv71d0ZenuC9N39CeGz1c'],
+      key: 'UNREPRESENTABLE',
+      values: {
+        development: { value: "can't keep $PATH literal", encrypted: false },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  await expect(
+    getFileContent({
+      gitenvs: gitenvsToTest,
+      envFile: dotEnvFile,
+      envStage: developmentStage,
+      passphrase: developmentPassphrase,
+    }),
+  ).rejects.toThrow(/both dotenv-parser compatible and shell-sourceable/i)
 })
 
 test('.ts: quoting', async () => {

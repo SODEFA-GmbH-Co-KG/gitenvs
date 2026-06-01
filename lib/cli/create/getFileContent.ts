@@ -85,26 +85,25 @@ const resolveEnvVar = async ({
 }
 
 const getDotenvLine = ({ key, value }: { key: string; value: string }) => {
-  const includesCommentCharacter = value.includes('#')
+  const needsShellQuoting = /[\s#"'`$&|;<>(){}!*?\[\]\\]/.test(value)
   const includesDoubleQuote = value.includes('"')
   const includesSingleQuote = value.includes("'")
 
   let wrapWith = ''
 
-  if (includesCommentCharacter) {
-    if (includesSingleQuote && includesDoubleQuote) {
-      throw new Error(
-        `❌ Gitenvs: "${key}" includes both single and double quotes and a comment character. This is not supported and will result in unexpected values.`,
-      )
-    }
-    if (includesDoubleQuote) {
+  if (needsShellQuoting) {
+    if (!includesSingleQuote) {
       wrapWith = "'"
-    } else {
+    } else if (!includesDoubleQuote && !/[`$\\]/.test(value)) {
       wrapWith = '"'
+    } else {
+      throw new Error(
+        `❌ Gitenvs: "${key}" cannot be represented in a dotenv file that is both dotenv-parser compatible and shell-sourceable.`,
+      )
     }
 
     console.log(
-      `⚠️ Gitenvs: wrapping "${key}" with ${wrapWith} quotes because it includes a comment character`,
+      `⚠️ Gitenvs: wrapping "${key}" with ${wrapWith} quotes because it includes shell-sensitive characters`,
     )
   }
 
