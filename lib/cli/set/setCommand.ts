@@ -6,14 +6,57 @@ import { z } from 'zod'
 export const setCommandSchema = z.object({
   file: z.string().min(1, '--file is required'),
   key: z.string().min(1, '--key is required'),
-  value: z.string(),
+  value: z.string().optional(),
+  valueEnv: z.string().optional(),
+  valueStdin: z.boolean().default(false),
   stage: z.string().optional(),
   encrypt: z.boolean().default(true),
 })
 
-export const setCommand = async (
-  options: z.infer<typeof setCommandSchema>,
-) => {
+const stripFinalNewline = (value: string) => value.replace(/\r?\n$/, '')
+
+const readStdin = async () => {
+  let value = ''
+  process.stdin.setEncoding('utf-8')
+
+  for await (const chunk of process.stdin) {
+    value += chunk
+  }
+
+  return stripFinalNewline(value)
+}
+
+const getValue = async (options: z.infer<typeof setCommandSchema>) => {
+  const inputMethods = [
+    options.value !== undefined,
+    options.valueEnv !== undefined,
+    options.valueStdin,
+  ].filter(Boolean)
+
+  if (inputMethods.length !== 1) {
+    console.error(
+      '❌ Gitenvs: Provide exactly one of --value, --value-env, or --value-stdin.',
+    )
+    process.exit(1)
+  }
+
+  if (options.value !== undefined) {
+    return options.value
+  }
+
+  if (options.valueEnv !== undefined) {
+    if (!(options.valueEnv in process.env)) {
+      console.error(`❌ Gitenvs: Env var not found: ${options.valueEnv}`)
+      process.exit(1)
+    }
+
+    return process.env[options.valueEnv] ?? ''
+  }
+
+  return readStdin()
+}
+
+export const setCommand = async (options: z.infer<typeof setCommandSchema>) => {
   const gitenvsExists = await getIsGitenvsExisting()
   if (!gitenvsExists) {
     console.error('❌ Gitenvs: gitenvs.json not found')
@@ -29,6 +72,7 @@ export const setCommand = async (
   }
 
   const gitenvs = await getGitenvs()
+  const value = await getValue(options)
 
   const envFile = gitenvs.envFiles.find((f) => f.filePath === options.file)
   if (!envFile) {
@@ -56,7 +100,7 @@ export const setCommand = async (
       fileId: envFile.id,
       stage: stage.name,
       key: options.key,
-      value: options.value,
+      value,
       encrypt: options.encrypt,
     })
 

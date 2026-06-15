@@ -13,9 +13,17 @@ import { randomBytes } from 'crypto'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
+import { ciEnvCommand, ciEnvCommandSchema } from './ci/ciEnvCommand'
 import { createCommand, createCommandSchema } from './create/createCommand'
+import { doctorCommand, doctorCommandSchema } from './doctor/doctorCommand'
 import { getAvailablePort } from './getAvailablePort'
+import {
+  passphrasesValidateCommand,
+  passphrasesValidateCommandSchema,
+} from './passphrases/passphrasesCommand'
 import { setCommand, setCommandSchema } from './set/setCommand'
+import { setupCommand, setupCommandSchema } from './setup/setupCommand'
+import { statusCommand, statusCommandSchema } from './status/statusCommand'
 
 // test node version >= 20
 const [major] = process.versions.node.split('.').map(Number)
@@ -28,7 +36,9 @@ const getGitenvsUiEnvVars = async () => {
   const { basePort, port } = await getAvailablePort(process.env.PORT)
 
   if (port !== basePort) {
-    console.log(`⚠️ Gitenvs: Port ${basePort} is in use, using ${port} instead.`)
+    console.log(
+      `⚠️ Gitenvs: Port ${basePort} is in use, using ${port} instead.`,
+    )
   }
 
   return {
@@ -133,6 +143,35 @@ program
   })
 
 program
+  .command('setup')
+  .description('Sets up gitenvs non-interactively for scripts and agents')
+  .option(
+    '--stages <stages>',
+    'Comma-separated stage names',
+    'development,staging,production',
+  )
+  .option('--file <filePath>', 'Env file path to configure', '.env')
+  .option('--file-name <fileName>', 'Env file label')
+  .option('--file-type <fileType>', 'Env file type: dotenv or .ts', 'dotenv')
+  .option('--force', 'Overwrite gitenvs.json and passphrases')
+  .option('--no-gitignore', 'Do not update .gitignore')
+  .option('--no-install', 'Do not install gitenvs as a dev dependency')
+  .option('--no-postinstall', 'Do not add gitenvs create to postinstall')
+  .option('--no-scripts', 'Do not add scripts.gitenvs')
+  .option('--yes', 'Assume yes for non-interactive setup')
+  .action(async (options) => {
+    const parsed = setupCommandSchema.safeParse(options)
+
+    if (!parsed.success) {
+      console.error('❌ Gitenvs: Invalid options')
+      console.error(parsed.error.message)
+      process.exit(1)
+    }
+
+    await setupCommand(parsed.data)
+  })
+
+program
   .command('set')
   .description('Add or update an env var (encrypted by default)')
   .requiredOption(
@@ -140,7 +179,9 @@ program
     'Path of the env file from gitenvs.json (e.g. .env)',
   )
   .requiredOption('--key <key>', 'Env var key, e.g. DATABASE_URL')
-  .requiredOption('--value <value>', 'Value to store')
+  .option('--value <value>', 'Value to store')
+  .option('--value-env <envName>', 'Read the value from an env var')
+  .option('--value-stdin', 'Read the value from stdin')
   .option('--stage <stage>', 'Limit to a single stage; defaults to all stages')
   .option('--no-encrypt', 'Store the value as plaintext')
   .action(async (options) => {
@@ -155,6 +196,80 @@ program
     }
 
     await setCommand(parsed.data)
+  })
+
+program
+  .command('status')
+  .description('Prints a secret-safe project status')
+  .option('--json', 'Print machine-readable JSON')
+  .action(async (options) => {
+    const parsed = statusCommandSchema.safeParse(options)
+
+    if (!parsed.success) {
+      console.error('❌ Gitenvs: Invalid options')
+      console.error(parsed.error.message)
+      process.exit(1)
+    }
+
+    await statusCommand(parsed.data)
+  })
+
+program
+  .command('doctor')
+  .description('Checks the local gitenvs setup')
+  .option('--json', 'Print machine-readable JSON')
+  .action(async (options) => {
+    const parsed = doctorCommandSchema.safeParse(options)
+
+    if (!parsed.success) {
+      console.error('❌ Gitenvs: Invalid options')
+      console.error(parsed.error.message)
+      process.exit(1)
+    }
+
+    await doctorCommand(parsed.data)
+  })
+
+const passphrases = program
+  .command('passphrases')
+  .description('Works with the local passphrase file')
+
+passphrases
+  .command('validate')
+  .description('Validates gitenvs.passphrases.json without printing secrets')
+  .option('--json', 'Print machine-readable JSON')
+  .action(async (options) => {
+    const parsed = passphrasesValidateCommandSchema.safeParse(options)
+
+    if (!parsed.success) {
+      console.error('❌ Gitenvs: Invalid options')
+      console.error(parsed.error.message)
+      process.exit(1)
+    }
+
+    await passphrasesValidateCommand(parsed.data)
+  })
+
+const ci = program
+  .command('ci')
+  .description('Prints CI metadata without printing secrets')
+
+ci.command('env')
+  .description('Prints env var names needed to run gitenvs create in CI')
+  .option('--stage <stage>', 'Stage to describe')
+  .option('--json', 'Print machine-readable JSON')
+  .action(async (options) => {
+    await checkGitenvsVersion()
+
+    const parsed = ciEnvCommandSchema.safeParse(options)
+
+    if (!parsed.success) {
+      console.error('❌ Gitenvs: Invalid options')
+      console.error(parsed.error.message)
+      process.exit(1)
+    }
+
+    await ciEnvCommand(parsed.data)
   })
 
 // TODO: Should only be visible in dev mode
