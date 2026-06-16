@@ -64,3 +64,57 @@ test('collects secret-safe status metadata', async () => {
   )
   expect(JSON.stringify(status)).not.toContain('very-secret')
 })
+
+test('reports legacy configs without parsing them as current configs', async () => {
+  testDir = await mkdtemp(join(tmpdir(), 'gitenvs-status-'))
+  process.env[GITENVS_DIR_ENV_NAME] = testDir
+
+  const legacyGitenvs = {
+    version: '1',
+    envStages: [
+      {
+        name: 'production',
+        publicKey: 'public-key',
+        encryptedPrivateKey: 'encrypted-private-key',
+      },
+    ],
+    envFiles: [
+      {
+        id: 'envFile_6Gv71d0ZenuC9N39CeGz1c',
+        name: '.env',
+        filePath: '.env',
+        type: 'dotenv',
+      },
+    ],
+    envVars: [
+      {
+        id: 'envVar_6Gv71d0ZenuC9N39CeGz1c',
+        fileId: 'envFile_6Gv71d0ZenuC9N39CeGz1c',
+        key: 'DATABASE_URL',
+        values: {},
+      },
+    ],
+  }
+  const passphrases = [
+    {
+      stageName: 'production',
+      passphrase: 'very-secret',
+    },
+  ] satisfies Passphrase[]
+
+  await writeFile(join(testDir, 'gitenvs.json'), JSON.stringify(legacyGitenvs))
+  await writeFile(
+    join(testDir, PASSPHRASE_FILE_NAME),
+    JSON.stringify(passphrases),
+  )
+  await writeFile(join(testDir, '.gitignore'), PASSPHRASE_FILE_NAME)
+
+  const status = await collectStatus()
+
+  expect(status.ok).toBe(false)
+  expect(status.gitenvs.version).toBe(1)
+  expect(status.gitenvs.latest).toBe(false)
+  expect(status.gitenvs.stages).toEqual(['production'])
+  expect(status.issues).toContain('gitenvs.json is not on the latest version')
+  expect(JSON.stringify(status)).not.toContain('very-secret')
+})

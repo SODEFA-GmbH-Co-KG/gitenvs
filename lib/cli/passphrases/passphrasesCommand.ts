@@ -10,6 +10,9 @@ export const passphrasesValidateCommand = async (
 ) => {
   const status = await collectStatus()
   const issues = [
+    status.gitenvs.latest === false
+      ? 'gitenvs.json is not on the latest version'
+      : null,
     !status.passphrases.exists ? 'passphrase file not found' : null,
     status.passphrases.exists && !status.passphrases.valid
       ? 'passphrase file is invalid'

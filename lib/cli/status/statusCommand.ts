@@ -6,7 +6,7 @@ import {
   checkGitenvsJsonExists,
   getGitenvs,
   getGitenvsVersion,
-  getIsLatestGitenvsVersion,
+  latestGitenvsVersion,
 } from '@/gitenvs/gitenvs'
 import { GITENVS_STAGE_ENV_NAME, getPassphraseEnvName } from '@/gitenvs/env'
 import { getCwd } from '@/gitenvs/getCwd'
@@ -26,6 +26,21 @@ const passphraseFileSchema = z.array(
   }),
 )
 
+const statusGitenvsSchema = z.object({
+  envStages: z.array(
+    z.object({
+      name: z.string(),
+    }),
+  ),
+  envFiles: z.array(
+    z.object({
+      name: z.string(),
+      filePath: z.string(),
+      type: z.string(),
+    }),
+  ),
+})
+
 export const statusCommandSchema = z.object({
   json: z.boolean().default(false),
 })
@@ -37,9 +52,16 @@ export const collectStatus = async () => {
   const passphrasePath = join(cwd, PASSPHRASE_FILE_NAME)
   const gitenvsExists = checkGitenvsJsonExists()
 
-  const gitenvs = gitenvsExists ? await getGitenvs() : null
   const version = gitenvsExists ? await getGitenvsVersion() : null
-  const latest = gitenvsExists ? await getIsLatestGitenvsVersion() : null
+  const latest = gitenvsExists ? version === latestGitenvsVersion : null
+  const currentGitenvs = gitenvsExists && latest ? await getGitenvs() : null
+  const statusGitenvs =
+    gitenvsExists && !latest
+      ? await readFile(join(cwd, 'gitenvs.json'), 'utf-8')
+          .then((content) => statusGitenvsSchema.safeParse(JSON.parse(content)))
+          .then((parsed) => (parsed.success ? parsed.data : null))
+          .catch(() => null)
+      : currentGitenvs
 
   const passphraseFile = await readFile(passphrasePath, 'utf-8')
     .then((content) => {
@@ -58,7 +80,8 @@ export const collectStatus = async () => {
       stages: [] as string[],
     }))
 
-  const configuredStages = gitenvs?.envStages.map((stage) => stage.name) ?? []
+  const configuredStages =
+    statusGitenvs?.envStages.map((stage) => stage.name) ?? []
   const missingPassphrases = configuredStages.filter(
     (stageName) => !passphraseFile.stages.includes(stageName),
   )
@@ -111,7 +134,7 @@ export const collectStatus = async () => {
       latest,
       stages: configuredStages,
       envFiles:
-        gitenvs?.envFiles.map((envFile) => ({
+        statusGitenvs?.envFiles.map((envFile) => ({
           name: envFile.name,
           filePath: envFile.filePath,
           type: envFile.type,
