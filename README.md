@@ -86,11 +86,26 @@ A UI is automatically opened in your browser. Run through the wizard to set up g
 
 - `npx gitenvs@latest` - opens the UI, if its the first time in this project, the setup wizard will show up automatically
   - if gitenvs is installed as a dev dependency, you just run `gitenvs`
+- `gitenvs setup` – set up gitenvs non-interactively for scripts and AI agents. It creates `gitenvs.json`, writes `gitenvs.passphrases.json`, updates `.gitignore`, and can install/package-wire gitenvs.
+  - useful defaults:
+    ```bash
+    bunx gitenvs setup --yes
+    ```
+  - optional parameters:
+    - `--stages <stages>` – comma-separated stage names. Default: `development,staging,production`
+    - `--file <filePath>` – env file path to configure. Default: `.env`
+    - `--file-name <fileName>` – display label for the env file
+    - `--file-type <fileType>` – `dotenv` or `.ts`. Default: `dotenv`
+    - `--force` – overwrite existing `gitenvs.json` and `gitenvs.passphrases.json`
+    - `--no-gitignore`, `--no-install`, `--no-postinstall`, `--no-scripts` – skip individual project setup steps
 - `gitenvs set` – add or update an env var (encrypted by default). Designed for scripts and AI agents – no passphrase required since encryption uses each stage's public key from `gitenvs.json`.
   - required parameters:
     - `--file <filePath>` – the env file to add the var to, matched against `envFiles[].filePath` in `gitenvs.json` (e.g. `--file .env`)
     - `--key <key>` – the env var key (e.g. `DATABASE_URL`)
-    - `--value <value>` – the value to store
+  - value input: provide exactly one of:
+    - `--value <value>` – the value to store. Convenient, but avoid for sensitive values in automation because argv can be logged.
+    - `--value-env <envName>` – read the value from an environment variable.
+    - `--value-stdin` – read the value from stdin.
   - optional parameters:
     - `--stage <stage>` – limit the change to a single stage. Without it the value is written to **all** stages.
     - `--no-encrypt` – store the value as plaintext. By default the value is encrypted with the stage's public key.
@@ -104,6 +119,14 @@ A UI is automatically opened in your browser. Run through the wizard to set up g
     - `--stage <stage>` (default: development) - the stage to create the env files for (env var > cli param > default)
     - `--passphrase <passphrase>` - the passphrase to use for the stage (cli param > env var)
     - `--passphrasePath <passphrasePath>` - the path to the passphrase file
+- `gitenvs status` – print a secret-safe status summary. Add `--json` for machine-readable output.
+- `gitenvs doctor` – validate the local setup and exit non-zero if it finds issues. Add `--json` for machine-readable output.
+- `gitenvs passphrases validate` – validate `gitenvs.passphrases.json` without printing passphrase values. Add `--json` for machine-readable output.
+- `gitenvs ci env --stage <stage>` – print the CI env var names needed to run `gitenvs create` for a stage without printing any secrets. Add `--json` for machine-readable output.
+
+### Agent and provider integrations
+
+Gitenvs intentionally keeps provider sync out of the core CLI. A company-specific agent or wrapper can read `gitenvs.passphrases.json` and write it to Bitwarden, Vercel, GitHub Actions, or another secret backend. Gitenvs provides the local, portable contract: `gitenvs.json`, `gitenvs.passphrases.json`, `gitenvs set --value-env/--value-stdin`, `gitenvs create`, and secret-safe status/CI metadata commands.
 
 ### Example setup for cloud hosting providers
 
