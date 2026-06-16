@@ -74,3 +74,46 @@ test('reports legacy configs instead of crashing while validating passphrases', 
   expect(output).not.toContain('very-secret')
   expect(process.exitCode).toBe(1)
 })
+
+test('reports invalid current configs while validating passphrases', async () => {
+  testDir = await mkdtemp(join(tmpdir(), 'gitenvs-passphrases-'))
+  process.env[GITENVS_DIR_ENV_NAME] = testDir
+  const consoleLog = vi
+    .spyOn(console, 'log')
+    .mockImplementation(() => undefined)
+
+  const malformedGitenvs = {
+    version: '2',
+    envStages: [
+      {
+        name: 'production',
+        publicKey: 'public-key',
+        encryptedPrivateKey: 'encrypted-private-key',
+      },
+    ],
+    envVars: [],
+  }
+  const passphrases = [
+    {
+      stageName: 'production',
+      passphrase: 'very-secret',
+    },
+  ] satisfies Passphrase[]
+
+  await writeFile(
+    join(testDir, 'gitenvs.json'),
+    JSON.stringify(malformedGitenvs),
+  )
+  await writeFile(
+    join(testDir, PASSPHRASE_FILE_NAME),
+    JSON.stringify(passphrases),
+  )
+  await writeFile(join(testDir, '.gitignore'), PASSPHRASE_FILE_NAME)
+
+  await passphrasesValidateCommand({ json: true })
+
+  const output = consoleLog.mock.calls.map((call) => call.join(' ')).join('\n')
+  expect(output).toContain('gitenvs.json is invalid')
+  expect(output).not.toContain('very-secret')
+  expect(process.exitCode).toBe(1)
+})

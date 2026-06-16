@@ -118,3 +118,46 @@ test('reports legacy configs without parsing them as current configs', async () 
   expect(status.issues).toContain('gitenvs.json is not on the latest version')
   expect(JSON.stringify(status)).not.toContain('very-secret')
 })
+
+test('reports invalid current configs instead of crashing', async () => {
+  testDir = await mkdtemp(join(tmpdir(), 'gitenvs-status-'))
+  process.env[GITENVS_DIR_ENV_NAME] = testDir
+
+  const malformedGitenvs = {
+    version: '2',
+    envStages: [
+      {
+        name: 'production',
+        publicKey: 'public-key',
+        encryptedPrivateKey: 'encrypted-private-key',
+      },
+    ],
+    envVars: [],
+  }
+  const passphrases = [
+    {
+      stageName: 'production',
+      passphrase: 'very-secret',
+    },
+  ] satisfies Passphrase[]
+
+  await writeFile(
+    join(testDir, 'gitenvs.json'),
+    JSON.stringify(malformedGitenvs),
+  )
+  await writeFile(
+    join(testDir, PASSPHRASE_FILE_NAME),
+    JSON.stringify(passphrases),
+  )
+  await writeFile(join(testDir, '.gitignore'), PASSPHRASE_FILE_NAME)
+
+  const status = await collectStatus()
+
+  expect(status.ok).toBe(false)
+  expect(status.gitenvs.version).toBe(2)
+  expect(status.gitenvs.latest).toBe(true)
+  expect(status.gitenvs.stages).toEqual([])
+  expect(status.gitenvs.envFiles).toEqual([])
+  expect(status.issues).toContain('gitenvs.json is invalid')
+  expect(JSON.stringify(status)).not.toContain('very-secret')
+})

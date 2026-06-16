@@ -9,10 +9,13 @@ export const passphrasesValidateCommand = async (
   options: z.infer<typeof passphrasesValidateCommandSchema>,
 ) => {
   const status = await collectStatus()
+  const configIssues = status.issues.filter(
+    (issue) =>
+      issue === 'gitenvs.json is invalid' ||
+      issue === 'gitenvs.json is not on the latest version',
+  )
   const issues = [
-    status.gitenvs.latest === false
-      ? 'gitenvs.json is not on the latest version'
-      : null,
+    ...configIssues,
     !status.passphrases.exists ? 'passphrase file not found' : null,
     status.passphrases.exists && !status.passphrases.valid
       ? 'passphrase file is invalid'

@@ -2,12 +2,8 @@ import {
   getIsGitenvsInGitIgnore,
   getIsGitignoreExisting,
 } from '@/gitenvs/gitignore'
-import {
-  checkGitenvsJsonExists,
-  getGitenvs,
-  getGitenvsVersion,
-  latestGitenvsVersion,
-} from '@/gitenvs/gitenvs'
+import { checkGitenvsJsonExists, latestGitenvsVersion } from '@/gitenvs/gitenvs'
+import { Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { GITENVS_STAGE_ENV_NAME, getPassphraseEnvName } from '@/gitenvs/env'
 import { getCwd } from '@/gitenvs/getCwd'
 import { PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
@@ -41,27 +37,99 @@ const statusGitenvsSchema = z.object({
   ),
 })
 
+const gitenvsVersionSchema = z.object({
+  version: z.string(),
+})
+
 export const statusCommandSchema = z.object({
   json: z.boolean().default(false),
 })
 
 export type GitenvsStatus = Awaited<ReturnType<typeof collectStatus>>
 
+const readGitenvsStatus = async ({
+  cwd,
+  exists,
+}: {
+  cwd: string
+  exists: boolean
+}) => {
+  if (!exists) {
+    return {
+      version: null,
+      latest: null,
+      gitenvs: null,
+      invalid: false,
+    }
+  }
+
+  const content = await readFile(join(cwd, 'gitenvs.json'), 'utf-8').catch(
+    () => null,
+  )
+  if (content === null) {
+    return {
+      version: null,
+      latest: null,
+      gitenvs: null,
+      invalid: true,
+    }
+  }
+
+  let json: unknown
+  try {
+    json = JSON.parse(content)
+  } catch {
+    return {
+      version: null,
+      latest: null,
+      gitenvs: null,
+      invalid: true,
+    }
+  }
+
+  const versionParsed = gitenvsVersionSchema.safeParse(json)
+  if (!versionParsed.success) {
+    return {
+      version: null,
+      latest: null,
+      gitenvs: null,
+      invalid: true,
+    }
+  }
+
+  const version = parseInt(versionParsed.data.version)
+  const latest = version === latestGitenvsVersion
+
+  if (latest) {
+    const parsed = Gitenvs.safeParse(json)
+    return {
+      version,
+      latest,
+      gitenvs: parsed.success ? parsed.data : null,
+      invalid: !parsed.success,
+    }
+  }
+
+  const parsed = statusGitenvsSchema.safeParse(json)
+  return {
+    version,
+    latest,
+    gitenvs: parsed.success ? parsed.data : null,
+    invalid: false,
+  }
+}
+
 export const collectStatus = async () => {
   const cwd = getCwd()
   const passphrasePath = join(cwd, PASSPHRASE_FILE_NAME)
   const gitenvsExists = checkGitenvsJsonExists()
 
-  const version = gitenvsExists ? await getGitenvsVersion() : null
-  const latest = gitenvsExists ? version === latestGitenvsVersion : null
-  const currentGitenvs = gitenvsExists && latest ? await getGitenvs() : null
-  const statusGitenvs =
-    gitenvsExists && !latest
-      ? await readFile(join(cwd, 'gitenvs.json'), 'utf-8')
-          .then((content) => statusGitenvsSchema.safeParse(JSON.parse(content)))
-          .then((parsed) => (parsed.success ? parsed.data : null))
-          .catch(() => null)
-      : currentGitenvs
+  const {
+    version,
+    latest,
+    gitenvs: statusGitenvs,
+    invalid: gitenvsInvalid,
+  } = await readGitenvsStatus({ cwd, exists: gitenvsExists })
 
   const passphraseFile = await readFile(passphrasePath, 'utf-8')
     .then((content) => {
@@ -110,6 +178,7 @@ export const collectStatus = async () => {
 
   const issues = [
     !gitenvsExists ? 'gitenvs.json not found' : null,
+    gitenvsInvalid ? 'gitenvs.json is invalid' : null,
     latest === false ? 'gitenvs.json is not on the latest version' : null,
     gitenvsExists && !passphraseFile.exists
       ? `${PASSPHRASE_FILE_NAME} not found`
