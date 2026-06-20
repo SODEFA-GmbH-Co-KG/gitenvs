@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { resolveEnvVars } from '../resolveEnvVars'
 
 export const runCommandSchema = z.object({
+  file: z.string().optional(),
   stage: z.string().default('development'),
   passphrase: z.string().optional(),
   passphrasePath: z.string().optional(),
@@ -78,6 +79,10 @@ export const buildRunEnvironment = async (options: RunCommandOptions) => {
 
   const resolvedEnvVars = await resolveEnvVars({
     gitenvs,
+    envFile: resolveRunEnvFile({
+      file: options.file,
+      envFiles: gitenvs.envFiles,
+    }),
     envStage,
     passphrase,
   })
@@ -164,6 +169,39 @@ const waitForChildProcess = async ({
     })
   })
 }
+
+const resolveRunEnvFile = ({
+  file,
+  envFiles,
+}: {
+  file?: string
+  envFiles: Awaited<ReturnType<typeof getGitenvs>>['envFiles']
+}) => {
+  if (file) {
+    const envFile = envFiles.find((envFile) => envFile.filePath === file)
+    if (!envFile) {
+      console.error(
+        `❌ Gitenvs: Env file ${file} not found. Available: ${formatAvailableEnvFiles(envFiles)}`,
+      )
+      process.exit(1)
+    }
+
+    return envFile
+  }
+
+  if (envFiles.length === 1) {
+    return envFiles[0]
+  }
+
+  console.error(
+    `❌ Gitenvs: Multiple env files are configured. Pass --file <filePath>. Available: ${formatAvailableEnvFiles(envFiles)}`,
+  )
+  process.exit(1)
+}
+
+const formatAvailableEnvFiles = (
+  envFiles: Awaited<ReturnType<typeof getGitenvs>>['envFiles'],
+) => envFiles.map((envFile) => envFile.filePath).join(', ') || '(none)'
 
 const getSignalExitCode = (signal: NodeJS.Signals) => {
   const signalNumber = osConstants.signals[signal]

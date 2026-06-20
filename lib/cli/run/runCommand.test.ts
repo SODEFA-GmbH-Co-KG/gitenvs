@@ -96,6 +96,97 @@ const writeTestProject = async () => {
   return testDir
 }
 
+const writeMultiFileProject = async () => {
+  testDir = await mkdtemp(join(tmpdir(), 'gitenvs-run-'))
+  process.env[GITENVS_DIR_ENV_NAME] = testDir
+
+  const keys = await createKeys()
+  const gitenvs = {
+    version: '2',
+    envStages: [
+      {
+        name: 'development',
+        publicKey: keys.publicKey,
+        encryptedPrivateKey: keys.encryptedPrivateKey,
+      },
+    ],
+    envFiles: [
+      {
+        id: 'envFile_web',
+        name: 'apps/web/.env',
+        filePath: 'apps/web/.env',
+        type: 'dotenv',
+      },
+      {
+        id: 'envFile_worker',
+        name: 'apps/worker/.env',
+        filePath: 'apps/worker/.env',
+        type: 'dotenv',
+      },
+    ],
+    envVars: [
+      {
+        id: 'envVar_shared',
+        fileIds: ['envFile_web', 'envFile_worker'],
+        key: 'SHARED_SECRET',
+        values: {
+          development: {
+            value: 'shared',
+            encrypted: false,
+          },
+        },
+      },
+      {
+        id: 'envVar_web',
+        fileIds: ['envFile_web'],
+        key: 'APP_SECRET',
+        values: {
+          development: {
+            value: 'web-secret',
+            encrypted: false,
+          },
+        },
+      },
+      {
+        id: 'envVar_worker',
+        fileIds: ['envFile_worker'],
+        key: 'APP_SECRET',
+        values: {
+          development: {
+            value: 'worker-secret',
+            encrypted: false,
+          },
+        },
+      },
+      {
+        id: 'envVar_worker_only',
+        fileIds: ['envFile_worker'],
+        key: 'WORKER_ONLY',
+        values: {
+          development: {
+            value: 'yes',
+            encrypted: false,
+          },
+        },
+      },
+    ],
+  } satisfies Gitenvs
+  const passphrases = [
+    {
+      stageName: 'development',
+      passphrase: keys.passphrase,
+    },
+  ] satisfies Passphrase[]
+
+  await writeFile(join(testDir, 'gitenvs.json'), JSON.stringify(gitenvs))
+  await writeFile(
+    join(testDir, PASSPHRASE_FILE_NAME),
+    JSON.stringify(passphrases),
+  )
+
+  return testDir
+}
+
 test('builds a child environment without creating env files', async () => {
   const dir = await writeTestProject()
   process.env.API_KEY = 'parent-value'
@@ -109,6 +200,21 @@ test('builds a child environment without creating env files', async () => {
   expect(env.API_KEY).toBe('secret-from-gitenvs')
   expect(env.PLAIN_FLAG).toBe('enabled')
   await expect(access(join(dir, '.env'))).rejects.toThrow()
+})
+
+test('builds a child environment from the selected env file', async () => {
+  await writeMultiFileProject()
+
+  const env = await buildRunEnvironment({
+    file: 'apps/web/.env',
+    stage: 'development',
+    command: 'node',
+    args: [],
+  })
+
+  expect(env.SHARED_SECRET).toBe('shared')
+  expect(env.APP_SECRET).toBe('web-secret')
+  expect(env.WORKER_ONLY).toBeUndefined()
 })
 
 test('spawns the command with inherited stdio and returns the child exit code', async () => {
@@ -168,6 +274,27 @@ test('CLI run passes args through quietly and returns the child exit code', asyn
     stderr: '',
   })
   await expect(access(join(dir, '.env'))).rejects.toThrow()
+})
+
+test('CLI run requires --file when multiple env files are configured', async () => {
+  await writeMultiFileProject()
+
+  const result = await runCli([
+    'run',
+    '--stage',
+    'development',
+    '--',
+    'node',
+    '-e',
+    'process.exit(0)',
+  ])
+
+  expect(result.code).toBe(1)
+  expect(result.stdout).toBe('')
+  expect(result.stderr).toContain(
+    'Multiple env files are configured. Pass --file <filePath>.',
+  )
+  expect(result.stderr).toContain('apps/web/.env, apps/worker/.env')
 })
 
 const runCli = async (args: string[]) => {

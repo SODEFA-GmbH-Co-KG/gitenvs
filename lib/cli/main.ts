@@ -67,6 +67,7 @@ const checkGitenvsVersion = async () => {
 const program = new Command()
 
 type RunCommandCliOptions = {
+  file?: string
   stage?: string
   passphrase?: string
   passphrasePath?: string
@@ -129,6 +130,10 @@ program.command('migrate').action(async () => {
 program
   .command('run')
   .description('Runs a program with decrypted env vars without writing files')
+  .option(
+    '--file <filePath>',
+    'Path of the env file from gitenvs.json (required when multiple env files are configured)',
+  )
   .option(
     '--stage <stage>',
     'Example: production, staging, development',
