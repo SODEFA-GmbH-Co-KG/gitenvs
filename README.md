@@ -119,6 +119,14 @@ A UI is automatically opened in your browser. Run through the wizard to set up g
     - `--stage <stage>` (default: development) - the stage to create the env files for (env var > cli param > default)
     - `--passphrase <passphrase>` - the passphrase to use for the stage (cli param > env var)
     - `--passphrasePath <passphrasePath>` - the path to the passphrase file
+- `gitenvs run --file <filePath> --stage <stage> -- <command> [...args]` – run a program with decrypted env vars without writing `.env` files.
+  - This uses the same stage and passphrase lookup as `gitenvs create`: `GITENVS_STAGE`, `GITENVS_PASSPHRASE_<STAGE>`, `--passphrase`, or `--passphrasePath`.
+  - `--file <filePath>` selects the env file from `gitenvs.json`. It is optional only when the project has exactly one configured env file.
+  - Gitenvs starts the child process directly with inherited `stdin`, `stdout`, and `stderr`, and exits with the child process exit code.
+  - Put command options after `--` so they are passed through unchanged, for example:
+    ```bash
+    gitenvs run --file apps/web/.env --stage development -- npm run dev -- --host 0.0.0.0
+    ```
 - `gitenvs status` – print a secret-safe status summary. Add `--json` for machine-readable output.
 - `gitenvs doctor` – validate the local setup and exit non-zero if it finds issues. Add `--json` for machine-readable output.
 - `gitenvs passphrases validate` – validate `gitenvs.passphrases.json` without printing passphrase values. Add `--json` for machine-readable output.
