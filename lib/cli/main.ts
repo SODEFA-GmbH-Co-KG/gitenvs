@@ -21,6 +21,7 @@ import {
   passphrasesValidateCommand,
   passphrasesValidateCommandSchema,
 } from './passphrases/passphrasesCommand'
+import { runCommand, runCommandSchema } from './run/runCommand'
 import { setCommand, setCommandSchema } from './set/setCommand'
 import { setupCommand, setupCommandSchema } from './setup/setupCommand'
 import { statusCommand, statusCommandSchema } from './status/statusCommand'
@@ -65,9 +66,16 @@ const checkGitenvsVersion = async () => {
 
 const program = new Command()
 
+type RunCommandCliOptions = {
+  stage?: string
+  passphrase?: string
+  passphrasePath?: string
+}
+
 program
   .name('gitenvs')
   .description('Save your env variables in git – encrypted!')
+  .enablePositionalOptions()
 
 program.command('migrate').action(async () => {
   let isLatestVersion = false
@@ -117,6 +125,41 @@ program.command('migrate').action(async () => {
     }
   }
 })
+
+program
+  .command('run')
+  .description('Runs a program with decrypted env vars without writing files')
+  .option(
+    '--stage <stage>',
+    'Example: production, staging, development',
+    'development',
+  )
+  .option('--passphrase <passphrase>')
+  .option('--passphrasePath <passphrasePath>')
+  .argument('<command>', 'Program to run')
+  .argument('[args...]', 'Arguments passed to the program')
+  .allowUnknownOption(true)
+  .passThroughOptions()
+  .action(
+    async (command: string, args: string[], options: RunCommandCliOptions) => {
+      await checkGitenvsVersion()
+
+      const parsed = runCommandSchema.safeParse({
+        ...options,
+        command,
+        args,
+      })
+
+      if (!parsed.success) {
+        console.error('❌ Gitenvs: Invalid options')
+        console.error(parsed.error.message)
+        process.exit(1)
+      }
+
+      const result = await runCommand(parsed.data)
+      process.exitCode = result.code
+    },
+  )
 
 program
   .command('create')
