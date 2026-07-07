@@ -60,6 +60,19 @@ export const createCommand = async (
     process.exit(1)
   }
 
+  const filesWithDuplicatePaths = gitenvs.envFiles.filter(
+    (file) =>
+      gitenvs.envFiles.filter((f) => f.filePath === file.filePath).length > 1,
+  )
+
+  if (filesWithDuplicatePaths.length > 0) {
+    console.error(
+      `❌ Gitenvs: Duplicate paths for env files found. Please remove duplicates.
+      ${filesWithDuplicatePaths.map((envFile) => `name: ${envFile.name}, path: ${envFile.filePath}`).join('\n')}`,
+    )
+    process.exit(1)
+  }
+
   const filePromises = gitenvs.envFiles.map(async (envFile) => {
     console.log(`🔒 Gitenvs: Creating ${envFile.name} file for stage: ${stage}`)
 
