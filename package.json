@@ -1,6 +1,6 @@
 {
   "name": "gitenvs",
-  "version": "2.1.3",
+  "version": "2.3.0",
   "private": false,
   "license": "MIT",
   "description": "Store your environment variables in git – encrypted.",
@@ -34,9 +34,12 @@
     "start": "next start",
     "dev-cli": "tsx ./lib/cli/main.ts init-playground && GITENVS_DIR=playground tsx ./lib/cli/main.ts",
     "dev-create": "GITENVS_DIR=playground tsx ./lib/cli/main.ts create",
+    "dev-cli-set": "GITENVS_DIR=playground tsx ./lib/cli/main.ts set",
     "dev-migrate": "GITENVS_DIR=playground tsx ./lib/cli/main.ts migrate",
     "dev-next": "next dev",
+    "release": "tsx ./scripts/release.ts",
     "prepublishOnly": "vitest run && pnpm build",
+    "test:port-fallback": "tsx ./scripts/testPortFallback.ts",
     "test": "vitest",
     "coverage": "vitest --coverage",
     "coverage:ui": "cd coverage && http-server"
@@ -58,6 +61,7 @@
   "devDependencies": {
     "@ebay/nice-modal-react": "^1.2.13",
     "@hookform/resolvers": "^3.3.2",
+    "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-collapsible": "^1.0.3",
     "@radix-ui/react-dialog": "^1.1.1",
@@ -93,8 +97,7 @@
     "jotai": "^2.8.4",
     "lucide-react": "^0.454.0",
     "nanoid": "^5.0.7",
-    "next": "^14.2.14",
-    "open": "^9.1.0",
+    "next": "^14.2.35",
     "pkgroll": "^2.5.0",
     "postcss": "^8.4.27",
     "prettier": "^3.3.2",

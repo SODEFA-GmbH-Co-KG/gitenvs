@@ -1,0 +1,34 @@
+name: Publish Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup and cache node modules
+        uses: ./.github/actions/node-pnpm-cache-setup
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Run Build
+        run: pnpm run build
+
+      - name: Run Test
+        run: pnpm run test
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Run Publish
+        run: npm publish

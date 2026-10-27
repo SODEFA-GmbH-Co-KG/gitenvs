@@ -25,7 +25,13 @@ import {
 
 const suggestedNamePrefix = '[Gitenvs]'
 
-export const CopyPassphrases = ({ projectName }: { projectName?: string }) => {
+export const CopyPassphrases = ({
+  projectName,
+  redirect,
+}: {
+  projectName?: string
+  redirect?: string
+}) => {
   const stageEncryptionState = useAtomValue(stageEncryptionStateAtom)
   const router = useRouter()
   const getEncryptionKeyOnClient = useEncryptionKeyOnClient()
@@ -170,7 +176,10 @@ export const CopyPassphrases = ({ projectName }: { projectName?: string }) => {
           <Save className="h-4 w-4" />
         </Button>
       </div>
-      <Button type="button" onClick={() => router.push('/setup/deploy')}>
+      <Button
+        type="button"
+        onClick={() => router.push(redirect ?? '/setup/deploy')}
+      >
         All done - next, please!
       </Button>
     </div>

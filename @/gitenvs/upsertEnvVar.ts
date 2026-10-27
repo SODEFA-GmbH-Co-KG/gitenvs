@@ -1,7 +1,7 @@
 import { find } from 'lodash-es'
+import { createEnvVar } from './createEnvVar'
 import { encryptEnvVar } from './encryptEnvVar'
 import { getGitenvs, saveGitenvs } from './gitenvs'
-import { getNewEnvFileId } from './idsGenerator'
 
 export const upsertEnvVarValue = async ({
   fileId,
@@ -33,12 +33,10 @@ export const upsertEnvVarValue = async ({
     (v) => v.fileIds.includes(file.id) && v.key === key,
   )
   if (!envVar) {
-    envVar = {
-      id: getNewEnvFileId(),
+    envVar = createEnvVar({
       fileIds: [file.id],
       key,
-      values: {},
-    }
+    })
     gitenvs.envVars.push(envVar)
   }
 

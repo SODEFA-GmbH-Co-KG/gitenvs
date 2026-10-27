@@ -25,6 +25,10 @@ export const VercelTeamProjectSelect = async ({
   teamId?: string
 }) => {
   const config = await getGlobalConfig()
+  if (!config.vercelToken) {
+    return <TokenInput />
+  }
+
   const [teams, projects] = await Promise.all([
     getVercelTeams({ config }),
     teamId ? getVercelProjects({ config, teamId }) : Promise.resolve([]),
@@ -61,7 +65,10 @@ export const VercelTeamProjectSelect = async ({
               <MoreVertical className="h-3 w-3 opacity-60" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent forceMount>
+          <DropdownMenuContent
+            forceMount
+            data-arrowtab="disable-down disable-up"
+          >
             <DropdownMenuItem asChild>
               <ActionButton
                 variant="ghost"

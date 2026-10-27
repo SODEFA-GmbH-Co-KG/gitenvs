@@ -160,9 +160,11 @@ export const EditEnvVarDialog = NiceModal.create(
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader className="truncate">
             <DialogTitle>Edit Env Var</DialogTitle>
-            <DialogDescription className="truncate">
-              <div className="truncate">Stage: {envStage.name}</div>
-              <div className="truncate">Key: {envVar.key}</div>
+            <DialogDescription className="truncate" asChild>
+              <div>
+                <div className="truncate">Stage: {envStage.name}</div>
+                <div className="truncate">Key: {envVar.key}</div>
+              </div>
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

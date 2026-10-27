@@ -4,7 +4,9 @@ import { ImportFromVercel } from '@/components/ImportFromVercel'
 import { SimpleParamSelect } from '@/components/simple/SimpleParamSelect'
 import { Button } from '@/components/ui/button'
 import { getVercelProject } from '@/components/vercel/getVercelProject'
+import { TokenInput } from '@/components/vercel/VercelTokenInput'
 import { getGitenvs } from '@/gitenvs/gitenvs'
+import { getGlobalConfig } from '@/gitenvs/globalConfig'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
@@ -15,6 +17,7 @@ export default async function Page({
 }) {
   const gitenvs = await getGitenvs()
   const firstFileId = gitenvs.envFiles[0]!.id
+  const globalConfig = await getGlobalConfig()
 
   const { teamId, projectId, fileId } = searchParams
 
@@ -47,11 +50,15 @@ export default async function Page({
       <Hr />
       <h1 className="text-center text-xl">Import from Vercel</h1>
       <div className="flex flex-col gap-4">
-        <ImportFromVercel
-          fileId={searchParams.fileId ?? firstFileId}
-          teamId={teamId}
-          projectId={projectId}
-        />
+        {globalConfig.vercelToken ? (
+          <ImportFromVercel
+            fileId={searchParams.fileId ?? firstFileId}
+            teamId={teamId}
+            projectId={projectId}
+          />
+        ) : (
+          <TokenInput />
+        )}
       </div>
       <Hr />
       <Button asChild variant={'default'}>

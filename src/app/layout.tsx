@@ -29,7 +29,7 @@ export default async function RootLayout({
       <body>
         <Providers>
           <main className="flex min-h-screen flex-col items-center">
-            <div className="container flex flex-col items-center gap-12 px-4 pb-16 pt-16">
+            <div className="container flex flex-col items-center gap-12 px-4 pb-16 pt-12">
               {children}
             </div>
           </main>

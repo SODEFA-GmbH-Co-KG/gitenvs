@@ -6,7 +6,9 @@ import {
 } from '../action/useSuperAction'
 
 export type ActionFormProps = {
-  children?: React.ReactNode
+  children?:
+    | React.ReactNode
+    | ((props: { isLoading: boolean }) => React.ReactNode)
   className?: string
 } & UseSuperActionOptions<void, FormData>
 
@@ -15,7 +17,7 @@ export const ActionForm = ({
   className,
   ...superActionOptions
 }: ActionFormProps) => {
-  const { trigger } = useSuperAction(superActionOptions)
+  const { trigger, isLoading } = useSuperAction(superActionOptions)
   return (
     <form
       className={className}
@@ -27,7 +29,7 @@ export const ActionForm = ({
         await trigger(formData)
       }}
     >
-      {children}
+      {typeof children === 'function' ? children({ isLoading }) : children}
     </form>
   )
 }

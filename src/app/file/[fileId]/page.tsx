@@ -1,5 +1,6 @@
 import { EnvFileSwitcher } from '@/components/EnvFileSwitcher'
 import { EnvVarsTable } from '@/components/EnvVarsTable'
+import { MainDropdown } from '@/components/MainDropdown'
 import { PasteEnvVars } from '@/components/PasteEnvVars'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import { redirect } from 'next/navigation'
@@ -20,7 +21,10 @@ export default async function Page({
 
   return (
     <div className="container flex flex-col gap-2">
-      <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
+      <div className="flex gap-4">
+        <EnvFileSwitcher gitenvs={gitenvs} activeFileId={params.fileId} />
+        <MainDropdown className="self-start" />
+      </div>
       <EnvVarsTable
         fileId={params.fileId}
         gitenvs={gitenvs}

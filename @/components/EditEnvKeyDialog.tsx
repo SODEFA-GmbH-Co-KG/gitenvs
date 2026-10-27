@@ -8,7 +8,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { type EnvVar, type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { map } from 'lodash-es'
-import { ReactNode } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import {
   streamDialog,
@@ -19,11 +18,9 @@ import { ActionForm } from '~/super-action/form/ActionForm'
 export const EditEnvKeyDialog = ({
   envVar,
   gitenvs,
-  dropdown,
 }: {
   envVar: EnvVar
   gitenvs: Gitenvs
-  dropdown: ReactNode
 }) => {
   return (
     <ActionForm
@@ -53,7 +50,7 @@ export const EditEnvKeyDialog = ({
       }}
     >
       <DialogHeader>
-        <DialogTitle>Edit Env Key</DialogTitle>
+        <DialogTitle>Rename Env Key</DialogTitle>
         <DialogDescription />
       </DialogHeader>
       <div className="py-4">
@@ -65,7 +62,6 @@ export const EditEnvKeyDialog = ({
         />
       </div>
       <DialogFooter>
-        {dropdown}
         <Button type="submit">Update</Button>
       </DialogFooter>
     </ActionForm>
