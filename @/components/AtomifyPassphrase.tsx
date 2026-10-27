@@ -1,6 +1,6 @@
 'use client'
 
-import { atom, useAtom } from 'jotai'
+import { atom, useAtom, useSetAtom } from 'jotai'
 import { map } from 'lodash-es'
 import { useEffect } from 'react'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
@@ -34,6 +34,8 @@ export const AtomifyPassphrase = ({
   const getEncryptionKey = useEncryptionKeyOnClient()
 
   useEffect(() => {
+    if (stageEncryptionState) return
+
     const decrypt = async () => {
       const encryptionKey = await getEncryptionKey()
       if (!encryptionKey) return
@@ -55,19 +57,7 @@ export const AtomifyPassphrase = ({
         }),
       )
 
-      // necessary to check for reroll action
-      if (
-        !stageEncryptionState?.every((ses) =>
-          passphraseResults.some(
-            (pr) =>
-              pr.stageName === ses.stageName &&
-              pr.passphrase === ses.passphrase,
-          ),
-        )
-      ) {
-        setStageEncryptionState(passphraseResults)
-        console.dir(passphraseResults, { depth: null })
-      }
+      setStageEncryptionState(passphraseResults)
     }
 
     decrypt().catch(console.error)
@@ -77,6 +67,17 @@ export const AtomifyPassphrase = ({
     setStageEncryptionState,
     stageEncryptionState,
   ])
+
+  return null
+}
+
+// Forces AtomifyPassphrase to decrypt the passphrases again, e.g. after a reroll
+export const ResetStageEncryptionState = () => {
+  const setStageEncryptionState = useSetAtom(stageEncryptionStateAtom)
+
+  useEffect(() => {
+    setStageEncryptionState(undefined)
+  }, [setStageEncryptionState])
 
   return null
 }

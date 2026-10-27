@@ -77,6 +77,11 @@ export const MainDropdown = async ({ className }: { className?: string }) => {
                     Goto Deploy
                   </a>
                 </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <a href="/setup/reroll" className="w-full">
+                    Goto Reroll Passphrases
+                  </a>
+                </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>

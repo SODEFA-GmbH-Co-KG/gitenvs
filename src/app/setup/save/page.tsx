@@ -1,3 +1,4 @@
+import { ResetStageEncryptionState } from '@/components/AtomifyPassphrase'
 import { CopyPassphrases } from '@/components/CopyPassphrases'
 import { getProjectRoot } from '@/gitenvs/getProjectRoot'
 import { readFile } from 'fs/promises'
@@ -9,14 +10,19 @@ const allowedRedirects = ['/']
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ redirect: string }>
+  searchParams: Promise<{ redirect: string; rerolled?: string }>
 }) {
-  const { redirect } = await searchParams
+  const { redirect, rerolled } = await searchParams
   if (!!redirect && !allowedRedirects.includes(redirect)) {
     throw new Error('Invalid redirect')
   }
   const projectName = await getProjectName().catch(() => undefined)
-  return <CopyPassphrases projectName={projectName} redirect={redirect} />
+  return (
+    <>
+      {!!rerolled && <ResetStageEncryptionState />}
+      <CopyPassphrases projectName={projectName} redirect={redirect} />
+    </>
+  )
 }
 
 const getProjectName = async () => {

@@ -1,7 +1,7 @@
 import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
 import { cn } from '@/lib/utils'
 import { filter } from 'lodash-es'
-import { ChevronDown, Dices, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, Pencil, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { Fragment } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
@@ -31,8 +31,7 @@ export const EnvFileSwitcher = ({
   activeFileId?: string
 }) => {
   return (
-    <div className="flex max-w-full flex-row items-center">
-      <div className="flex max-w-full flex-1 flex-row flex-wrap gap-4">
+    <div className="flex max-w-full flex-row flex-wrap gap-4">
       {gitenvs.envFiles.map((envFile) => {
         const isActive = envFile.id === activeFileId
         return (
@@ -183,12 +182,6 @@ export const EnvFileSwitcher = ({
         <Plus className="size-4" />
         <span>New</span>
       </ActionButton>
-      </div>
-      <Link href="/setup/reroll" className="self-end">
-        <Button size="icon" variant={'outline'} title="Reroll Passphrases">
-          <Dices className="size-4" />
-        </Button>
-      </Link>
     </div>
   )
 }

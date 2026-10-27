@@ -1,22 +1,25 @@
-import { getAllPassphrasesOrThrow } from '@/gitenvs/checkAllPassphrasesExist'
-import { createKeys } from '@/gitenvs/createKeys'
-import { decryptEnvVar } from '@/gitenvs/decryptEnvVar'
-import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
-import { getCwd } from '@/gitenvs/getCwd'
-import { PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
-import { saveGitenvs } from '@/gitenvs/gitenvs'
-import { writeFile } from 'fs/promises'
+import { BACKUP_DIR_NAME } from '@/gitenvs/getPassphrase'
+import { getGitenvs } from '@/gitenvs/gitenvs'
+import { rerollPassphrases } from '@/gitenvs/rerollPassphrases'
 import { ArrowLeft, TriangleAlert } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { join } from 'path'
 import { superAction } from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { Alert, AlertDescription, AlertTitle } from './ui/alert'
 import { Button } from './ui/button'
 
+const rerollAction = (stageNames?: string[]) =>
+  superAction(async () => {
+    await rerollPassphrases({ stageNames })
+    revalidatePath('/', 'layout')
+    redirect('/setup/save?rerolled=1')
+  })
+
 export const RerollPassphrases = async () => {
+  const gitenvs = await getGitenvs()
+
   return (
     <div className="flex max-w-lg flex-col gap-8">
       <h1 className="text-center text-2xl">
@@ -27,145 +30,62 @@ export const RerollPassphrases = async () => {
           <TriangleAlert />
           Important Notice
         </AlertTitle>
-        <AlertDescription>
-          This will generate new passphrases for all your stages. All env vars
-          are re-encrypted with these new passphrases.
-          <br />
-          <br />
-          You have to replace all passphrases you have currently setup in online
-          platforms in order for them to decrypt these new values.
-          <br />
-          <br />
-          This action is irreversible. Please make a backup of your{' '}
-          <code className="font-bold">gitenvs.json</code> and{' '}
-          <code className="font-bold">gitenvs.passphrases.json</code> file in
-          case of unexpected issues during rerolling process.
+        <AlertDescription className="flex flex-col gap-4">
+          <p>
+            This generates new passphrases for the selected stages and
+            re-encrypts all their env vars. If any value cannot be re-encrypted,
+            nothing is changed.
+          </p>
+          <p>
+            Afterwards you have to replace the passphrases everywhere they are
+            used (CI, hosting providers, password manager).
+          </p>
+          <p>
+            The old <code className="font-bold">gitenvs.json</code> and
+            passphrases are backed up to{' '}
+            <code className="font-bold">{BACKUP_DIR_NAME}/</code> (added to
+            .gitignore). Delete the backup once the new passphrases are
+            deployed.
+          </p>
+          <p>
+            Old passphrases can still decrypt{' '}
+            <code className="font-bold">gitenvs.json</code> from your git
+            history. If a passphrase leaked, rotate the secrets themselves as
+            well.
+          </p>
         </AlertDescription>
       </Alert>
-      <div className="flex items-center justify-between">
-        <Link href="/">
-          <Button variant={'outline'}>
-            <ArrowLeft />
-            Nope! Nevermind
-          </Button>
-        </Link>
-
+      <div className="flex flex-col gap-2">
         <ActionButton
           action={async () => {
             'use server'
-            return superAction(async () => {
-              const { passphrases, gitenvs } = await getAllPassphrasesOrThrow()
-
-              const newStageEncryptionStates = await Promise.all(
-                gitenvs.envStages.map(async (s) => {
-                  const newKeys = await createKeys()
-                  return { stageName: s, ...newKeys }
-                }),
-              )
-
-              const newEnvVars = []
-              //encrypt/decrypt all env vars
-              for (const envVar of gitenvs.envVars) {
-                const newEnvVar = {
-                  ...envVar,
-                }
-                for (const stageName in envVar.values) {
-                  if (!envVar.values.hasOwnProperty(stageName)) continue
-                  const value = envVar.values[stageName]
-                  if (!value) {
-                    console.error(
-                      `❌ Gitenvs: No value found for stage "${stageName}"`,
-                    )
-                    continue
-                  }
-                  if (!value.encrypted) {
-                    // console.error(`❌ Gitenvs: Env var "${envVar.key}" is not encrypted`)
-                    continue
-                  }
-
-                  const newStageEncryptionState = newStageEncryptionStates.find(
-                    (s) => s.stageName.name === stageName,
-                  )
-                  if (!newStageEncryptionState) {
-                    console.error(
-                      `❌ Gitenvs: No passphrase found for stage "${stageName}"`,
-                    )
-                    continue
-                  }
-
-                  const decryptPass = passphrases.find(
-                    (p) => p.stageName === stageName,
-                  )!
-
-                  const currentStageEncryptedPrivateKey =
-                    gitenvs.envStages.find(
-                      (s) => s.name === stageName,
-                    )?.encryptedPrivateKey
-
-                  if (!currentStageEncryptedPrivateKey) {
-                    console.error(
-                      `❌ Gitenvs: No encrypted private key found for stage "${stageName}"`,
-                    )
-                    continue
-                  }
-                  const decryptedValue = await decryptEnvVar({
-                    encrypted: value.value,
-                    encryptedPrivateKey: currentStageEncryptedPrivateKey,
-                    passphrase: decryptPass.passphrase,
-                  })
-
-                  if (!decryptedValue) {
-                    console.error(
-                      `❌ Gitenvs: Error decrypting env var "${envVar.key}"`,
-                    )
-                    continue
-                  }
-
-                  const newEncryptedValue = await encryptEnvVar({
-                    plaintext: decryptedValue,
-                    publicKey: newStageEncryptionState.publicKey,
-                  })
-
-                  newEnvVar.values[stageName] = {
-                    ...value,
-                    value: newEncryptedValue,
-                    encrypted: true,
-                  }
-                }
-                newEnvVars.push(newEnvVar)
-              }
-
-              await saveGitenvs({
-                ...gitenvs,
-                envVars: newEnvVars,
-                envStages: newStageEncryptionStates.map((s) => ({
-                  name: s.stageName.name,
-                  encryptedPrivateKey: s.encryptedPrivateKey,
-                  publicKey: s.publicKey,
-                })),
-              })
-
-              const path = join(getCwd(), PASSPHRASE_FILE_NAME)
-
-              const passPhrasesFileContent = newStageEncryptionStates.map(
-                (s) => ({
-                  stageName: s.stageName.name,
-                  passphrase: s.passphrase,
-                }),
-              )
-
-              await writeFile(
-                path,
-                JSON.stringify(passPhrasesFileContent, null, 2),
-              )
-              revalidatePath('/', 'layout')
-              return redirect('/setup/save')
-            })
+            return rerollAction()
           }}
         >
-          Yes! Let&apos;s Reroll
+          Yes! Reroll all stages
         </ActionButton>
+        <div className="flex flex-wrap gap-2">
+          {gitenvs.envStages.map((stage) => (
+            <ActionButton
+              key={stage.name}
+              variant={'outline'}
+              className="flex-1"
+              action={async () => {
+                'use server'
+                return rerollAction([stage.name])
+              }}
+            >
+              Only {stage.name}
+            </ActionButton>
+          ))}
+        </div>
       </div>
+      <Link href="/">
+        <Button variant={'outline'} className="w-full">
+          <ArrowLeft />
+          Nope! Nevermind
+        </Button>
+      </Link>
     </div>
   )
 }
