@@ -1,10 +1,12 @@
-import { mkdir, readFile, rename, writeFile } from 'fs/promises'
-import { join } from 'path'
+import { constants } from 'fs'
+import { access, mkdir, readFile, rename, writeFile } from 'fs/promises'
+import { dirname, join } from 'path'
 import { createKeys } from './createKeys'
 import { decryptEnvVar } from './decryptEnvVar'
 import { encryptEnvVar } from './encryptEnvVar'
 import { getPassphraseEnvName } from './env'
 import { getCwd } from './getCwd'
+import { getProjectRoot } from './getProjectRoot'
 import {
   BACKUP_DIR_NAME,
   PASSPHRASE_FILE_NAME,
@@ -147,6 +149,18 @@ const readPassphraseFile = async (path: string) => {
   return parsed.data
 }
 
+const assertWritable = async (paths: string[]) => {
+  for (const path of paths) {
+    // check the directory if the file does not exist yet
+    const target = await access(path)
+      .then(() => path)
+      .catch(() => dirname(path))
+    await access(target, constants.W_OK).catch(() => {
+      throw new Error(`No write access to ${target}.`)
+    })
+  }
+}
+
 const writeFileAtomic = async (path: string, content: string) => {
   const tmpPath = `${path}.tmp`
   await writeFile(tmpPath, content, { encoding: 'utf-8', mode: 0o600 })
@@ -157,11 +171,16 @@ const writeFileAtomic = async (path: string, content: string) => {
  * Rerolls the passphrases of the given stages (default: all) in the current
  * gitenvs project. Old gitenvs.json and passphrases are backed up to
  * gitenvs.backups/<timestamp>/ before anything is overwritten.
+ *
+ * With dryRun everything is checked and re-encrypted in memory, but nothing
+ * is written.
  */
 export const rerollPassphrases = async ({
   stageNames: requestedStageNames,
+  dryRun = false,
 }: {
   stageNames?: string[]
+  dryRun?: boolean
 } = {}) => {
   const cwd = getCwd()
 
@@ -188,11 +207,36 @@ export const rerollPassphrases = async ({
     if (passphrase) oldPassphrases.push({ stageName, passphrase })
   }
 
+  await assertWritable([
+    cwd,
+    join(cwd, 'gitenvs.json'),
+    passphrasePath,
+    join(cwd, BACKUP_DIR_NAME),
+    join((await getProjectRoot()).projectRoot, '.gitignore'),
+  ])
+
   const result = await rerollStages({
     gitenvs,
     passphrases: oldPassphrases,
     stageNames,
   })
+
+  const passphraseEnvNames = stageNames.map((stage) =>
+    getPassphraseEnvName({ stage }),
+  )
+  const summary = {
+    dryRun,
+    stages: stageNames,
+    reencryptedValues: result.reencryptedValues,
+    passphrasePath,
+    passphraseEnvNames,
+    // env vars take precedence over the passphrase file
+    staleEnvNames: passphraseEnvNames.filter((name) => !!process.env[name]),
+  }
+
+  if (dryRun) {
+    return { ...summary, backupDir: null }
+  }
 
   // backup before overwriting anything
   const backupDir = join(
@@ -230,17 +274,5 @@ export const rerollPassphrases = async ({
   )
   await saveGitenvs(result.gitenvs)
 
-  const passphraseEnvNames = stageNames.map((stage) =>
-    getPassphraseEnvName({ stage }),
-  )
-
-  return {
-    stages: stageNames,
-    reencryptedValues: result.reencryptedValues,
-    passphrasePath,
-    backupDir,
-    passphraseEnvNames,
-    // env vars take precedence over the passphrase file
-    staleEnvNames: passphraseEnvNames.filter((name) => !!process.env[name]),
-  }
+  return { ...summary, backupDir }
 }

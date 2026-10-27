@@ -5,6 +5,7 @@ import { z } from 'zod'
 export const passphrasesRerollCommandSchema = z.object({
   stages: z.string().optional(),
   yes: z.boolean().default(false),
+  dryRun: z.boolean().default(false),
   json: z.boolean().default(false),
 })
 
@@ -29,9 +30,9 @@ export const passphrasesRerollCommand = async (
     process.exitCode = 1
   }
 
-  if (!options.yes) {
+  if (!options.yes && !options.dryRun) {
     return fail(
-      'Rerolling replaces the passphrases and re-encrypts all values of the selected stages. Every place that uses the old passphrases (CI, hosting providers, password manager) has to be updated afterwards. Re-run with --yes to confirm.',
+      'Rerolling replaces the passphrases and re-encrypts all values of the selected stages. Every place that uses the old passphrases (CI, hosting providers, password manager) has to be updated afterwards. Re-run with --yes to confirm or with --dry-run to check first.',
     )
   }
 
@@ -39,6 +40,7 @@ export const passphrasesRerollCommand = async (
   try {
     result = await rerollPassphrases({
       stageNames: parseStageNames(options.stages),
+      dryRun: options.dryRun,
     })
   } catch (error) {
     return fail(error instanceof Error ? error.message : String(error))
@@ -47,17 +49,20 @@ export const passphrasesRerollCommand = async (
   const warnings = [
     ...result.staleEnvNames.map(
       (name) =>
-        `${name} is set in the current environment and still holds the old passphrase`,
+        `${name} is set in the current environment and ${result.dryRun ? 'would still hold' : 'still holds'} the old passphrase`,
     ),
-    `${BACKUP_DIR_NAME}/ contains the old passphrases – delete it once the new passphrases are deployed`,
+    result.dryRun
+      ? null
+      : `${BACKUP_DIR_NAME}/ contains the old passphrases – delete it once the new passphrases are deployed`,
     HISTORY_WARNING,
-  ]
+  ].filter((warning): warning is string => warning !== null)
 
   if (options.json) {
     console.log(
       JSON.stringify(
         {
           ok: true,
+          dryRun: result.dryRun,
           stages: result.stages,
           reencryptedValues: result.reencryptedValues,
           passphrasePath: result.passphrasePath,
@@ -72,8 +77,24 @@ export const passphrasesRerollCommand = async (
     return
   }
 
+  const valueCount = `${result.reencryptedValues} ${result.reencryptedValues === 1 ? 'value' : 'values'}`
+
+  if (result.dryRun) {
+    console.log(
+      `✅ Gitenvs: Dry run passed – rerolling ${result.stages.join(', ')} would re-encrypt ${valueCount}. Nothing was changed.`,
+    )
+    console.log('👉 Afterwards these env vars would have to be updated:')
+    for (const name of result.passphraseEnvNames) {
+      console.log(`- ${name}`)
+    }
+    for (const warning of warnings) {
+      console.log(`⚠️ ${warning}`)
+    }
+    return
+  }
+
   console.log(
-    `✅ Gitenvs: Rerolled passphrases for ${result.stages.join(', ')} (${result.reencryptedValues} ${result.reencryptedValues === 1 ? 'value' : 'values'} re-encrypted)`,
+    `✅ Gitenvs: Rerolled passphrases for ${result.stages.join(', ')} (${valueCount} re-encrypted)`,
   )
   console.log(`🔑 New passphrases: ${result.passphrasePath}`)
   console.log(`💾 Backup: ${result.backupDir}`)

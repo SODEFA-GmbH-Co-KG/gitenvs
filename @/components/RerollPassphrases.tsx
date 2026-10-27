@@ -1,11 +1,14 @@
 import { BACKUP_DIR_NAME } from '@/gitenvs/getPassphrase'
 import { getGitenvs } from '@/gitenvs/gitenvs'
 import { rerollPassphrases } from '@/gitenvs/rerollPassphrases'
-import { ArrowLeft, TriangleAlert } from 'lucide-react'
+import { ArrowLeft, SearchCheck, TriangleAlert } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { superAction } from '~/super-action/action/createSuperAction'
+import {
+  streamToast,
+  superAction,
+} from '~/super-action/action/createSuperAction'
 import { ActionButton } from '~/super-action/button/ActionButton'
 import { Alert, AlertDescription, AlertTitle } from './ui/alert'
 import { Button } from './ui/button'
@@ -15,6 +18,15 @@ const rerollAction = (stageNames?: string[]) =>
     await rerollPassphrases({ stageNames })
     revalidatePath('/', 'layout')
     redirect('/setup/save?rerolled=1')
+  })
+
+const dryRunAction = () =>
+  superAction(async () => {
+    const result = await rerollPassphrases({ dryRun: true })
+    streamToast({
+      title: 'Dry run passed ✅',
+      description: `Rerolling ${result.stages.join(', ')} would re-encrypt ${result.reencryptedValues} values. Nothing was changed.`,
+    })
   })
 
 export const RerollPassphrases = async () => {
@@ -56,6 +68,16 @@ export const RerollPassphrases = async () => {
         </AlertDescription>
       </Alert>
       <div className="flex flex-col gap-2">
+        <ActionButton
+          variant={'outline'}
+          action={async () => {
+            'use server'
+            return dryRunAction()
+          }}
+        >
+          <SearchCheck className="size-4" />
+          Check first (dry run)
+        </ActionButton>
         <ActionButton
           action={async () => {
             'use server'

@@ -131,7 +131,7 @@ test('rerolls all stages and keeps every value decryptable', async () => {
     .spyOn(console, 'log')
     .mockImplementation(() => undefined)
 
-  await passphrasesRerollCommand({ yes: true, json: true })
+  await passphrasesRerollCommand({ yes: true, dryRun: false, json: true })
 
   expect(process.exitCode).toBeUndefined()
   const output = consoleLog.mock.calls.map((call) => call.join(' ')).join('\n')
@@ -198,6 +198,7 @@ test('rerolls only the selected stages', async () => {
   await passphrasesRerollCommand({
     stages: 'production',
     yes: true,
+    dryRun: false,
     json: true,
   })
 
@@ -238,7 +239,7 @@ test('does not change anything if a value cannot be decrypted', async () => {
     .mockImplementation(() => undefined)
   vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-  await passphrasesRerollCommand({ yes: true, json: true })
+  await passphrasesRerollCommand({ yes: true, dryRun: false, json: true })
 
   expect(process.exitCode).toBe(1)
   const result = JSON.parse(consoleLog.mock.calls[0]?.[0] as string) as {
@@ -256,8 +257,56 @@ test('requires --yes', async () => {
   const before = await readProject(old.testDir)
   vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-  await passphrasesRerollCommand({ yes: false, json: false })
+  await passphrasesRerollCommand({ yes: false, dryRun: false, json: false })
 
   expect(process.exitCode).toBe(1)
   expect(await readProject(old.testDir)).toEqual(before)
+})
+
+test('dry run checks everything without writing', async () => {
+  const old = await setupProject()
+  const before = await readProject(old.testDir)
+  const consoleLog = vi
+    .spyOn(console, 'log')
+    .mockImplementation(() => undefined)
+
+  await passphrasesRerollCommand({ yes: false, dryRun: true, json: true })
+
+  expect(process.exitCode).toBeUndefined()
+  const output = consoleLog.mock.calls.map((call) => call.join(' ')).join('\n')
+  expect(JSON.parse(output)).toMatchObject({
+    ok: true,
+    dryRun: true,
+    stages: ['development', 'production'],
+    reencryptedValues: 2,
+    backupDir: null,
+  })
+  for (const passphrase of old.passphrases) {
+    expect(output).not.toContain(passphrase.passphrase)
+  }
+  expect(await readProject(old.testDir)).toEqual(before)
+  const files = await readdir(old.testDir)
+  expect(files).not.toContain(BACKUP_DIR_NAME)
+  expect(files).not.toContain('.gitignore')
+})
+
+test('dry run fails if a passphrase is missing', async () => {
+  const old = await setupProject()
+  await writeFile(
+    join(old.testDir, PASSPHRASE_FILE_NAME),
+    JSON.stringify([old.passphrases[0]], null, 2),
+  )
+  const consoleLog = vi
+    .spyOn(console, 'log')
+    .mockImplementation(() => undefined)
+
+  await passphrasesRerollCommand({ yes: false, dryRun: true, json: true })
+
+  expect(process.exitCode).toBe(1)
+  const result = JSON.parse(consoleLog.mock.calls[0]?.[0] as string) as {
+    ok: boolean
+    error: string
+  }
+  expect(result.ok).toBe(false)
+  expect(result.error).toContain('No passphrase found for stage production')
 })

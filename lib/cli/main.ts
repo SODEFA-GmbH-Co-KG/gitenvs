@@ -263,7 +263,8 @@ passphrases
     '--stages <stages>',
     'Comma-separated stage names; defaults to all stages',
   )
-  .option('--yes', 'Confirm the reroll (required)')
+  .option('--yes', 'Confirm the reroll (required unless --dry-run)')
+  .option('--dry-run', 'Check that the reroll would work without writing')
   .option('--json', 'Print machine-readable JSON')
   .action(async (options) => {
     await checkGitenvsVersion()
