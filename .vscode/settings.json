@@ -1,6 +1,4 @@
 {
   "cSpell.words": ["gitenvs", "Gitenvs"],
-   "typescript.preferences.autoImportFileExcludePatterns": [
-    "@radix-ui/*",
-  ],
+  "typescript.preferences.autoImportFileExcludePatterns": ["@radix-ui/*"]
 }

@@ -6,6 +6,8 @@ import { type Passphrase } from './gitenvs.schema'
 
 export const PASSPHRASE_FILE_NAME = 'gitenvs.passphrases.json'
 
+export const BACKUP_DIR_NAME = 'gitenvs.backups'
+
 export const getPassphrase = async ({
   stage,
   passphrase,

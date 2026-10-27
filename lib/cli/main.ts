@@ -21,6 +21,10 @@ import {
   passphrasesValidateCommand,
   passphrasesValidateCommandSchema,
 } from './passphrases/passphrasesCommand'
+import {
+  passphrasesRerollCommand,
+  passphrasesRerollCommandSchema,
+} from './passphrases/rerollCommand'
 import { setCommand, setCommandSchema } from './set/setCommand'
 import { setupCommand, setupCommandSchema } from './setup/setupCommand'
 import { statusCommand, statusCommandSchema } from './status/statusCommand'
@@ -251,6 +255,36 @@ passphrases
     }
 
     await passphrasesValidateCommand(parsed.data)
+  })
+
+passphrases
+  .command('reroll')
+  .description(
+    'Creates new passphrases and re-encrypts all values without printing secrets',
+  )
+  .option(
+    '--stages <stages>',
+    'Comma-separated stage names; defaults to all stages',
+  )
+  .option('--yes', 'Confirm the reroll (required unless --dry-run)')
+  .option('--dry-run', 'Check that the reroll would work without writing')
+  .option(
+    '--passphrase-source <source>',
+    'file or env: which old passphrase to use if both are set but differ',
+  )
+  .option('--json', 'Print machine-readable JSON')
+  .action(async (options) => {
+    await checkGitenvsVersion()
+
+    const parsed = passphrasesRerollCommandSchema.safeParse(options)
+
+    if (!parsed.success) {
+      console.error('❌ Gitenvs: Invalid options')
+      console.error(parsed.error.message)
+      process.exit(1)
+    }
+
+    await passphrasesRerollCommand(parsed.data)
   })
 
 const ci = program

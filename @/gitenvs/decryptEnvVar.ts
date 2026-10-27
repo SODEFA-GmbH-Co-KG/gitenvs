@@ -81,6 +81,6 @@ export const decryptEnvVar = async ({
 
     return plaintext
   } catch (error) {
-    console.log('error', error)
+    console.error('error', error)
   }
 }

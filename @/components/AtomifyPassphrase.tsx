@@ -2,7 +2,7 @@
 
 import { atom, useAtom } from 'jotai'
 import { map } from 'lodash-es'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useEncryptionKeyOnClient } from '~/utils/encryptionKeyOnClient'
 import {
   decryptWithEncryptionKey,
@@ -67,6 +67,44 @@ export const AtomifyPassphrase = ({
     setStageEncryptionState,
     stageEncryptionState,
   ])
+
+  return null
+}
+
+// Forces AtomifyPassphrase to decrypt the passphrases again after a reroll.
+// Passphrases of other stages that were only known in the browser are kept.
+export const ResetStageEncryptionState = ({
+  rerolledStages,
+}: {
+  rerolledStages: string[]
+}) => {
+  const [stageEncryptionState, setStageEncryptionState] = useAtom(
+    stageEncryptionStateAtom,
+  )
+  const previousState = useRef(stageEncryptionState)
+
+  useEffect(() => {
+    setStageEncryptionState(undefined)
+  }, [setStageEncryptionState])
+
+  useEffect(() => {
+    const previous = previousState.current
+    if (!stageEncryptionState || !previous) return
+    if (stageEncryptionState === previous) return
+    previousState.current = undefined
+
+    setStageEncryptionState(
+      stageEncryptionState.map((state) => {
+        if (state.passphrase || rerolledStages.includes(state.stageName)) {
+          return state
+        }
+        const kept = previous.find((p) => p.stageName === state.stageName)
+        return kept?.passphrase
+          ? { ...state, passphrase: kept.passphrase }
+          : state
+      }),
+    )
+  }, [stageEncryptionState, setStageEncryptionState, rerolledStages])
 
   return null
 }

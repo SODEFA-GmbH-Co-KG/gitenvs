@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { z } from 'zod'
-import { PASSPHRASE_FILE_NAME } from './getPassphrase'
+import { BACKUP_DIR_NAME, PASSPHRASE_FILE_NAME } from './getPassphrase'
 import { getProjectRoot } from './getProjectRoot'
 
 const getGitIgnorePath = async () =>
@@ -10,6 +10,15 @@ const getGitIgnorePath = async () =>
 const GITENVS_IGNORE_PATTERN = PASSPHRASE_FILE_NAME
 
 export const updateGitIgnore = async () => {
+  await addToGitIgnore(GITENVS_IGNORE_PATTERN)
+}
+
+// backups contain old passphrases and must never be committed
+export const addBackupDirToGitIgnore = async () => {
+  await addToGitIgnore(`${BACKUP_DIR_NAME}/`)
+}
+
+const addToGitIgnore = async (pattern: string) => {
   const currentIgnore = await readFile(await getGitIgnorePath(), 'utf-8').catch(
     (error: unknown) => {
       const errorObject = z.object({ code: z.string() }).parse(error)
@@ -20,13 +29,13 @@ export const updateGitIgnore = async () => {
     },
   )
 
-  if (currentIgnore.includes(GITENVS_IGNORE_PATTERN)) {
+  if (currentIgnore.includes(pattern)) {
     return
   }
 
   await writeFile(
     await getGitIgnorePath(),
-    `${currentIgnore ? `${currentIgnore}\n\n` : ''}# gitenvs\n${GITENVS_IGNORE_PATTERN}`,
+    `${currentIgnore ? `${currentIgnore}\n\n` : ''}# gitenvs\n${pattern}`,
   )
 }
 

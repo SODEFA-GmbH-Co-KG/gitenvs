@@ -122,6 +122,14 @@ A UI is automatically opened in your browser. Run through the wizard to set up g
 - `gitenvs status` – print a secret-safe status summary. Add `--json` for machine-readable output.
 - `gitenvs doctor` – validate the local setup and exit non-zero if it finds issues. Add `--json` for machine-readable output.
 - `gitenvs passphrases validate` – validate `gitenvs.passphrases.json` without printing passphrase values. Add `--json` for machine-readable output.
+- `gitenvs passphrases reroll --yes` – create new passphrases and re-encrypt all values without printing secrets. If any value cannot be re-encrypted (e.g. wrong passphrase), nothing is changed. Also available in the UI under Setup → Reroll Passphrases, where missing old passphrases can be entered in the browser.
+  - optional parameters:
+    - `--stages <stages>` – comma-separated stage names to reroll. Default: all stages
+    - `--passphrase-source <file|env>` – which old passphrase to use if `gitenvs.passphrases.json` and `GITENVS_PASSPHRASE_<STAGE>` are both set but differ. Without it the reroll stops and asks.
+    - `--dry-run` – check that the reroll would work (passphrases present and correct, every value can be re-encrypted, files writable) without changing anything. Does not need `--yes`.
+    - `--json` – print machine-readable JSON (stages, backup path, `GITENVS_PASSPHRASE_<STAGE>` env var names to update)
+  - the new passphrases are written to `gitenvs.passphrases.json`; the old `gitenvs.json` and passphrases are backed up to `gitenvs.backups/<timestamp>/` (added to `.gitignore`). Delete the backup once the new passphrases are deployed.
+  - old passphrases can still decrypt `gitenvs.json` from git history. If a passphrase leaked, rotate the secrets themselves as well.
 - `gitenvs ci env --stage <stage>` – print the CI env var names needed to run `gitenvs create` for a stage without printing any secrets. Add `--json` for machine-readable output.
 
 ### Agent and provider integrations
