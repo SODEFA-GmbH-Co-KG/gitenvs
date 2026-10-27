@@ -53,8 +53,10 @@ const canConnectToHost = (port: number, host: (typeof LOOPBACK_HOSTS)[number]) =
       finish(() => {
         socket.destroy()
 
+        // EAFNOSUPPORT: the system has no IPv6, so nothing can listen on ::1
         if (
           error.code === 'ECONNREFUSED' ||
+          error.code === 'EAFNOSUPPORT' ||
           error.code === 'EHOSTUNREACH' ||
           error.code === 'ENETUNREACH' ||
           error.code === 'EADDRNOTAVAIL' ||
