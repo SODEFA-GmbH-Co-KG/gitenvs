@@ -1,4 +1,5 @@
-import { BACKUP_DIR_NAME } from '@/gitenvs/getPassphrase'
+import { BACKUP_DIR_NAME, PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
+import { getGitenvs } from '@/gitenvs/gitenvs'
 import { rerollPassphrases } from '@/gitenvs/rerollPassphrases'
 import { z } from 'zod'
 
@@ -6,6 +7,7 @@ export const passphrasesRerollCommandSchema = z.object({
   stages: z.string().optional(),
   yes: z.boolean().default(false),
   dryRun: z.boolean().default(false),
+  passphraseSource: z.enum(['file', 'env']).optional(),
   json: z.boolean().default(false),
 })
 
@@ -38,9 +40,19 @@ export const passphrasesRerollCommand = async (
 
   let result: Awaited<ReturnType<typeof rerollPassphrases>>
   try {
+    const stageNames = parseStageNames(options.stages)
+    const passphraseSource = options.passphraseSource
     result = await rerollPassphrases({
-      stageNames: parseStageNames(options.stages),
+      stageNames,
       dryRun: options.dryRun,
+      passphraseSources: passphraseSource
+        ? Object.fromEntries(
+            (stageNames?.length
+              ? stageNames
+              : (await getGitenvs()).envStages.map((s) => s.name)
+            ).map((stageName) => [stageName, passphraseSource]),
+          )
+        : undefined,
     })
   } catch (error) {
     return fail(error instanceof Error ? error.message : String(error))
@@ -49,8 +61,11 @@ export const passphrasesRerollCommand = async (
   const warnings = [
     ...result.staleEnvNames.map(
       (name) =>
-        `${name} is set in the current environment and ${result.dryRun ? 'would still hold' : 'still holds'} the old passphrase`,
+        `${name} is set in the current environment and ${result.dryRun ? 'would still hold' : 'still holds'} the old passphrase – update or unset it`,
     ),
+    result.dryRun
+      ? null
+      : `The new passphrases are only saved on disk in ${PASSPHRASE_FILE_NAME} – store them in your password manager and update the env vars above`,
     result.dryRun
       ? null
       : `${BACKUP_DIR_NAME}/ contains the old passphrases – delete it once the new passphrases are deployed`,

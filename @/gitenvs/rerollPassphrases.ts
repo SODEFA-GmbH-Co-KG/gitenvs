@@ -1,17 +1,13 @@
 import { constants } from 'fs'
 import { access, mkdir, readFile, rename, writeFile } from 'fs/promises'
-import { dirname, join } from 'path'
+import { basename, dirname, join } from 'path'
 import { createKeys } from './createKeys'
 import { decryptEnvVar } from './decryptEnvVar'
 import { encryptEnvVar } from './encryptEnvVar'
 import { getPassphraseEnvName } from './env'
 import { getCwd } from './getCwd'
 import { getProjectRoot } from './getProjectRoot'
-import {
-  BACKUP_DIR_NAME,
-  PASSPHRASE_FILE_NAME,
-  getPassphrase,
-} from './getPassphrase'
+import { BACKUP_DIR_NAME, PASSPHRASE_FILE_NAME } from './getPassphrase'
 import {
   checkGitenvsJsonExists,
   getGitenvs,
@@ -36,6 +32,7 @@ export const rerollStages = async ({
   passphrases: Passphrase[]
   stageNames: string[]
 }) => {
+  stageNames = [...new Set(stageNames)]
   if (stageNames.length === 0) {
     throw new Error('No stages to reroll.')
   }
@@ -161,10 +158,55 @@ const assertWritable = async (paths: string[]) => {
   }
 }
 
-const writeFileAtomic = async (path: string, content: string) => {
-  const tmpPath = `${path}.tmp`
+// the tmp file lives in the (ignored) backup dir so a crash never leaves
+// secrets in a file that could be committed
+const writeFileAtomic = async (
+  path: string,
+  content: string,
+  tmpDir: string,
+) => {
+  const tmpPath = join(tmpDir, `${basename(path)}.tmp`)
   await writeFile(tmpPath, content, { encoding: 'utf-8', mode: 0o600 })
   await rename(tmpPath, path)
+}
+
+export type PassphraseSource = 'file' | 'env'
+
+const getPassphraseSources = async () => {
+  const passphrasePath = join(getCwd(), PASSPHRASE_FILE_NAME)
+  const passphraseFile = await readPassphraseFile(passphrasePath)
+  return {
+    passphrasePath,
+    passphraseFile,
+    fromFile: (stageName: string) =>
+      passphraseFile?.find((p) => p.stageName === stageName)?.passphrase ||
+      undefined,
+    fromEnv: (stageName: string) =>
+      process.env[getPassphraseEnvName({ stage: stageName })] || undefined,
+  }
+}
+
+/**
+ * Secret-free overview where the passphrase of each stage would come from.
+ */
+export const getRerollStatus = async () => {
+  const gitenvs = await getGitenvs()
+  const { fromFile, fromEnv } = await getPassphraseSources()
+
+  return gitenvs.envStages.map((stage) => {
+    const file = fromFile(stage.name)
+    const env = fromEnv(stage.name)
+    return {
+      stageName: stage.name,
+      envName: getPassphraseEnvName({ stage: stage.name }),
+      inFile: !!file,
+      inEnv: !!env,
+      conflict: !!file && !!env && file !== env,
+      encryptedValues: gitenvs.envVars.filter(
+        (v) => v.values[stage.name]?.encrypted,
+      ).length,
+    }
+  })
 }
 
 /**
@@ -172,14 +214,23 @@ const writeFileAtomic = async (path: string, content: string) => {
  * gitenvs project. Old gitenvs.json and passphrases are backed up to
  * gitenvs.backups/<timestamp>/ before anything is overwritten.
  *
+ * Old passphrases are taken from `passphrases` (e.g. entered in the browser),
+ * otherwise from gitenvs.passphrases.json or GITENVS_PASSPHRASE_<STAGE>. If
+ * both are set with different values, `passphraseSources` has to say which
+ * one to use.
+ *
  * With dryRun everything is checked and re-encrypted in memory, but nothing
  * is written.
  */
 export const rerollPassphrases = async ({
   stageNames: requestedStageNames,
+  passphrases = [],
+  passphraseSources = {},
   dryRun = false,
 }: {
   stageNames?: string[]
+  passphrases?: Passphrase[]
+  passphraseSources?: Partial<Record<string, PassphraseSource>>
   dryRun?: boolean
 } = {}) => {
   const cwd = getCwd()
@@ -195,15 +246,41 @@ export const rerollPassphrases = async ({
 
   const gitenvs = await getGitenvs()
   const stageNames = requestedStageNames?.length
-    ? requestedStageNames
+    ? [...new Set(requestedStageNames)]
     : gitenvs.envStages.map((s) => s.name)
 
-  const passphrasePath = join(cwd, PASSPHRASE_FILE_NAME)
-  const passphraseFile = await readPassphraseFile(passphrasePath)
+  const { passphrasePath, passphraseFile, fromFile, fromEnv } =
+    await getPassphraseSources()
 
   const oldPassphrases: Passphrase[] = []
   for (const stageName of stageNames) {
-    const passphrase = await getPassphrase({ stage: stageName, passphrasePath })
+    const explicit = passphrases.find(
+      (p) => p.stageName === stageName,
+    )?.passphrase
+    const file = fromFile(stageName)
+    const env = fromEnv(stageName)
+    const source = passphraseSources[stageName]
+
+    let passphrase: string | undefined
+    if (explicit) {
+      passphrase = explicit
+    } else if (source) {
+      passphrase = source === 'file' ? file : env
+      if (!passphrase) {
+        throw new Error(
+          source === 'file'
+            ? `No passphrase for stage ${stageName} in ${PASSPHRASE_FILE_NAME}.`
+            : `${getPassphraseEnvName({ stage: stageName })} is not set.`,
+        )
+      }
+    } else if (file && env && file !== env) {
+      throw new Error(
+        `The passphrase for stage ${stageName} differs between ${PASSPHRASE_FILE_NAME} and ${getPassphraseEnvName({ stage: stageName })}. Choose which one to use (CLI: --passphrase-source file|env).`,
+      )
+    } else {
+      passphrase = file ?? env
+    }
+
     if (passphrase) oldPassphrases.push({ stageName, passphrase })
   }
 
@@ -235,14 +312,14 @@ export const rerollPassphrases = async ({
   }
 
   if (dryRun) {
-    return { ...summary, backupDir: null }
+    return { ...summary, backupDir: null, newPassphrases: [] as Passphrase[] }
   }
 
   // backup before overwriting anything
   const backupDir = join(
     cwd,
     BACKUP_DIR_NAME,
-    new Date().toISOString().replace(/[:.]/g, '-'),
+    `${new Date().toISOString().replace(/[:.]/g, '-')}-${Math.random().toString(36).slice(2, 8)}`,
   )
   await addBackupDirToGitIgnore()
   await mkdir(backupDir, { recursive: true, mode: 0o700 })
@@ -266,13 +343,20 @@ export const rerollPassphrases = async ({
     ),
   ]
 
-  // passphrases first: if writing gitenvs.json fails, the backup still has
-  // the old passphrases that match the old gitenvs.json
-  await writeFileAtomic(
-    passphrasePath,
-    JSON.stringify(newPassphraseFile, null, 2),
-  )
-  await saveGitenvs(result.gitenvs)
+  try {
+    // passphrases first: if writing gitenvs.json fails, the backup still has
+    // the old passphrases that match the old gitenvs.json
+    await writeFileAtomic(
+      passphrasePath,
+      JSON.stringify(newPassphraseFile, null, 2),
+      backupDir,
+    )
+    await saveGitenvs(result.gitenvs)
+  } catch (error) {
+    throw new Error(
+      `Reroll failed while writing files: ${error instanceof Error ? error.message : String(error)}. Restore gitenvs.json and ${PASSPHRASE_FILE_NAME} from ${backupDir} before trying again.`,
+    )
+  }
 
-  return { ...summary, backupDir }
+  return { ...summary, backupDir, newPassphrases: result.passphrases }
 }

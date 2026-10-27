@@ -265,6 +265,10 @@ passphrases
   )
   .option('--yes', 'Confirm the reroll (required unless --dry-run)')
   .option('--dry-run', 'Check that the reroll would work without writing')
+  .option(
+    '--passphrase-source <source>',
+    'file or env: which old passphrase to use if both are set but differ',
+  )
   .option('--json', 'Print machine-readable JSON')
   .action(async (options) => {
     await checkGitenvsVersion()

@@ -8,12 +8,14 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { afterEach, expect, test, vi } from 'vitest'
+import { rerollPassphrases } from '@/gitenvs/rerollPassphrases'
 import { passphrasesRerollCommand } from './rerollCommand'
 
 let testDir: string | undefined
 
 afterEach(async () => {
   delete process.env[GITENVS_DIR_ENV_NAME]
+  delete process.env.GITENVS_PASSPHRASE_PRODUCTION
   process.exitCode = undefined
   vi.restoreAllMocks()
 
@@ -309,4 +311,134 @@ test('dry run fails if a passphrase is missing', async () => {
   }
   expect(result.ok).toBe(false)
   expect(result.error).toContain('No passphrase found for stage production')
+})
+
+const getJsonOutput = (consoleLog: { mock: { calls: unknown[][] } }) =>
+  JSON.parse(
+    consoleLog.mock.calls.map((call) => call.join(' ')).join('\n'),
+  ) as {
+    ok: boolean
+    error?: string
+    stages?: string[]
+    warnings?: string[]
+  }
+
+test('asks which passphrase to use if file and env var differ', async () => {
+  const old = await setupProject()
+  process.env.GITENVS_PASSPHRASE_PRODUCTION = (await createKeys()).passphrase
+  const before = await readProject(old.testDir)
+  const consoleLog = vi
+    .spyOn(console, 'log')
+    .mockImplementation(() => undefined)
+
+  await passphrasesRerollCommand({ yes: true, dryRun: false, json: true })
+
+  expect(process.exitCode).toBe(1)
+  const result = getJsonOutput(consoleLog)
+  expect(result.error).toContain('differs between')
+  expect(result.error).toContain('--passphrase-source')
+  expect(await readProject(old.testDir)).toEqual(before)
+})
+
+test('uses the chosen passphrase source', async () => {
+  const old = await setupProject()
+  // env holds the correct passphrase, the file a wrong one
+  process.env.GITENVS_PASSPHRASE_PRODUCTION = old.passphrases[1]!.passphrase
+  await writeFile(
+    join(old.testDir, PASSPHRASE_FILE_NAME),
+    JSON.stringify(
+      [
+        old.passphrases[0],
+        {
+          stageName: 'production',
+          passphrase: (await createKeys()).passphrase,
+        },
+      ],
+      null,
+      2,
+    ),
+  )
+  const consoleLog = vi
+    .spyOn(console, 'log')
+    .mockImplementation(() => undefined)
+  vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+  await passphrasesRerollCommand({
+    stages: 'production',
+    yes: true,
+    dryRun: true,
+    passphraseSource: 'file',
+    json: true,
+  })
+  expect(process.exitCode).toBe(1)
+  expect(getJsonOutput(consoleLog).error).toContain('Could not decrypt')
+
+  process.exitCode = undefined
+  consoleLog.mockClear()
+
+  await passphrasesRerollCommand({
+    stages: 'production',
+    yes: true,
+    dryRun: false,
+    passphraseSource: 'env',
+    json: true,
+  })
+  expect(process.exitCode).toBeUndefined()
+  const result = getJsonOutput(consoleLog)
+  expect(result.ok).toBe(true)
+  expect(result.warnings?.join('\n')).toContain(
+    'GITENVS_PASSPHRASE_PRODUCTION is set in the current environment',
+  )
+
+  const current = await readProject(old.testDir)
+  expect(
+    await decryptValue({ ...current, key: 'API_KEY', stageName: 'production' }),
+  ).toBe('prod-secret')
+})
+
+test('accepts duplicate stage names', async () => {
+  const old = await setupProject()
+  const consoleLog = vi
+    .spyOn(console, 'log')
+    .mockImplementation(() => undefined)
+
+  await passphrasesRerollCommand({
+    stages: 'production,production',
+    yes: true,
+    dryRun: false,
+    json: true,
+  })
+
+  expect(process.exitCode).toBeUndefined()
+  expect(getJsonOutput(consoleLog).stages).toEqual(['production'])
+  const current = await readProject(old.testDir)
+  expect(current.passphrases).toHaveLength(2)
+  expect(
+    await decryptValue({ ...current, key: 'API_KEY', stageName: 'production' }),
+  ).toBe('prod-secret')
+  expect(await readdir(old.testDir)).not.toContain(
+    `${PASSPHRASE_FILE_NAME}.tmp`,
+  )
+})
+
+test('uses passphrases passed in directly (e.g. entered in the browser)', async () => {
+  const old = await setupProject()
+  await writeFile(
+    join(old.testDir, PASSPHRASE_FILE_NAME),
+    JSON.stringify([old.passphrases[0]], null, 2),
+  )
+
+  const result = await rerollPassphrases({
+    passphrases: [old.passphrases[1]!],
+  })
+
+  expect(result.stages).toEqual(['development', 'production'])
+  const current = await readProject(old.testDir)
+  expect(current.passphrases.map((p) => p.stageName)).toEqual([
+    'development',
+    'production',
+  ])
+  expect(
+    await decryptValue({ ...current, key: 'API_KEY', stageName: 'production' }),
+  ).toBe('prod-secret')
 })

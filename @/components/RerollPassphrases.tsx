@@ -1,42 +1,27 @@
-import { BACKUP_DIR_NAME } from '@/gitenvs/getPassphrase'
-import { getGitenvs } from '@/gitenvs/gitenvs'
-import { rerollPassphrases } from '@/gitenvs/rerollPassphrases'
-import { ArrowLeft, SearchCheck, TriangleAlert } from 'lucide-react'
+import { getPassphraseEnvName } from '@/gitenvs/env'
+import { BACKUP_DIR_NAME, PASSPHRASE_FILE_NAME } from '@/gitenvs/getPassphrase'
+import { getRerollStatus, rerollPassphrases } from '@/gitenvs/rerollPassphrases'
+import { TriangleAlert } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import {
   streamToast,
   superAction,
 } from '~/super-action/action/createSuperAction'
-import { ActionButton } from '~/super-action/button/ActionButton'
+import { decryptWithEncryptionKey } from '~/utils/encryptionToken'
+import { getEncryptionKeyOnServer } from '~/utils/getEncryptionKeyOnServer'
+import {
+  RerollPassphrasesForm,
+  type RerollInput,
+} from './RerollPassphrasesForm'
 import { Alert, AlertDescription, AlertTitle } from './ui/alert'
-import { Button } from './ui/button'
-
-const rerollAction = (stageNames?: string[]) =>
-  superAction(async () => {
-    await rerollPassphrases({ stageNames })
-    revalidatePath('/', 'layout')
-    redirect('/setup/save?rerolled=1')
-  })
-
-const dryRunAction = () =>
-  superAction(async () => {
-    const result = await rerollPassphrases({ dryRun: true })
-    streamToast({
-      title: 'Dry run passed ✅',
-      description: `Rerolling ${result.stages.join(', ')} would re-encrypt ${result.reencryptedValues} values. Nothing was changed.`,
-    })
-  })
 
 export const RerollPassphrases = async () => {
-  const gitenvs = await getGitenvs()
+  const stages = await getRerollStatus()
 
   return (
-    <div className="flex max-w-lg flex-col gap-8">
-      <h1 className="text-center text-2xl">
-        Are you sure you want to reroll your passphrases?
-      </h1>
+    <div className="flex max-w-2xl flex-col gap-8">
+      <h1 className="text-center text-2xl">Reroll your passphrases</h1>
       <Alert variant={'destructive'}>
         <AlertTitle className="flex items-center gap-2">
           <TriangleAlert />
@@ -46,7 +31,7 @@ export const RerollPassphrases = async () => {
           <p>
             This generates new passphrases for the selected stages and
             re-encrypts all their env vars. If any value cannot be re-encrypted,
-            nothing is changed.
+            nothing is changed. Use the dry run to check first.
           </p>
           <p>
             Afterwards you have to replace the passphrases everywhere they are
@@ -67,47 +52,56 @@ export const RerollPassphrases = async () => {
           </p>
         </AlertDescription>
       </Alert>
-      <div className="flex flex-col gap-2">
-        <ActionButton
-          variant={'outline'}
-          action={async () => {
-            'use server'
-            return dryRunAction()
-          }}
-        >
-          <SearchCheck className="size-4" />
-          Check first (dry run)
-        </ActionButton>
-        <ActionButton
-          action={async () => {
-            'use server'
-            return rerollAction()
-          }}
-        >
-          Yes! Reroll all stages
-        </ActionButton>
-        <div className="flex flex-wrap gap-2">
-          {gitenvs.envStages.map((stage) => (
-            <ActionButton
-              key={stage.name}
-              variant={'outline'}
-              className="flex-1"
-              action={async () => {
-                'use server'
-                return rerollAction([stage.name])
-              }}
-            >
-              Only {stage.name}
-            </ActionButton>
-          ))}
-        </div>
-      </div>
-      <Link href="/">
-        <Button variant={'outline'} className="w-full">
-          <ArrowLeft />
-          Nope! Nevermind
-        </Button>
-      </Link>
+      <RerollPassphrasesForm
+        stages={stages}
+        passphraseFileName={PASSPHRASE_FILE_NAME}
+        action={async (input: RerollInput) => {
+          'use server'
+          return superAction(async () => {
+            const key = await getEncryptionKeyOnServer()
+            const passphrases = await Promise.all(
+              input.encryptedPassphrases.map(async (p) => ({
+                stageName: p.stageName,
+                passphrase: await decryptWithEncryptionKey({
+                  ...p.encryptedPassphrase,
+                  key,
+                }),
+              })),
+            )
+
+            const result = await rerollPassphrases({
+              stageNames: input.stageNames,
+              passphrases,
+              passphraseSources: input.passphraseSources,
+              dryRun: input.dryRun,
+            })
+
+            if (result.dryRun) {
+              streamToast({
+                title: 'Dry run passed ✅',
+                description: `Rerolling ${result.stages.join(', ')} would re-encrypt ${result.reencryptedValues} ${result.reencryptedValues === 1 ? 'value' : 'values'}. Nothing was changed.`,
+              })
+              return
+            }
+
+            // env vars take precedence over the passphrase file, so the UI
+            // would keep showing the old passphrases
+            for (const p of result.newPassphrases) {
+              const envName = getPassphraseEnvName({ stage: p.stageName })
+              if (process.env[envName]) process.env[envName] = p.passphrase
+            }
+
+            revalidatePath('/', 'layout')
+            const params = new URLSearchParams({
+              rerolled: result.stages.join(','),
+            })
+            if (result.staleEnvNames.length) {
+              params.set('staleEnv', result.staleEnvNames.join(','))
+            }
+            redirect(`/setup/save?${params.toString()}`)
+          })
+        }}
+      />
     </div>
   )
 }
