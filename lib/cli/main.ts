@@ -46,6 +46,9 @@ const getGitenvsUiEnvVars = async () => {
     GITENVS_DIR: getCwd(),
     GITENVS_ENCRYPTION_TOKEN: randomBytes(32).toString('hex'),
     PORT: String(port),
+    // Next.js binds to $HOSTNAME, which shells in containers set to the
+    // machine name. Only listen locally: the UI handles secrets.
+    HOSTNAME: '127.0.0.1',
   }
 }
 
