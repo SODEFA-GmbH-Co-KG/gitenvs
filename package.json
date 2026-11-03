@@ -46,11 +46,13 @@
   },
   "dependencies": {
     "@antfu/install-pkg": "^0.4.1",
+    "@jitl/quickjs-wasmfile-release-sync": "^0.32.0",
     "@vercel/sdk": "14.0.0-canary.3",
     "arrowtab": "^0.0.5",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
     "lodash-es": "^4.17.21",
+    "quickjs-emscripten-core": "^0.32.0",
     "uint8array-extras": "^0.5.0",
     "zod": "^3.22.4"
   },

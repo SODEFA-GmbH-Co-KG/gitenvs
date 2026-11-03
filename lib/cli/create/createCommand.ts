@@ -73,5 +73,15 @@ export const createCommand = async (
     return writeFile(join(getCwd(), envFile.filePath), fileContent, 'utf-8')
   })
 
-  await Promise.allSettled(filePromises)
+  const results = await Promise.allSettled(filePromises)
+
+  const errors = results.flatMap((result) =>
+    result.status === 'rejected' ? [result.reason as unknown] : [],
+  )
+  if (errors.length) {
+    errors.forEach((error) =>
+      console.error(error instanceof Error ? error.message : error),
+    )
+    process.exit(1)
+  }
 }

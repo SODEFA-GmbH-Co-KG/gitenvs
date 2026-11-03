@@ -5,6 +5,7 @@ import {
   type EnvVar,
   type Gitenvs,
 } from '@/gitenvs/gitenvs.schema'
+import { evaluateFunction } from './evaluateFunction'
 
 export const getFileContent = async ({
   gitenvs,
@@ -57,24 +58,27 @@ const resolveEnvVar = async ({
   let value = config?.value ?? ''
 
   if (config.encrypted) {
-    value =
-      (await decryptEnvVar({
-        encrypted: value,
-        encryptedPrivateKey: envStage.encryptedPrivateKey,
-        passphrase,
-      })) ?? ''
+    const plaintext = await decryptEnvVar({
+      encrypted: value,
+      encryptedPrivateKey: envStage.encryptedPrivateKey,
+      passphrase,
+    })
+    if (plaintext === undefined) {
+      throw new Error(
+        `❌ Gitenvs: Could not decrypt "${envVar.key}" for stage ${envStage.name}. Is the passphrase correct?`,
+      )
+    }
+    value = plaintext
   }
 
   if (config.isFunction) {
     try {
-      value = eval(value) // TODO: More secure way to evaluate functions
-      if (typeof value !== 'string') {
-        value = String(value)
-      }
+      value = await evaluateFunction({ code: value })
     } catch (error) {
-      console.error(`❌ Gitenvs: Error evaluating function "${envVar.key}"`)
-      console.error(error)
-      process.exit(1)
+      throw new Error(
+        `❌ Gitenvs: Error evaluating function "${envVar.key}": ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error },
+      )
     }
   }
 
@@ -110,25 +114,63 @@ const getDotenvLine = ({ key, value }: { key: string; value: string }) => {
   return `${key}=${wrapWith}${value}${wrapWith}`
 }
 
+// Modules are strict mode code, so strict mode reserved words are not allowed either
+const RESERVED_WORDS = new Set([
+  'await',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'implements',
+  'import',
+  'in',
+  'instanceof',
+  'interface',
+  'let',
+  'new',
+  'null',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'return',
+  'static',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
+  'yield',
+])
+
 const getTsLine = ({ key, value }: { key: string; value: string }) => {
-  const includesDoubleQuote = value.includes('"')
-  const includesSingleQuote = value.includes("'")
-  const includesBacktick = value.includes('`')
-
-  let wrapWith = "'"
-
-  if (includesSingleQuote && includesDoubleQuote && includesBacktick) {
+  if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key) || RESERVED_WORDS.has(key)) {
     throw new Error(
-      `❌ Gitenvs: "${key}" includes all string encasing characters. This is not supported and will result in unexpected values.`,
+      `❌ Gitenvs: "${key}" is not a valid JavaScript identifier and cannot be exported from a .ts file.`,
     )
   }
-  if (includesSingleQuote) {
-    if (!includesBacktick) {
-      wrapWith = '`'
-    } else {
-      wrapWith = '"'
-    }
-  }
 
-  return `export const ${key} = process.env.${key} ?? ${wrapWith}${value}${wrapWith}`
+  // JSON.stringify creates a valid string literal with all special characters escaped
+  return `export const ${key} = process.env.${key} ?? ${JSON.stringify(value)}`
 }
