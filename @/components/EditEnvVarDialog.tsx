@@ -24,6 +24,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { saveGitenvs } from '~/lib/gitenvs'
 import { stageEncryptionStateAtom } from './AtomifyPassphrase'
 import { KeyShortcut } from './KeyShortcut'
+import { SaveEncryptedButton } from './SaveEncryptedButton'
 import { Label } from './ui/label'
 import { Switch } from './ui/switch'
 
@@ -138,6 +139,7 @@ export const EditEnvVarDialog = NiceModal.create(
     const evaledValue = useMemo(() => {
       if (!isFunction) return null
       try {
+        // Preview of the user's own input, see resolveEnvVar in getFileContent.ts
         const evaled = eval(plaintext) as string
         return evaled?.toString() ?? 'undefined'
       } catch (error) {
@@ -185,6 +187,7 @@ export const EditEnvVarDialog = NiceModal.create(
                     if (event.shiftKey) {
                       return savePlain()
                     }
+                    if (isFunction) return
                     return saveEncrypted()
                   }
                 }}
@@ -243,16 +246,12 @@ export const EditEnvVarDialog = NiceModal.create(
                 <KeyShortcut>Enter</KeyShortcut>
               </div>
             </Button>
-            <Button
-              type="button"
+            <SaveEncryptedButton
+              isFunction={isFunction}
               onClick={async () => {
                 await saveEncrypted()
               }}
-              className="flex flex-row gap-2"
-            >
-              <span>Save encrypted</span>
-              <KeyShortcut>Enter</KeyShortcut>
-            </Button>
+            />
           </div>
         </DialogContent>
       </Dialog>

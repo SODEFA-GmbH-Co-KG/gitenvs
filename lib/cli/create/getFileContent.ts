@@ -5,7 +5,6 @@ import {
   type EnvVar,
   type Gitenvs,
 } from '@/gitenvs/gitenvs.schema'
-import { evaluateFunction } from './evaluateFunction'
 
 export const getFileContent = async ({
   gitenvs,
@@ -55,6 +54,12 @@ const resolveEnvVar = async ({
 
   if (!config) return { key: envVar.key, value: '' }
 
+  if (config.isFunction && config.encrypted) {
+    throw new Error(
+      `❌ Gitenvs: "${envVar.key}" is an encrypted function for stage ${envStage.name}. Functions must be saved plain so their code stays visible in code review.`,
+    )
+  }
+
   let value = config?.value ?? ''
 
   if (config.encrypted) {
@@ -73,7 +78,15 @@ const resolveEnvVar = async ({
 
   if (config.isFunction) {
     try {
-      value = await evaluateFunction({ code: value })
+      // `eval` is intentional and not less secure than any other code in the
+      // repo: function values are code that the repo's developers commit to
+      // gitenvs.json, comparable to a postinstall script or next.config.js.
+      // They can't be encrypted (see above), so the code is always visible in
+      // code review and to scanners. It runs with the same rights as the rest
+      // of the build, e.g. to read `process.env.VERCEL_URL`.
+      // Indirect eval runs in the global scope, so the code can't access local
+      // variables like the passphrase.
+      value = String((0, eval)(value))
     } catch (error) {
       throw new Error(
         `❌ Gitenvs: Error evaluating function "${envVar.key}": ${error instanceof Error ? error.message : String(error)}`,
