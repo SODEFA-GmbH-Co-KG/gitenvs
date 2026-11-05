@@ -19,6 +19,8 @@ export const EncryptionTokenSideEffect = () => {
       const encryptionToken = hashParams.get('token')
       if (encryptionToken) {
         setEncryptionToken(encryptionToken)
+        // Keep the token out of the address bar and browser history
+        history.replaceState(null, '', location.pathname + location.search)
       }
     }
     onHashChange()
