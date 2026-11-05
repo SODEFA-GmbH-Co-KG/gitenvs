@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/SODEFA-GmbH-Co-KG/gitenvs"
+    "url": "https://github.com/sean-nicholas/gitenvs"
   },
   "scripts": {
     "build": "pnpm build-lib && pnpm build-ui",
