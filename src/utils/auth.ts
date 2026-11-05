@@ -6,10 +6,12 @@ export const AUTH_PATH = '/auth'
 // different ports need different cookie names.
 export const getSessionCookieName = (port: string) => `gitenvs_session_${port}`
 
+const LOOPBACK_HOSTNAMES = ['localhost', '127.0.0.1', '[::1]']
+
 export const getAllowedHosts = (port: string) => [
-  `localhost:${port}`,
-  `127.0.0.1:${port}`,
-  `[::1]:${port}`,
+  ...LOOPBACK_HOSTNAMES.map((hostname) => `${hostname}:${port}`),
+  // Browsers omit the default port from the Host header
+  ...(port === '80' ? LOOPBACK_HOSTNAMES : []),
 ]
 
 export const timingSafeEqual = (a: string, b: string) => {

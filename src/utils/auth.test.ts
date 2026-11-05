@@ -44,6 +44,20 @@ describe('getAuthDecision', () => {
     }
   })
 
+  it('accepts portless hosts only on port 80', () => {
+    expect(
+      getAuthDecision({
+        ...base,
+        port: '80',
+        host: 'localhost',
+        cookieToken: token,
+      }),
+    ).toEqual({ type: 'allow' })
+    expect(
+      getAuthDecision({ ...base, host: 'localhost', cookieToken: token }),
+    ).toMatchObject({ type: 'reject', status: 403 })
+  })
+
   it('logs in on /auth with the right token', () => {
     expect(
       getAuthDecision({ ...base, pathname: '/auth', queryToken: token }),
