@@ -1,7 +1,7 @@
 import { createKeys } from '@/gitenvs/createKeys'
 import { encryptEnvVar } from '@/gitenvs/encryptEnvVar'
-import { type Gitenvs } from '@/gitenvs/gitenvs.schema'
-import { expect, test } from 'vitest'
+import { type EnvFile, type Gitenvs } from '@/gitenvs/gitenvs.schema'
+import { expect, test, vi } from 'vitest'
 import { getFileContent } from './getFileContent'
 
 const getTestdata = async () => {
@@ -214,10 +214,10 @@ test('.ts file content', async () => {
       passphrase: developmentPassphrase,
     }),
   ).toBe(
-    `export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://localhost:5432/mydatabase'
-export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? '238423498842850'
-export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'true'
-export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? 'secretDevelopment'`,
+    `export const DATABASE_URL = process.env.DATABASE_URL ?? "postgres://localhost:5432/mydatabase"
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? "238423498842850"
+export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? "true"
+export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? "secretDevelopment"`,
   )
 
   expect(
@@ -228,10 +228,10 @@ export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? 'secretDevelopment
       passphrase: stagingPassphrase,
     }),
   ).toBe(
-    `export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://staging:5432/mydatabase'
-export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? '238423498842850'
-export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'
-export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? 'secretStaging'`,
+    `export const DATABASE_URL = process.env.DATABASE_URL ?? "postgres://staging:5432/mydatabase"
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? "238423498842850"
+export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? "false"
+export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? "secretStaging"`,
   )
 
   expect(
@@ -242,10 +242,10 @@ export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? 'secretStaging'`,
       passphrase: productionPassphrase,
     }),
   ).toBe(
-    `export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://production:5432/mydatabase'
-export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? '238423498842850'
-export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? 'false'
-export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? 'secretProduction'`,
+    `export const DATABASE_URL = process.env.DATABASE_URL ?? "postgres://production:5432/mydatabase"
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? "238423498842850"
+export const ENABLE_SUPER_FEATURE = process.env.ENABLE_SUPER_FEATURE ?? "false"
+export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? "secretProduction"`,
   )
 })
 
@@ -407,114 +407,193 @@ test('dotenv: shell-sensitive characters are quoted safely', async () => {
   ).rejects.toThrow(/both dotenv-parser compatible and shell-sourceable/i)
 })
 
+const getDevelopmentFileContent = async ({
+  envFile,
+  key,
+  value,
+  encrypted = false,
+  isFunction = false,
+}: {
+  envFile: EnvFile
+  key: string
+  value: string
+  encrypted?: boolean
+  isFunction?: boolean
+}) => {
+  const gitenvsToTest: Gitenvs = structuredClone(gitenvs)
+  gitenvsToTest.envVars = [
+    {
+      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
+      fileIds: [envFile.id],
+      key,
+      values: {
+        development: { value, encrypted, isFunction },
+        staging: { value: '', encrypted: false },
+        production: { value: '', encrypted: false },
+      },
+    },
+  ]
+  return getFileContent({
+    gitenvs: gitenvsToTest,
+    envFile,
+    envStage: developmentStage,
+    passphrase: developmentPassphrase,
+  })
+}
+
+// Evaluates the generated .ts code and returns the exported value
+const evaluateTsLine = ({ code, key }: { code: string; key: string }) =>
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
+  new Function('process', `${code.replace(/^export /, '')}; return ${key}`)({
+    env: {},
+  }) as unknown
+
 test('.ts: quoting', async () => {
-  let gitenvsToTest = structuredClone(gitenvs)
-  gitenvsToTest.envVars = [
-    {
-      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
-      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
-      key: 'QUOTES',
-      values: {
-        development: { value: '"hello world"', encrypted: false },
-        staging: { value: '', encrypted: false },
-        production: { value: '', encrypted: false },
-      },
-    },
+  const values = [
+    '"hello world"',
+    "'hello world'",
+    "'hello world`o'",
+    '"hell\'o world`o"',
+    "can't ${process.exit(1)} `${1 + 1}`",
+    'back\\slash \\n \\u0041 \\${x}',
+    'line\nbreak\r\n\ttab',
+    'unicode \u2028 \u2029 ä 🔒',
+    '',
   ]
-  expect(
-    await getFileContent({
-      gitenvs: gitenvsToTest,
-      envFile: tsEnvFile,
-      envStage: developmentStage,
-      passphrase: developmentPassphrase,
-    }),
-  ).toBe(`export const QUOTES = process.env.QUOTES ?? '"hello world"'`)
 
-  gitenvsToTest = structuredClone(gitenvs)
-  gitenvsToTest.envVars = [
-    {
-      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
-      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
-      key: 'QUOTES',
-      values: {
-        development: { value: "'hello world'", encrypted: false },
-        staging: { value: '', encrypted: false },
-        production: { value: '', encrypted: false },
-      },
-    },
-  ]
-  expect(
-    await getFileContent({
-      gitenvs: gitenvsToTest,
+  for (const value of values) {
+    const code = await getDevelopmentFileContent({
       envFile: tsEnvFile,
-      envStage: developmentStage,
-      passphrase: developmentPassphrase,
-    }),
-  ).toBe(`export const QUOTES = process.env.QUOTES ?? \`'hello world'\``)
-
-  gitenvsToTest = structuredClone(gitenvs)
-  gitenvsToTest.envVars = [
-    {
-      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
-      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
       key: 'QUOTES',
-      values: {
-        development: { value: "'hello world`o'", encrypted: false },
-        staging: { value: '', encrypted: false },
-        production: { value: '', encrypted: false },
-      },
-    },
-  ]
+      value,
+    })
+    if (!value) {
+      expect(code).toBe('')
+      continue
+    }
+    expect(code).toBe(
+      `export const QUOTES = process.env.QUOTES ?? ${JSON.stringify(value)}`,
+    )
+    expect(evaluateTsLine({ code, key: 'QUOTES' })).toBe(value)
+  }
+})
+
+test('.ts: invalid keys', async () => {
+  for (const key of ['MY-KEY', '1KEY', 'MY KEY', 'a=1;b', 'default', '']) {
+    await expect(
+      getDevelopmentFileContent({ envFile: tsEnvFile, key, value: 'value' }),
+    ).rejects.toThrow(/is not a valid JavaScript identifier/i)
+  }
+
   expect(
-    await getFileContent({
-      gitenvs: gitenvsToTest,
+    await getDevelopmentFileContent({
       envFile: tsEnvFile,
-      envStage: developmentStage,
-      passphrase: developmentPassphrase,
+      key: '_$valid_KEY1',
+      value: 'value',
     }),
-  ).toBe(`export const QUOTES = process.env.QUOTES ?? "'hello world\`o'"`)
+  ).toBe('export const _$valid_KEY1 = process.env._$valid_KEY1 ?? "value"')
+})
 
-  gitenvsToTest = structuredClone(gitenvs)
-  gitenvsToTest.envVars = [
+test('function: evaluates expressions and IIFEs', async () => {
+  const cases = [
     {
-      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
-      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
-      key: 'QUOTES',
-      values: {
-        development: { value: '"hello world`o"', encrypted: false },
-        staging: { value: '', encrypted: false },
-        production: { value: '', encrypted: false },
-      },
+      value: 'new Date(0).toISOString()',
+      expected: '1970-01-01T00:00:00.000Z',
     },
+    { value: '[1, 2].map((n) => n * 2).join("-")', expected: '2-4' },
+    { value: '(() => { const a = 40; return a + 2 })()', expected: '42' },
+    { value: '[1, 2]', expected: '1,2' },
+    { value: 'undefined', expected: 'undefined' },
+    // Runs in the global scope without access to local variables
+    { value: 'typeof passphrase', expected: 'undefined' },
   ]
+
+  for (const { value, expected } of cases) {
+    expect(
+      await getDevelopmentFileContent({
+        envFile: dotEnvFile,
+        key: 'FUNCTION',
+        value,
+        isFunction: true,
+      }),
+    ).toBe(`FUNCTION=${expected}`)
+  }
+
   expect(
-    await getFileContent({
-      gitenvs: gitenvsToTest,
-      envFile: tsEnvFile,
-      envStage: developmentStage,
-      passphrase: developmentPassphrase,
+    await getDevelopmentFileContent({
+      envFile: dotEnvFile,
+      key: 'FUNCTION',
+      value: 'Date.now()',
+      isFunction: true,
     }),
-  ).toBe(`export const QUOTES = process.env.QUOTES ?? '"hello world\`o"'`)
+  ).toMatch(/^FUNCTION=\d+$/)
+})
 
-  gitenvsToTest = structuredClone(gitenvs)
-  gitenvsToTest.envVars = [
-    {
-      id: 'envVar_kaVu9WJituDFeGEf1u4Aob',
-      fileIds: ['envFile_V64kqIkyLTW1CqntKhSGzi'],
-      key: 'QUOTES',
-      values: {
-        development: { value: '"hell\'o world`o"', encrypted: false },
-        staging: { value: '', encrypted: false },
-        production: { value: '', encrypted: false },
-      },
-    },
-  ]
+test('function: can read process.env', async () => {
+  vi.stubEnv('VERCEL_URL', 'my-app.vercel.app')
+
+  expect(
+    await getDevelopmentFileContent({
+      envFile: tsEnvFile,
+      key: 'BASE_URL',
+      value: '`https://${process.env.VERCEL_URL}`',
+      isFunction: true,
+    }),
+  ).toBe(
+    'export const BASE_URL = process.env.BASE_URL ?? "https://my-app.vercel.app"',
+  )
+
+  vi.unstubAllEnvs()
+})
+
+test('function: errors fail', async () => {
+  for (const value of ['this is not javascript', 'throw new Error("nope")']) {
+    await expect(
+      getDevelopmentFileContent({
+        envFile: dotEnvFile,
+        key: 'FUNCTION',
+        value,
+        isFunction: true,
+      }),
+    ).rejects.toThrow(/Error evaluating function "FUNCTION"/)
+  }
+})
+
+test('function: encrypted functions fail', async () => {
+  await expect(
+    getDevelopmentFileContent({
+      envFile: dotEnvFile,
+      key: 'FUNCTION',
+      value: await encryptEnvVar({
+        plaintext: '"value"',
+        publicKey: testdata.developmentKeys.publicKey,
+      }),
+      encrypted: true,
+      isFunction: true,
+    }),
+  ).rejects.toThrow(/"FUNCTION" is an encrypted function for stage development/)
+})
+
+test('decryption errors fail', async () => {
+  await expect(
+    getDevelopmentFileContent({
+      envFile: dotEnvFile,
+      key: 'SECRET',
+      // Encrypted for another stage
+      value: await encryptEnvVar({
+        plaintext: 'secret',
+        publicKey: testdata.stagingKeys.publicKey,
+      }),
+      encrypted: true,
+    }),
+  ).rejects.toThrow(/Could not decrypt "SECRET" for stage development/)
+
   await expect(
     getFileContent({
-      gitenvs: gitenvsToTest,
+      gitenvs,
       envFile: tsEnvFile,
       envStage: developmentStage,
-      passphrase: developmentPassphrase,
+      passphrase: stagingPassphrase,
     }),
-  ).rejects.toThrow(/includes all string encasing characters/i)
+  ).rejects.toThrow(/Could not decrypt "NEXTAUTH_SECRET" for stage development/)
 })

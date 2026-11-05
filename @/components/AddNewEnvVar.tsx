@@ -64,6 +64,9 @@ export const AddNewEnvVar = async ({
                       'use server'
 
                       return superAction(async () => {
+                        if (formData.encrypt && formData.isFunction) {
+                          throw new Error("Functions can't be encrypted")
+                        }
                         const envStages = gitenvs.envStages
                         const newEnVar = createEnvVar({
                           key: formData.key,

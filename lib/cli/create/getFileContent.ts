@@ -54,27 +54,44 @@ const resolveEnvVar = async ({
 
   if (!config) return { key: envVar.key, value: '' }
 
+  if (config.isFunction && config.encrypted) {
+    throw new Error(
+      `❌ Gitenvs: "${envVar.key}" is an encrypted function for stage ${envStage.name}. Functions must be saved plain so their code stays visible in code review.`,
+    )
+  }
+
   let value = config?.value ?? ''
 
   if (config.encrypted) {
-    value =
-      (await decryptEnvVar({
-        encrypted: value,
-        encryptedPrivateKey: envStage.encryptedPrivateKey,
-        passphrase,
-      })) ?? ''
+    const plaintext = await decryptEnvVar({
+      encrypted: value,
+      encryptedPrivateKey: envStage.encryptedPrivateKey,
+      passphrase,
+    })
+    if (plaintext === undefined) {
+      throw new Error(
+        `❌ Gitenvs: Could not decrypt "${envVar.key}" for stage ${envStage.name}. Is the passphrase correct?`,
+      )
+    }
+    value = plaintext
   }
 
   if (config.isFunction) {
     try {
-      value = eval(value) // TODO: More secure way to evaluate functions
-      if (typeof value !== 'string') {
-        value = String(value)
-      }
+      // `eval` is intentional and not less secure than any other code in the
+      // repo: function values are code that the repo's developers commit to
+      // gitenvs.json, comparable to a postinstall script or next.config.js.
+      // They can't be encrypted (see above), so the code is always visible in
+      // code review and to scanners. It runs with the same rights as the rest
+      // of the build, e.g. to read `process.env.VERCEL_URL`.
+      // Indirect eval runs in the global scope, so the code can't access local
+      // variables like the passphrase.
+      value = String((0, eval)(value))
     } catch (error) {
-      console.error(`❌ Gitenvs: Error evaluating function "${envVar.key}"`)
-      console.error(error)
-      process.exit(1)
+      throw new Error(
+        `❌ Gitenvs: Error evaluating function "${envVar.key}": ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error },
+      )
     }
   }
 
@@ -110,25 +127,63 @@ const getDotenvLine = ({ key, value }: { key: string; value: string }) => {
   return `${key}=${wrapWith}${value}${wrapWith}`
 }
 
+// Modules are strict mode code, so strict mode reserved words are not allowed either
+const RESERVED_WORDS = new Set([
+  'await',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'implements',
+  'import',
+  'in',
+  'instanceof',
+  'interface',
+  'let',
+  'new',
+  'null',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'return',
+  'static',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
+  'yield',
+])
+
 const getTsLine = ({ key, value }: { key: string; value: string }) => {
-  const includesDoubleQuote = value.includes('"')
-  const includesSingleQuote = value.includes("'")
-  const includesBacktick = value.includes('`')
-
-  let wrapWith = "'"
-
-  if (includesSingleQuote && includesDoubleQuote && includesBacktick) {
+  if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key) || RESERVED_WORDS.has(key)) {
     throw new Error(
-      `❌ Gitenvs: "${key}" includes all string encasing characters. This is not supported and will result in unexpected values.`,
+      `❌ Gitenvs: "${key}" is not a valid JavaScript identifier and cannot be exported from a .ts file.`,
     )
   }
-  if (includesSingleQuote) {
-    if (!includesBacktick) {
-      wrapWith = '`'
-    } else {
-      wrapWith = '"'
-    }
-  }
 
-  return `export const ${key} = process.env.${key} ?? ${wrapWith}${value}${wrapWith}`
+  // JSON.stringify creates a valid string literal with all special characters escaped
+  return `export const ${key} = process.env.${key} ?? ${JSON.stringify(value)}`
 }

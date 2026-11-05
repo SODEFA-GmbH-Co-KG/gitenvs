@@ -10,6 +10,7 @@ import { type SuperAction } from '~/super-action/action/createSuperAction'
 import { useSuperAction } from '~/super-action/action/useSuperAction'
 import { type AddEnvVarFormData } from './AddNewEnvVar'
 import { KeyShortcut } from './KeyShortcut'
+import { SaveEncryptedButton } from './SaveEncryptedButton'
 import { Label } from './ui/label'
 import { Switch } from './ui/switch'
 
@@ -41,6 +42,7 @@ export const AddEnvVarDialog = ({
   const evaledValue = useMemo(() => {
     if (!formData.isFunction) return null
     try {
+      // Preview of the user's own input, see resolveEnvVar in getFileContent.ts
       const evaled = eval(formData.value) as string
       return evaled?.toString() ?? 'undefined'
     } catch (error) {
@@ -96,6 +98,7 @@ export const AddEnvVarDialog = ({
                     await trigger({ ...formData, encrypt: false })
                     return
                   }
+                  if (formData.isFunction) return
                   await trigger({ ...formData, encrypt: true })
                   return
                 }
@@ -157,15 +160,11 @@ export const AddEnvVarDialog = ({
             <KeyShortcut>Enter</KeyShortcut>
           </div>
         </Button>
-        <Button
-          type="button"
+        <SaveEncryptedButton
+          isFunction={formData.isFunction}
           disabled={isLoading}
           onClick={() => trigger({ ...formData, encrypt: true })}
-          className="flex flex-row gap-2"
-        >
-          <span>Save encrypted</span>
-          <KeyShortcut>Enter</KeyShortcut>
-        </Button>
+        />
       </div>
     </form>
   )
