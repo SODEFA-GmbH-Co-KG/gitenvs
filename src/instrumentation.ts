@@ -4,7 +4,9 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const url = `http://localhost:${
       process.env.PORT ?? 3000
-    }/#token=${getEncryptionTokenOnServer()}`
+    }/auth?token=${getEncryptionTokenOnServer()}`
+
+    console.log(`🔑 Gitenvs: If your browser does not open, visit ${url}`)
 
     const { exec } = await import('node:child_process')
     const command =
