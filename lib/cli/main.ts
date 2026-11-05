@@ -7,7 +7,7 @@ import {
   saveGitenvs,
 } from '@/gitenvs/gitenvs'
 import { type Gitenvs, Gitenvs1 } from '@/gitenvs/gitenvs.schema'
-import { execSync } from 'child_process'
+import { execFileSync, execSync } from 'child_process'
 import { Command } from 'commander'
 import { randomBytes } from 'crypto'
 import { mkdir, readFile, writeFile } from 'fs/promises'
@@ -350,11 +350,11 @@ program
   .action(async () => {
     await checkGitenvsVersion()
 
-    const nodePath = process.argv0
     const currentDir = dirname(fileURLToPath(import.meta.url))
 
-    // start npm command with env vars
-    execSync(`${nodePath} ${currentDir}/next/server.js`, {
+    // start the next server with env vars
+    // Pass the paths as arguments instead of a shell command, so paths with spaces work
+    execFileSync(process.execPath, [join(currentDir, 'next', 'server.js')], {
       stdio: 'inherit',
       env: await getGitenvsUiEnvVars(),
     })
