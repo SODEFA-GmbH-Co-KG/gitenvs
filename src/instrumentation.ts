@@ -2,7 +2,9 @@ import { getEncryptionTokenOnServer } from './utils/getEncryptionKeyOnServer'
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
-    const url = `http://localhost:${
+    // Use the address the server listens on. "localhost" may resolve to ::1,
+    // where another local process could listen and grab the token.
+    const url = `http://127.0.0.1:${
       process.env.PORT ?? 3000
     }/auth?token=${getEncryptionTokenOnServer()}`
 
